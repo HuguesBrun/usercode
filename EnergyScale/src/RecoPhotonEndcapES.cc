@@ -182,7 +182,7 @@ RecoPhotonEndcapESAnalyzer::beginJob(edm::EventSetup const&) {
   treeVariables += "el_e/F:el_et:el_eta:el_phi:el_theta:";                    // CMSSW Electron
   treeVariables += "el_class/F:";
 
-  treeVariables += "conv/I:conv_et/F:conv_R/F:nconv/I";
+  treeVariables += "conv/I:conv_et/F:conv_R/F:conv_Z/F:conv_X/F:conv_Y/F:nconv/I:numb_conv/I";
 
   mytree_->Branch("energyScale",&(tree_.mc_npar),treeVariables);
 
@@ -459,6 +459,7 @@ RecoPhotonEndcapESAnalyzer::analyze( const edm::Event& evt, const edm::EventSetu
     
     // Fill MC information
     tree_.mc_npar  = mcParticles.size();
+    tree_.numb_event = evt.id().event();
     tree_.parID    = mc->pdg_id();
     tree_.mc_e     = mc->momentum().e();
     tree_.mc_et    = mc->momentum().e()*sin(mc->momentum().theta());
@@ -522,7 +523,7 @@ RecoPhotonEndcapESAnalyzer::analyze( const edm::Event& evt, const edm::EventSetu
         tree_.pho_e = myphoton->energy();
         tree_.pho_et = myphoton->energy() * sin(myphoton->theta());
         tree_.pho_r9 = myphoton->r9();
-        tree_.pho_eta = myphoton->eta();
+	tree_.pho_eta = myphoton->eta();
         tree_.pho_phi = myphoton->phi();
         tree_.pho_theta = myphoton->theta();
         reco::ConversionRefVector convrefvector = myphoton->conversions();
@@ -543,7 +544,8 @@ RecoPhotonEndcapESAnalyzer::analyze( const edm::Event& evt, const edm::EventSetu
 	}
     }
     else {
-//      std::cout << "Pas de photon associé à ce Super Cluster !!! " << std::endl;
+      std::cout << "Pas de photon associé à ce Super Cluster !!! " << std::endl;
+	tree_.pho_e = -100;
     }
 
 
@@ -584,9 +586,8 @@ RecoPhotonEndcapESAnalyzer::analyze( const edm::Event& evt, const edm::EventSetu
     float e3x3 = EcalClusterTools::e3x3( *(em->seed() ), hit_collection, &(*topology));
     float r9 = e3x3/em->rawEnergy();
     tree_.em_r9 = r9;
-    tree_.em_e5x5 = EcalClusterTools::e5x5( *(em->seed() ), hit_collection, &(*topology)); 
+    tree_.em_e5x5 = EcalClusterTools::e5x5( *(em->seed() ), hit_collection, &(*topology)) + em->preshowerEnergy();
     tree_.em_SC = em->energy();	
-
     //Get physics e, et etc:
     //Coordinates of EM object with respect of the point (0,0,0)
     xClust_zero_ = em->position().x();
@@ -696,6 +697,9 @@ RecoPhotonEndcapESAnalyzer::analyze( const edm::Event& evt, const edm::EventSetu
 	tree_.conv = (*mcPho).isAConversion();
 	tree_.conv_et = (*mcPho).fourMomentum().et();
 	tree_.conv_R = (*mcPho).vertex().perp();
+	tree_.conv_Z  = (*mcPho).vertex().mag()*(*mcPho).vertex().cosTheta();
+        tree_.conv_X  = (*mcPho).vertex().x(); 
+        tree_.conv_Y  = (*mcPho).vertex().y();
       }
       if ( dR < 0.1 ) tree_.nconv += 1;
     } 

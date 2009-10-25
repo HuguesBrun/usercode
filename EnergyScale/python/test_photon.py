@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.singleEModule = cms.EDAnalyzer("RecoPhotonEnergyScaleAnalyzer",
-    outputFile = cms.string('DiPhotonPt2to350_Hybrid_210_1.root'),
+    outputFile = cms.string('Two_gamma2.root'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     correctedSuperClusterCollection = cms.string(''),

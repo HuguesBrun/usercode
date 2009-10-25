@@ -148,6 +148,7 @@ class RecoPhotonEnergyScaleAnalyzer : public edm::EDAnalyzer {
       TTree* mytree_;
       struct tree_structure_ {
 	// MC information
+//	int   nb_event;
 	int   mc_npar;
 	int   parID;
 	float mc_sep;
@@ -254,7 +255,13 @@ class RecoPhotonEnergyScaleAnalyzer : public edm::EDAnalyzer {
 	int conv;
 	float conv_et;
 	float conv_R;
+        float conv_Z;
+	float conv_X;
+	float conv_Y;
 	int nconv;
+
+	// en plus
+	int numb_event;
       };
       tree_structure_ tree_;
       //

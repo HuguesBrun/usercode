@@ -24,7 +24,7 @@ while counter < len(files):
     fileToCopy = "multi5x5_" + str(fileNumber) + ".py"
     fileNumber += 1
 
-    file = open("python_gg2/" + fileToCopy, "w")
+    file = open("python_gg4/" + fileToCopy, "w")
     for line in scriptLines:
         if len(re.split("initialSeed ", line)) > 1:
             file.write("        initialSeed = cms.untracked.uint32(" + str(int(random.random()*10000000)) + "),\n")

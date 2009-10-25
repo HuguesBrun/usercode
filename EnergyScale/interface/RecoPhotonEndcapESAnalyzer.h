@@ -262,7 +262,13 @@ class RecoPhotonEndcapESAnalyzer : public edm::EDAnalyzer {
 	int conv;
 	float conv_et;
 	float conv_R;
+	float conv_Z;
+	float conv_X;
+	float conv_Y;
 	int nconv;
+
+	// ... en plus
+	int numb_event;
       };
       tree_structure_ tree_;
       //

@@ -185,7 +185,7 @@ RecoPhotonEnergyScaleAnalyzer::beginJob(edm::EventSetup const&) {
   treeVariables += "el_e/F:el_et:el_eta:el_phi:el_theta:";                    // CMSSW Electron
   treeVariables += "el_class/F:";
 
-  treeVariables += "conv/I:conv_et/F:conv_R/F:nconv/I";
+  treeVariables += "conv/I:conv_et/F:conv_R/F:conv_Z/F:conv_X/F:conv_Y/F:nconv/I:numb_event/I";
 
   mytree_->Branch("energyScale",&(tree_.mc_npar),treeVariables);
 
@@ -402,6 +402,7 @@ RecoPhotonEnergyScaleAnalyzer::analyze( const edm::Event& evt, const edm::EventS
     
     // Fill MC information
     tree_.mc_npar  = mcParticles.size();
+    tree_.numb_event = evt.id().event();	
     tree_.parID    = mc->pdg_id();
     tree_.mc_e     = mc->momentum().e();
     tree_.mc_et    = mc->momentum().e()*sin(mc->momentum().theta());
@@ -494,6 +495,7 @@ RecoPhotonEnergyScaleAnalyzer::analyze( const edm::Event& evt, const edm::EventS
     }
     else {
 //	std::cout << "Pas de photon associé à ce Super Cluster !!! " << std::endl;
+	   tree_.pho_e  = -100; 
     }	
     // Matching SC found, add info to the tree
     tree_.em_isInCrack = 0;
@@ -651,6 +653,9 @@ RecoPhotonEnergyScaleAnalyzer::analyze( const edm::Event& evt, const edm::EventS
 	tree_.conv = (*mcPho).isAConversion();
 	tree_.conv_et = (*mcPho).fourMomentum().et();
 	tree_.conv_R = (*mcPho).vertex().perp();
+	tree_.conv_Z = (*mcPho).vertex().mag() * (*mcPho).vertex().cosTheta();
+	tree_.conv_X = (*mcPho).vertex().x();
+	tree_.conv_Y = (*mcPho).vertex().y();
       }
       if ( dR < 0.1 ) tree_.nconv += 1;
     } 

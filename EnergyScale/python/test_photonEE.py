@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.singleEModule = cms.EDAnalyzer("RecoPhotonEndcapESAnalyzer",
-    outputFile = cms.string('DiPhotonPt2to350_Hybrid_210_1.root'),
+    outputFile = cms.string('DiPhotonEE.root'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     correctedSuperClusterCollection = cms.string(''),
