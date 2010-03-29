@@ -4,7 +4,8 @@ process = cms.Process("PROD")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("hugues.HughFilter.HughFilter_cfi")
-
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
@@ -19,9 +20,11 @@ process.maxEvents = cms.untracked.PSet(
 process.singleEModule = cms.EDAnalyzer('FirstDataAnalyzer',
    readRecHits					=	cms.bool(False),  
    readTTinfos					=	cms.bool(False), 
+   readHFrecHits				=	cms.bool(True),
    readMCTruth					=	cms.bool(False),
    deltaRMax					= 	cms.double(1.0),
    L1triggerResults 				= 	cms.InputTag('gtDigis'),
+   HFrecHitsCollection				= 	cms.InputTag('hfreco'),
    barrelSrpFlagsCollection			= 	cms.string('ecalDigis'),
    endcapSrpFlagsCollection                     =       cms.string('ecalDigis'),
    barrelEcalHits   				= 	cms.InputTag('ecalRecHit','EcalRecHitsEB'),

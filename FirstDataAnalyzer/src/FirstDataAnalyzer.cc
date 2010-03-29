@@ -37,9 +37,11 @@ FirstDataAnalyzer::FirstDataAnalyzer(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
         isDoRecHits_ = iConfig.getParameter<bool>("readRecHits");
         isDoTTflag_  = iConfig.getParameter<bool>("readTTinfos");
+	isDoHFrecHits_ = iConfig.getParameter<bool>("readHFrecHits");
 	isMCTruth_ = iConfig.getParameter<bool>("readMCTruth");
 	deltaRMax_ = iConfig.getParameter<double>("deltaRMax");
 	triggerL1Tag_ = iConfig.getParameter<edm::InputTag>("L1triggerResults");
+        HFrecHitsCollection_ = iConfig.getParameter<edm::InputTag>("HFrecHitsCollection");
 	barrelEcalHits_ = iConfig.getParameter<edm::InputTag>("barrelEcalHits");
 	endcapEcalHits_ = iConfig.getParameter<edm::InputTag>("endcapEcalHits");
         barrelSrpFlagsCollection_ = iConfig.getParameter<std::string>("barrelSrpFlagsCollection");
@@ -77,19 +79,22 @@ FirstDataAnalyzer::~FirstDataAnalyzer()
 // member functions 
 //
 void
-FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::InputTag triggerL1Tag_, edm::InputTag ecalHits_, std::string srpFlagsCollection_, std::string clusterCollection_,std::string clusterProducer_,std::string correctedSuperClusterCollection_,std::string correctedSuperClusterProducer_,std::string photonCollection_, std::string MCParticlesCollection_, bool isBarrel)
+FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::InputTag triggerL1Tag_, edm::InputTag HFrecHitsCollection_, edm::InputTag ecalHits_, std::string srpFlagsCollection_, std::string clusterCollection_,std::string clusterProducer_,std::string correctedSuperClusterCollection_,std::string correctedSuperClusterProducer_,std::string photonCollection_, std::string MCParticlesCollection_, bool isBarrel)
 {
    using namespace edm;  // the framework classes
    using namespace std;
 
 
-//getting the cms geometry and the topology of CMS
+//getting the cms geometry and the topology of CMS and the intercalib constant
   const CaloGeometry* caloGeom;
   iSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
   caloGeom = theCaloGeom_.product();
 
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology_);
   const CaloTopology *topology = theCaloTopology_.product();
+
+  edm::ESHandle<EcalIntercalibConstants> ic;
+  iSetup.get<EcalIntercalibConstantsRcd>().get(ic);
 
 // Getting the RecHits collection
    edm::Handle<EcalRecHitCollection> rhcHandle_;
@@ -166,6 +171,82 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
   iEvent.getByLabel(triggerL1Tag_, gtReadoutRecord);
   const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+
+
+// HF collection 
+   edm::Handle<HFRecHitCollection> HFrecHits;
+   float eHfNeg = 0;
+   float eHfPos = 0;
+   float eHfNegTime = 0;
+   float eHfPosTime = 0; 
+   double alpha = 0;
+   double alphaTime = 0; 	 
+   int eHfNcounts = 0; 
+   int eHfPcounts = 0;
+   if (!(isBarrel)) {
+       try{
+          iEvent.getByLabel(HFrecHitsCollection_, HFrecHits);	
+       } catch (cms::Exception& ex) {
+         edm::LogWarning("RecoPhotonEnergyScaleAnalyzer")
+         << "I can t read the HF rec hits collection "; 
+       } 	
+// calculate the Energy in the HF , the nb of count and the timming
+       for(size_t ihit = 0 ; ihit < HFrecHits->size() ; ++ihit){
+	  const HFRecHit h = (*HFrecHits)[ihit];
+          double energy = h.energy();
+	  double time  = h.time();
+          const HcalDetId id(h.id());
+          const CaloCellGeometry *thisHFCell = caloGeom->getGeometry(h.id());
+          GlobalPoint HFposition = thisHFCell->getPosition();
+	  if (isDoHFrecHits_){
+	     int depthOther = 1; 
+	     if (id.depth() == 1 ) depthOther = 2; //Now depthOther is the depth of the other fiber
+	     HcalSubdetector subdet = id.subdet(); // recup the name of the subdetector  	
+	     const HcalDetId otherId(subdet, id.ieta(), id.iphi(), depthOther); // id of the other fiber  	
+	     float otherEnergy = 0;
+	     float otherTime = 0;		
+	     for(size_t ihit2 = 0 ; ihit2 < HFrecHits->size() ; ++ihit2){
+		const HFRecHit h2 = (*HFrecHits)[ihit2];
+	     	const HcalDetId id2(h2.id());	
+		/*    std::cout << "coucou phi = " << otherId.iphi() << " eta = " << otherId.ieta() << " depth = " << otherId.depth() <<  std::endl;
+		    std::cout << "coucou phi = " << id2.iphi() << " eta = " << id2.ieta() << " depth = " << id2.depth() <<  std::endl;
+		    std::cout << " -----------------------------------------------------------------------------------------------------" << std::endl;					*/
+		if (otherId == id2){ 
+//		    std::cout << "coucou phi = " << id.iphi() << " eta = " << id.ieta() << " depth = " << id.depth() <<  std::endl;
+//		    std::cout << "coucou phi = " << id2.iphi() << " eta = " << id2.ieta() << " depth = " << id2.depth() <<  std::endl;
+		    otherEnergy = h2.energy();
+		    otherTime = h2.time();
+                    break; 
+		}
+             }
+             alpha = (energy-otherEnergy)/(energy+otherEnergy);
+             alphaTime = (energy*time-otherEnergy*otherTime)/(energy*time+otherEnergy*otherTime);
+             if (id.depth() == 1) {alpha = -alpha; alphaTime = -alphaTime;}
+//             std::cout << "alpha = " << alpha << " alphaTime = " << alphaTime << std::endl;
+	     treeHF_.hf_eta = HFposition.eta();
+	     treeHF_.hf_phi = HFposition.phi(); 	
+	     treeHF_.hf_ieta = id.ieta();
+	     treeHF_.hf_iphi = id.iphi();
+	     treeHF_.hf_energy = energy;
+	     treeHF_.hf_time = time;	 
+	     treeHF_.hf_depth = id.depth();
+             treeHF_.hf_alphaRatio = alpha;
+	     treeHF_.hf_alphaRatioTimed = alphaTime;	
+	     myHFTree_->Fill();	
+	  }
+          if (fabs(HFposition.eta())>3.5) continue;
+	  if (energy < 0)  continue; 
+          if (id.zside()<0) {
+             eHfNeg     += energy;
+             eHfNegTime += energy * time;
+             if (energy>3) ++eHfNcounts;
+          } else {
+             eHfPos     += energy;
+             eHfPosTime += energy * time;
+             if (energy>3) ++eHfPcounts;
+          }
+       }	
+  } 
 
 // ref to the RecHits in a SC or BC
   std::vector< DetId>  recHitsInSC;
@@ -478,6 +559,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
   }
     if (isDoRecHits_){
       EcalRecHitCollection::const_iterator it;
+      EcalIntercalibConstantMap::const_iterator itIC;
       for (it = hit_collection->begin(); it != hit_collection->end(); it++){
            // Trigger L1
           if (technicalTriggerWordBeforeMask.at(0)) treeRecHits_.techTrigger0 = 1;
@@ -494,6 +576,10 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
              else treeRecHits_.techTrigger38 = 0;
           if (technicalTriggerWordBeforeMask.at(39)) treeRecHits_.techTrigger39 = 1;
              else treeRecHits_.techTrigger39 = 0;
+          if (technicalTriggerWordBeforeMask.at(42)) treeRecHits_.techTrigger42 = 1;
+             else treeRecHits_.techTrigger42 = 0;
+          if (technicalTriggerWordBeforeMask.at(43)) treeRecHits_.techTrigger43 = 1;
+             else treeRecHits_.techTrigger43 = 0;
 
       // event caracteristics
          treeRecHits_.eventRef = iEvent.id().event();
@@ -502,8 +588,11 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          treeRecHits_.orbite = iEvent.orbitNumber();
          treeRecHits_.triggerType = iEvent.experimentType();
          treeRecHits_.lumiBlock = iEvent.luminosityBlock();
-
-
+         // calc the phi and the eta of the crystal
+         const CaloCellGeometry *thisCell = caloGeom->getGeometry(it->id());
+         GlobalPoint position = thisCell->getPosition();
+         treeRecHits_.rh_phi = position.phi();
+         treeRecHits_.rh_eta = position.eta();
          if (isBarrel) {
          treeRecHits_.rh_barrelOrEndcap = 1;
          const EBDetId *theID = new EBDetId(it->id());
@@ -514,6 +603,8 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          treeRecHits_.rh_iSmEta = theID->ietaSM();
          treeRecHits_.rh_iX = 0;
          treeRecHits_.rh_iY = 0;
+         itIC = ic->find((*theID));
+         treeRecHits_.rh_uncalibEnergy = it->energy()/(*itIC);
          const EBSrFlagCollection *flagEB_collection = flagHandleEB_.product();
          EBSrFlagCollection::const_iterator leFlag = flagEB_collection->find(triggerTowerMap->towerOf(*theID));
          treeRecHits_.rh_srpFlag = leFlag->value();
@@ -526,6 +617,8 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          treeRecHits_.rh_iX = theID->ix();
          treeRecHits_.rh_iY = theID->iy();
          treeRecHits_.rh_zSide = theID->zside();
+         itIC = ic->find((*theID));
+         treeRecHits_.rh_uncalibEnergy = it->energy()/(*itIC);
          const EESrFlagCollection *flagEE_collection = flagHandleEE_.product();
          const int scEdge = 5;
          EcalScDetId id = EcalScDetId(((*theID).ix()-1)/scEdge+1, ((*theID).iy()-1)/scEdge+1, (*theID).zside());
@@ -550,6 +643,12 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
                break;
             }
          }
+         treeRecHits_.rh_eHfNeg = eHfNeg;
+	 treeRecHits_.rh_eHfPos = eHfPos;
+	 treeRecHits_.rh_eHfNegTime = eHfNegTime;
+	 treeRecHits_.rh_eHfPosTime = eHfPosTime;
+	 treeRecHits_.rh_eHfNcounts = eHfNcounts;
+	 treeRecHits_.rh_eHfPcounts = eHfPcounts;
 	 myRecHitsTree_->Fill();
       } 
     }
@@ -711,9 +810,9 @@ FirstDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    nbFlag7TTEEP_ = 0;
 
    
-   mySuperClusterAnalyzer(iEvent, iSetup, triggerL1Tag_, barrelEcalHits_, barrelSrpFlagsCollection_, barrelClusterCollection_, barrelClusterProducer_, barrelCorrectedSuperClusterCollection_, barrelCorrectedSuperClusterProducer_, photonCollection_, MCParticlesCollection_, true);
+   mySuperClusterAnalyzer(iEvent, iSetup, triggerL1Tag_, HFrecHitsCollection_, barrelEcalHits_, barrelSrpFlagsCollection_, barrelClusterCollection_, barrelClusterProducer_, barrelCorrectedSuperClusterCollection_, barrelCorrectedSuperClusterProducer_, photonCollection_, MCParticlesCollection_, true);
 
-   mySuperClusterAnalyzer(iEvent, iSetup, triggerL1Tag_, endcapEcalHits_, endcapSrpFlagsCollection_, endcapClusterCollection_, endcapClusterProducer_, endcapCorrectedSuperClusterCollection_, endcapCorrectedSuperClusterProducer_, photonCollection_, MCParticlesCollection_, false );
+   mySuperClusterAnalyzer(iEvent, iSetup, triggerL1Tag_, HFrecHitsCollection_, endcapEcalHits_, endcapSrpFlagsCollection_, endcapClusterCollection_, endcapClusterProducer_, endcapCorrectedSuperClusterCollection_, endcapCorrectedSuperClusterProducer_, photonCollection_, MCParticlesCollection_, false );
 	
 // L1 technical trigger
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
@@ -812,8 +911,9 @@ FirstDataAnalyzer::beginJob()
 
   myRecHitsTree_ = new TTree("recHitsTree","");
   TString treeVariables4 = "eventRef/I:runNum/I:bx/I:orbite/I:triggerType/I:lumiBlock/I:"; //event references
-  treeVariables4 += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; //trigger
-  treeVariables4 += "rh_barrelOrEndcap/I:rh_iPhi/I:rh_iEta/I:rh_iSm/I:rh_iSmPhi/I:rh_iSmEta/I:rh_iX/I:rh_iY/I:rh_zSide/I:rh_energy/F:rh_chi2/F:rh_time/F:rh_flag/I:rh_srpFlag/I:rh_isCluster/I:rh_isSuperCluster/I"; // RecHits caracteristics
+  treeVariables4 += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:techTrigger42/I:techTrigger43/I:"; //trigger
+  treeVariables4 += "rh_barrelOrEndcap/I:rh_phi/F:rh_eta/F:rh_iPhi/I:rh_iEta/I:rh_iSm/I:rh_iSmPhi/I:rh_iSmEta/I:rh_iX/I:rh_iY/I:rh_zSide/I:rh_energy/F:rh_uncalibEnergy/F:rh_chi2/F:rh_time/F:rh_flag/I:rh_srpFlag/I:rh_isCluster/I:rh_isSuperCluster/I:"; // RecHits caracteristics
+  treeVariables4 += "rh_eHfNeg/F:rh_eHfPos/F:rh_eHfNegTime/F:rh_eHfPosTime/F:rh_eHfNcounts/I:rh_eHfPcounts/I"; // HF caracteristic 
   myRecHitsTree_->Branch("recHitsTree",&(treeRecHits_.eventRef),treeVariables4);
 
   myTrigTree_ = new TTree("TrigTree","");
@@ -821,6 +921,12 @@ FirstDataAnalyzer::beginJob()
   treeVariables5 += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; //trigger
   treeVariables5 += "TT_barrelOrEndcap/I:TT_iphi/I:TT_ieta/I:TT_ix/I:TT_iy/I:TT_zside/I:TT_flag/I";
   myTrigTree_->Branch("TrigTree",&(treeTrigger_.eventRef),treeVariables5);
+
+  myHFTree_ = new TTree("HFTree","");
+  TString treeVariables6 = "eventRef/I:runNum/I:bx/I:orbite/I:triggerType/I:lumiBlock/I:"; //event references
+  treeVariables6 += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; //trigger
+  treeVariables6 += "hf_eta/F:hf_phi/F:hf_ieta/I:hf_iphi/I:hf_energy/F:hf_time/F:hf_depth/I:hf_alphaRatio/F:hf_alphaRatioTimed/F";  // HF caracteristics
+  myHFTree_->Branch("HFTree",&(treeHF_.eventRef),treeVariables6);	
 }
 // ------------ method called once each job just after ending the event loop  ------------
 void 

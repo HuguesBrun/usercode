@@ -52,15 +52,21 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-// CMS detector geometry and topology
+// CMS detector geometry and topology and calibration 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
 
 // L1 trigger 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
+// HF rechits
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 // REchit collection
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -109,7 +115,7 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::InputTag triggerL1Tag_, edm::InputTag ecalHits_, std::string srpFlagsCollection_, std::string clusterCollection_,std::string clusterProducer_,std::string correctedSuperClusterCollection_,std::string correctedSuperClusterProducer_,std::string photonCollection_, std::string MCParticlesCollection_, bool isBarrel);
+      virtual void mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::InputTag triggerL1Tag_, edm::InputTag HFrecHitsCollection_, edm::InputTag ecalHits_, std::string srpFlagsCollection_, std::string clusterCollection_,std::string clusterProducer_,std::string correctedSuperClusterCollection_,std::string correctedSuperClusterProducer_,std::string photonCollection_, std::string MCParticlesCollection_, bool isBarrel);
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
@@ -163,14 +169,18 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 
 //              Do I put the Rec Hits collection in the Tree ?
       bool isDoRecHits_;
-//		Do I put the TT infos
+//		Do I put the TT infos ?
       bool isDoTTflag_;	
+//		Do I put the HF recHits ? 
+      bool isDoHFrecHits_; 	
 //  		Do I read MC truth ?
       bool isMCTruth_;
 //		Delta R for Matching with MC truth !
       double deltaRMax_;	
 //		Trigger L1 technical bytes
       edm::InputTag triggerL1Tag_;
+// 		Forward Hadronique Calorimeter recHits
+      edm::InputTag HFrecHitsCollection_;
 //              Electromagnetic Calo Rec hits collections
       edm::InputTag barrelEcalHits_;
       edm::InputTag endcapEcalHits_;
@@ -203,6 +213,7 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
       TTree* myEventTree_;
       TTree* myRecHitsTree_;	
       TTree* myTrigTree_;
+      TTree* myHFTree_;	    
 // Declaration of all the TTree leaves in a struct
       struct tree_structure_ {
 		//references to the Event
@@ -400,8 +411,12 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
                 int techTrigger37;
                 int techTrigger38;
                 int techTrigger39;
+		int techTrigger42;
+		int techTrigger43;
               // RecHits Infos
 		int rh_barrelOrEndcap;
+		float rh_phi;
+		float rh_eta; 
                 int rh_iPhi;
                 int rh_iEta;
                 int rh_iSm;
@@ -411,12 +426,19 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
                 int rh_iY;
                 int rh_zSide;
                 float rh_energy;
+		float rh_uncalibEnergy;
                 float rh_chi2;
 		float rh_time;
                 int rh_flag;
                 int rh_srpFlag;
                 int rh_isCluster;
                 int rh_isSuperCluster;
+		float rh_eHfNeg;
+		float rh_eHfPos;
+		float rh_eHfNegTime;
+		float rh_eHfPosTime;
+		int   rh_eHfNcounts;
+		int   rh_eHfPcounts; 
       }; 
       recHits_structure treeRecHits_;	
 
@@ -447,4 +469,33 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
       };
       trigger_structure treeTrigger_;
 
+      struct HF_structure{
+                //references to the Event
+                int eventRef;
+                int runNum;
+                int bx;
+                int orbite;
+                int triggerType;
+                int lumiBlock;
+              // technical L1 trigger
+                int techTrigger0;
+                int techTrigger40;
+                int techTrigger41;
+                int techTrigger36;
+                int techTrigger37;
+                int techTrigger38;
+                int techTrigger39;
+	      // info on the HF recHit 	
+		float hf_eta;
+		float hf_phi;
+		int   hf_ieta;
+		int   hf_iphi;
+                float hf_energy;
+                float hf_time;
+		int   hf_depth;
+		float hf_alphaRatio;
+		float hf_alphaRatioTimed;	
+	};
+	HF_structure treeHF_;
+		 
 };
