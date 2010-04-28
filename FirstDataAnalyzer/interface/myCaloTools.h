@@ -152,7 +152,7 @@ namespace myCaloTools{
       for (it = recHits->begin(); it != recHits->end(); it++){//tourn	
 	if (id == it->id() ) break;
       }
-     return it->chi2Prob(); 
+     return it->chi2(); 
   }
 
   inline float recupTime(const EcalRecHitCollection *recHits, DetId id){

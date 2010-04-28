@@ -13,7 +13,7 @@
 //
 // Original Author:  Hugues Louis Brun
 //         Created:  Mon Dec 21 16:16:59 CET 2009
-// $Id$
+// $Id: FirstDataAnalyzer.h,v 1.2 2010/03/29 14:47:49 hbrun Exp $
 //
 //
 
@@ -96,8 +96,19 @@
 // Converted photon
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+// Electrons Collection
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 //MC truth
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
+#include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
+#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
+
 // The SC Tools
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
@@ -115,7 +126,7 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::InputTag triggerL1Tag_, edm::InputTag HFrecHitsCollection_, edm::InputTag ecalHits_, std::string srpFlagsCollection_, std::string clusterCollection_,std::string clusterProducer_,std::string correctedSuperClusterCollection_,std::string correctedSuperClusterProducer_,std::string photonCollection_, std::string MCParticlesCollection_, bool isBarrel);
+      virtual void mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::InputTag triggerL1Tag_, edm::InputTag HFrecHitsCollection_, edm::InputTag ecalHits_, std::string srpFlagsCollection_, std::string clusterCollection_,std::string clusterProducer_,std::string correctedSuperClusterCollection_,std::string correctedSuperClusterProducer_,std::string photonCollection_, std::string electronCollection_, std::string MCParticlesCollection_, bool isBarrel);
       virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
@@ -125,6 +136,9 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 //              Geometry and Topology of the detector
       edm::ESHandle<CaloGeometry> theCaloGeom_;
       edm::ESHandle<CaloTopology> theCaloTopology_;
+
+
+
 
 //              Electromagnetic Calo Rec hits collections
 /*      edm::Handle<EcalRecHitCollection> rhcHandleBarrel_;
@@ -162,7 +176,9 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
       int nbFlag5TTEEP_;
       int nbFlag6TTEEP_;
       int nbFlag7TTEEP_;
-
+      int nbRH_EB_;
+      int nbRH_EE_;
+	
 
 
 // Read the python config files
@@ -175,6 +191,8 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
       bool isDoHFrecHits_; 	
 //  		Do I read MC truth ?
       bool isMCTruth_;
+//		Do I read photons MC truth ?
+      bool isPhotonMCTruth_;
 //		Delta R for Matching with MC truth !
       double deltaRMax_;	
 //		Trigger L1 technical bytes
@@ -199,11 +217,20 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
       std::string endcapCorrectedSuperClusterProducer_;
 //		Photons Collections
       std::string photonCollection_;
+//		Electrons Collections
+      std::string electronCollection_;	
 //		MC particles collections
       std::string MCParticlesCollection_;
+//		Geant 4 sim hits 
+      std::string Geant4SimHitsCollection_;
 //  		Name of the output File
       std::string outputFile_;
 	
+
+// the Nancy MC truth analyzer
+      PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
+
+
 // OutFile with the output Tree
       TFile* rootFile_;
 
@@ -264,7 +291,7 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 	        int   em_isholeinsecond;
                 float em_rookEnergy;
 		float em_fracRook;
-                float em_hasBadSrpFlag; 
+                int   em_hasBadSrpFlag; 
 		float em_seedEnergy;
 		float em_seedChi2;
 		float em_seedTime;
@@ -298,6 +325,16 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
                 float pho_Zconv;
                 float pho_Xconv;
                 float pho_Yconv;
+                //electron informations
+                int   em_isElectron;
+                float ele_e;
+                float ele_et;
+                float ele_phi;
+                float ele_eta;
+                float ele_theta;
+                float ele_charge;
+                float ele_mass;
+		float ele_EoverP;
 		// the Monte Carlo truth 
 		int   em_isMatchWithMC;
 		int   mc_PDGType;
@@ -307,6 +344,16 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 		float mc_phi;
 		float mc_theta;
 		int   mc_nbMatch;
+		// the MC truth for photon
+		int   mc_isPhoton;
+		int   mc_isConverted;
+		float mc_convEt;
+		float mc_convR;
+		float mc_convX;
+		float mc_convY;
+		float mc_convZ;
+		int   mc_Nconv;
+
       };
       tree_structure_ tree_;
 
@@ -391,6 +438,10 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
                 int nbFlag5TTEEP;
                 int nbFlag6TTEEP;
                 int nbFlag7TTEEP;
+		//nb RH EB
+		int nbRH_EB;
+		int nbRH_EE;
+
 
       };		
       event_structure treeEvent_;

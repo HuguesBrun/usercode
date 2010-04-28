@@ -13,7 +13,7 @@
 //
 // Original Author:  Hugues Louis Brun
 //         Created:  Mon Dec 21 16:16:59 CET 2009
-// $Id$
+// $Id: FirstDataAnalyzer.cc,v 1.2 2010/03/29 14:47:50 hbrun Exp $
 //
 //
 
@@ -39,6 +39,7 @@ FirstDataAnalyzer::FirstDataAnalyzer(const edm::ParameterSet& iConfig)
         isDoTTflag_  = iConfig.getParameter<bool>("readTTinfos");
 	isDoHFrecHits_ = iConfig.getParameter<bool>("readHFrecHits");
 	isMCTruth_ = iConfig.getParameter<bool>("readMCTruth");
+	isPhotonMCTruth_ = iConfig.getParameter<bool>("readPhotonMCTruth");
 	deltaRMax_ = iConfig.getParameter<double>("deltaRMax");
 	triggerL1Tag_ = iConfig.getParameter<edm::InputTag>("L1triggerResults");
         HFrecHitsCollection_ = iConfig.getParameter<edm::InputTag>("HFrecHitsCollection");
@@ -55,10 +56,14 @@ FirstDataAnalyzer::FirstDataAnalyzer(const edm::ParameterSet& iConfig)
         endcapCorrectedSuperClusterCollection_ = iConfig.getParameter<std::string>("endcapCorrectedSuperClusterCollection");
         endcapCorrectedSuperClusterProducer_   = iConfig.getParameter<std::string>("endcapCorrectedSuperClusterProducer");
 	photonCollection_		       = iConfig.getParameter<std::string>("photonCollection");
+	electronCollection_		       = iConfig.getParameter<std::string>("electronCollection");	
         MCParticlesCollection_                 = iConfig.getParameter<std::string>("MCParticlesCollection");       	
+	Geant4SimHitsCollection_	       = iConfig.getParameter<std::string>("Geant4SimHitsCollection");
 	outputFile_			       = iConfig.getParameter<std::string>("outputFile");
 
         rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
+
+	thePhotonMCTruthFinder_ = new PhotonMCTruthFinder(); // build the Nancy MC truth 
 
 }
 
@@ -79,7 +84,7 @@ FirstDataAnalyzer::~FirstDataAnalyzer()
 // member functions 
 //
 void
-FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::InputTag triggerL1Tag_, edm::InputTag HFrecHitsCollection_, edm::InputTag ecalHits_, std::string srpFlagsCollection_, std::string clusterCollection_,std::string clusterProducer_,std::string correctedSuperClusterCollection_,std::string correctedSuperClusterProducer_,std::string photonCollection_, std::string MCParticlesCollection_, bool isBarrel)
+FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::InputTag triggerL1Tag_, edm::InputTag HFrecHitsCollection_, edm::InputTag ecalHits_, std::string srpFlagsCollection_, std::string clusterCollection_,std::string clusterProducer_,std::string correctedSuperClusterCollection_,std::string correctedSuperClusterProducer_,std::string photonCollection_,std::string electronCollection, std::string MCParticlesCollection_, bool isBarrel)
 {
    using namespace edm;  // the framework classes
    using namespace std;
@@ -157,6 +162,18 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
       << photonCollection_.c_str() ;
   }
   const reco::PhotonCollection* photons = pPhotons.product();
+
+// Getting the electrons
+
+  Handle<reco::GsfElectronCollection> pElectrons;
+  try {
+    iEvent.getByLabel(electronCollection,pElectrons);
+  } catch (cms::Exception& ex ) {
+       edm::LogError("RecoPhotonEnergyScaleAnalyzer")
+      << "L210 Error! can't get collection with label "
+      << electronCollection_.c_str() ;
+  }
+  const reco::GsfElectronCollection* electrons = pElectrons.product();
 
 // Getting the MC particles if MC datas  
   Handle<HepMCProduct> hepMC;
@@ -401,7 +418,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
       int nbphoton = 0;
       for(reco::PhotonCollection::const_iterator aPho = photons->begin(); aPho != photons->end(); aPho++){
       const reco::SuperCluster *theSC = aPho->superCluster().get();
-         if (theSC->position().eta() == em->position().eta()){
+         if ((theSC->position().eta() == em->position().eta())||(theSC->position().phi() == em->position().phi())){
               myphoton = aPho;
               nbphoton++;
          }
@@ -440,6 +457,34 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
             tree_.pho_isConverted  = 0;
          }
       }
+      // now check is it is an electron 
+      reco::GsfElectronCollection::const_iterator myElectron;
+      int nbelectron = 0;
+      for(reco::GsfElectronCollection::const_iterator aElec = electrons->begin();  aElec!=electrons->end(); aElec++){
+	const reco::SuperCluster *theElecSC = aElec->superCluster().get();
+         if ((theElecSC->position().eta() == em->position().eta())||(theElecSC->position().phi() == em->position().phi())){
+              myElectron = aElec;
+              nbelectron++;
+         }
+      }
+      if (nbelectron == 1) { //Yes, there is an electron
+	tree_.em_isElectron = 1;
+	tree_.ele_e = myElectron->energy();
+	tree_.ele_et = myElectron->energy() * sin(myElectron->theta());
+	tree_.ele_phi = myElectron->phi();
+	tree_.ele_eta = myElectron->eta();
+	tree_.ele_theta = myElectron->theta();
+	tree_.ele_charge = myElectron->charge();	
+	tree_.ele_mass = myElectron->mass();
+	tree_.ele_EoverP = myElectron->eSuperClusterOverP();
+      }
+      else if (nbelectron == 0 ) {
+	tree_.em_isElectron = 0;
+      }		
+      else {
+	tree_.em_isElectron = 2;
+	std::cout << "strange number of electron " << nbelectron << std::endl;
+      }	
       // now check the MC truth !!!!!
       if (isMCTruth_) {
 	 const HepMC::GenEvent* genEvent = hepMC->GetEvent();
@@ -453,9 +498,11 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 		float dR = kinem::delta_R((*p)->momentum().eta(), (*p)->momentum().phi(), em->position().eta(), em->position().phi());
 		if (dR < deltaRMax_) mcParticles.push_back(*p);
 	 }
+	 HepMC::GenParticle* mc1 = new HepMC::GenParticle(); // on cree de tout facon MC1
 	 if (mcParticles.size()==0) tree_.em_isMatchWithMC = 0;
 	 else if (mcParticles.size()==1) {
 	     tree_.em_isMatchWithMC = 1;
+	     tree_.mc_nbMatch = 1;
 	     tree_.mc_PDGType = mcParticles[0]->pdg_id();
 	     tree_.mc_e = mcParticles[0]->momentum().e();
 	     tree_.mc_et = mcParticles[0]->momentum().perp();
@@ -475,12 +522,49 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 				mc1 = mcParticles[j];	
 			}
 		}
+		tree_.mc_PDGType = mcParticles[0]->pdg_id();
 		tree_.mc_e = mc1->momentum().e();
 		tree_.mc_et = mc1->momentum().perp();
                 tree_.mc_eta = mc1->momentum().eta();
                 tree_.mc_phi = mc1->momentum().phi();
                 tree_.mc_theta = mc1->momentum().theta();
-	      }	
+	      }
+	if ((tree_.mc_PDGType==22)&&(mcParticles.size()>0)) {
+		tree_.mc_isPhoton = 1;
+		if (isPhotonMCTruth_){ // maybe it's time to get the conv photons MC truth 
+			std::vector<SimTrack> theSimTracks;
+			std::vector<SimVertex> theSimVertices;
+  
+			edm::Handle<SimTrackContainer> SimTk;
+			edm::Handle<SimVertexContainer> SimVtx;
+			iEvent.getByLabel(Geant4SimHitsCollection_, SimTk);
+			iEvent.getByLabel(Geant4SimHitsCollection_, SimVtx);
+
+        	        theSimTracks.insert(theSimTracks.end(),SimTk->begin(),SimTk->end());
+			theSimVertices.insert(theSimVertices.end(),SimVtx->begin(),SimVtx->end());
+			std::vector<PhotonMCTruth> mcPhotons = thePhotonMCTruthFinder_->find (theSimTracks,  theSimVertices); 
+			int n_conv = 0;
+			tree_.mc_isConverted = 0; 
+			for ( std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
+			        // is it matched?
+				double eta = (*mcPho).fourMomentum().eta();
+				double phi = (*mcPho).fourMomentum().phi();
+  				double dR = kinem::delta_R(eta, phi, mc1->momentum().eta(), mc1->momentum().phi());
+	//			std::cout << "dR = " << dR << std::endl;
+				if ( dR < 1e-6 ) {
+					tree_.mc_isConverted = (*mcPho).isAConversion();
+					tree_.mc_convEt = (*mcPho).fourMomentum().et();
+					tree_.mc_convR = (*mcPho).vertex().perp();
+					tree_.mc_convZ = (*mcPho).vertex().mag() * (*mcPho).vertex().cosTheta();
+					tree_.mc_convX = (*mcPho).vertex().x();
+					tree_.mc_convY = (*mcPho).vertex().y();
+				}
+			        if ( dR < 0.1 ) n_conv += 1;
+
+			}	
+			tree_.mc_Nconv = n_conv;
+		}
+	}
       }	
       myTree_->Fill();
   }  
@@ -594,7 +678,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          treeRecHits_.rh_phi = position.phi();
          treeRecHits_.rh_eta = position.eta();
          if (isBarrel) {
-         treeRecHits_.rh_barrelOrEndcap = 1;
+         treeRecHits_.rh_barrelOrEndcap = 1; nbRH_EB_++;
          const EBDetId *theID = new EBDetId(it->id());
          treeRecHits_.rh_iPhi = theID->iphi();
          treeRecHits_.rh_iEta = theID->ieta();
@@ -610,7 +694,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          treeRecHits_.rh_srpFlag = leFlag->value();
          }
          else {
-         treeRecHits_.rh_barrelOrEndcap = 0;
+         treeRecHits_.rh_barrelOrEndcap = 0; nbRH_EE_++;
          const EEDetId *theID = new EEDetId(it->id());
          treeRecHits_.rh_iPhi = 0;
          treeRecHits_.rh_iEta = 0;
@@ -626,7 +710,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          treeRecHits_.rh_srpFlag = leFlag->value();
          }
          treeRecHits_.rh_energy = it->energy();
-         treeRecHits_.rh_chi2 = it->chi2Prob();
+         treeRecHits_.rh_chi2 = it->chi2();
          treeRecHits_.rh_time = it->time();
          treeRecHits_.rh_flag = it->flags();
          treeRecHits_.rh_isCluster = 0;
@@ -808,11 +892,12 @@ FirstDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    nbFlag5TTEEP_ = 0;
    nbFlag6TTEEP_ = 0;
    nbFlag7TTEEP_ = 0;
-
+   nbRH_EB_ = 0;
+   nbRH_EE_ = 0;
    
-   mySuperClusterAnalyzer(iEvent, iSetup, triggerL1Tag_, HFrecHitsCollection_, barrelEcalHits_, barrelSrpFlagsCollection_, barrelClusterCollection_, barrelClusterProducer_, barrelCorrectedSuperClusterCollection_, barrelCorrectedSuperClusterProducer_, photonCollection_, MCParticlesCollection_, true);
+   mySuperClusterAnalyzer(iEvent, iSetup, triggerL1Tag_, HFrecHitsCollection_, barrelEcalHits_, barrelSrpFlagsCollection_, barrelClusterCollection_, barrelClusterProducer_, barrelCorrectedSuperClusterCollection_, barrelCorrectedSuperClusterProducer_, photonCollection_, electronCollection_, MCParticlesCollection_, true);
 
-   mySuperClusterAnalyzer(iEvent, iSetup, triggerL1Tag_, HFrecHitsCollection_, endcapEcalHits_, endcapSrpFlagsCollection_, endcapClusterCollection_, endcapClusterProducer_, endcapCorrectedSuperClusterCollection_, endcapCorrectedSuperClusterProducer_, photonCollection_, MCParticlesCollection_, false );
+   mySuperClusterAnalyzer(iEvent, iSetup, triggerL1Tag_, HFrecHitsCollection_, endcapEcalHits_, endcapSrpFlagsCollection_, endcapClusterCollection_, endcapClusterProducer_, endcapCorrectedSuperClusterCollection_, endcapCorrectedSuperClusterProducer_, photonCollection_, electronCollection_, MCParticlesCollection_, false );
 	
 // L1 technical trigger
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
@@ -874,6 +959,8 @@ FirstDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       treeEvent_.nbFlag5TTEEP = nbFlag5TTEEP_;
       treeEvent_.nbFlag6TTEEP = nbFlag6TTEEP_;
       treeEvent_.nbFlag7TTEEP = nbFlag7TTEEP_;
+      treeEvent_.nbRH_EB = nbRH_EB_;
+      treeEvent_.nbRH_EE = nbRH_EE_;
 
      myEventTree_->Fill();    
 }
@@ -887,12 +974,16 @@ FirstDataAnalyzer::beginJob()
   TString treeVariables = "eventRef/I:runNum/I:bx/I:orbite/I:triggerType/I:lumiBlock/I:"; //event references
   treeVariables += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; // technical trigger 
   treeVariables += "em_isInCrack/I:em_barrelOrEndcap/I:em_e/F:em_eRAW/F:em_et/F:em_etRAW/F:em_phi/F:em_eta/F:em_theta/F:em_e5x5/F:em_e2x2/F:"; // SC infos
-  treeVariables += "em_pw1/F:em_ew1/F:em_sigmaetaeta/F:em_sigmaietaieta/F:em_sigmaphiphi/F:em_sigmaiphiiphi/F:em_BCsigmaetaeta/F:em_BCsigmaietaieta/F:em_BCsigmaphiphi/F:em_BCsigmaiphiiphi/F:em_r9/F:em_r19/F:em_br1/F:em_nBC/I:em_nbcrystal/I:em_nbcrystalSEED:em_isholeinfirst/I:em_isholeinsecond/I:em_rookEnergy/F:em_fracRook/F:em_hasBadSrpFlag/I:em_seedEnergy/F:em_seedChi2/F:em_seedTime/F:em_seedFlag/I:em_seedSrpFlag/I:em_seedIphi/I:em_seedIeta/I:em_seedIx/I:em_seedIy/I:em_seedZside/I:"; // SC shape
+  treeVariables += "em_pw1/F:em_ew1/F:em_sigmaetaeta/F:em_sigmaietaieta/F:em_sigmaphiphi/F:em_sigmaiphiiphi/F:em_BCsigmaetaeta/F:em_BCsigmaietaieta/F:em_BCsigmaphiphi/F:em_BCsigmaiphiiphi/F:em_r9/F:em_r19/F:em_br1/F:em_nBC/I:em_nbcrystal/I:em_nbcrystalSEED/I:em_isholeinfirst/I:em_isholeinsecond/I:em_rookEnergy/F:em_fracRook/F:em_hasBadSrpFlag/I:em_seedEnergy/F:em_seedChi2/F:em_seedTime/F:em_seedFlag/I:em_seedSrpFlag/I:em_seedIphi/I:em_seedIeta/I:em_seedIx/I:em_seedIy/I:em_seedZside/I:"; // SC shape
   treeVariables += "emCorrEta_e/F:emCorrEta_et/F:emCorrBR1_e/F:emCorrBR1_et/F:emCorrBR1Full_e/F:emCorrBR1Full_et/F:"; // SC corrections
-  treeVariables += "em_isPhoton/I:pho_e/F:pho_et/F:pho_phi/F:pho_eta/F:pho_theta/F:pho_r9/F:"; // photon information
-  treeVariables += "pho_isConverted/I:pho_nTracks/I:pho_EoverP/F:pho_Rconv/F:pho_Zconv/F:pho_Xconv/F:pho_Yconv/F:"; // converted photon
-  treeVariables += "em_isMatchWithMC/I:mc_PDGType/I:mc_e/F:mc_et/F:mc_eta/F:mc_phi/F:mc_theta/F:mc_nbMatch/I";
+  treeVariables += "em_isPhoton/I:pho_e/F:pho_et/F:pho_phi/F:pho_eta/F:pho_theta/F:pho_r9/F:pho_isConverted/I:"; // photon information
+  treeVariables += "pho_nTracks/I:pho_EoverP/F:pho_Rconv/F:pho_Zconv/F:pho_Xconv/F:pho_Yconv/F:"; // converted photon
+  treeVariables += "em_isElectron/I:ele_e/F:ele_et/F:ele_phi/F:ele_eta/F:ele_theta/F:ele_charge/F:ele_mass/F:ele_EoverP/F:"; //electron information
+  treeVariables += "em_isMatchWithMC/I:mc_PDGType/I:mc_e/F:mc_et/F:mc_eta/F:mc_phi/F:mc_theta/F:mc_nbMatch/I:";//general MC infos
+  treeVariables += "mc_isPhoton/I:mc_isConverted/I:mc_convEt/F:mc_convR/F:mc_convR/F:mc_convX/F:mc_convY/F:mc_convZ/F:mc_Nconv/I";// MC infos for MC photons
   myTree_->Branch("energyScale",&(tree_.eventRef),treeVariables);
+  
+std::cout << treeVariables << std::endl;
 
   myBCTree_ = new TTree("basicClusterTree","");
   TString treeVariables2 = "eventRef/I:runNum/I:bx/I:orbite/I:triggerType/I:lumiBlock/I:"; //event references
@@ -906,7 +997,7 @@ FirstDataAnalyzer::beginJob()
  TString treeVariables3 = "eventRef/I:runNum/I:bx/I:orbite/I:triggerType/I:lumiBlock/I:"; //event references
   treeVariables3 += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; //trigger	
   treeVariables3 += "nbSuperClusterBarrel/I:nbSuperClusterEndcapP/I:nbSuperClusterEndcapM/I:nbBasicClusterBarrel/I:nbBasicClusterEndcapP/I:nbBasicClusterEndcapM/I:";
-  treeVariables3 +="nbSrpTTEB/I:nbZsTTEB/I:nbFlag0TTEB/I:nbFlag2TTEB/I:nbFlag4TTEB/I:nbFlag5TTEB/I:nbFlag6TTEB/I:nbFlag7TTEB/I:nbSrpTTEEM/I:nbZsTTEEM/I:nbFlag0TTEEM/I:nbFlag2TTEEM/I:nbFlag4TTEEM/I:nbFlag5TTEEM/I:nbFlag6TTEEM/I:nbFlag7TTEEM/I:nbSrpTTEEP/I:nbZsTTEEP/I:nbFlag0TTEEP/I:nbFlag2TTEEP/I:nbFlag4TTEEP/I:nbFlag5TTEEP/I:nbFlag6TTEEP/I:nbFlag7TTEEP/I";
+  treeVariables3 +="nbSrpTTEB/I:nbZsTTEB/I:nbFlag0TTEB/I:nbFlag2TTEB/I:nbFlag4TTEB/I:nbFlag5TTEB/I:nbFlag6TTEB/I:nbFlag7TTEB/I:nbSrpTTEEM/I:nbZsTTEEM/I:nbFlag0TTEEM/I:nbFlag2TTEEM/I:nbFlag4TTEEM/I:nbFlag5TTEEM/I:nbFlag6TTEEM/I:nbFlag7TTEEM/I:nbSrpTTEEP/I:nbZsTTEEP/I:nbFlag0TTEEP/I:nbFlag2TTEEP/I:nbFlag4TTEEP/I:nbFlag5TTEEP/I:nbFlag6TTEEP/I:nbFlag7TTEEP/I:nbRH_EB/I:nbRH_EE/I";
   myEventTree_->Branch("eventTree", &(treeEvent_.eventRef),treeVariables3);
 
   myRecHitsTree_ = new TTree("recHitsTree","");
