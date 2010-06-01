@@ -13,7 +13,7 @@
 //
 // Original Author:  Hugues Louis Brun
 //         Created:  Mon Dec 21 16:16:59 CET 2009
-// $Id: FirstDataAnalyzer.cc,v 1.2 2010/03/29 14:47:50 hbrun Exp $
+// $Id: FirstDataAnalyzer.cc,v 1.3 2010/04/28 09:13:17 hbrun Exp $
 //
 //
 
@@ -42,6 +42,7 @@ FirstDataAnalyzer::FirstDataAnalyzer(const edm::ParameterSet& iConfig)
 	isPhotonMCTruth_ = iConfig.getParameter<bool>("readPhotonMCTruth");
 	deltaRMax_ = iConfig.getParameter<double>("deltaRMax");
 	triggerL1Tag_ = iConfig.getParameter<edm::InputTag>("L1triggerResults");
+	triggerHLTTag_ = iConfig.getParameter<edm::InputTag>("HTLtriggerResults");
         HFrecHitsCollection_ = iConfig.getParameter<edm::InputTag>("HFrecHitsCollection");
 	barrelEcalHits_ = iConfig.getParameter<edm::InputTag>("barrelEcalHits");
 	endcapEcalHits_ = iConfig.getParameter<edm::InputTag>("endcapEcalHits");
@@ -189,6 +190,29 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
   iEvent.getByLabel(triggerL1Tag_, gtReadoutRecord);
   const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
 
+// HTL trigger
+  edm::Handle<edm::TriggerResults> trigResults; 	
+  iEvent.getByLabel(triggerHLTTag_,trigResults);
+  edm::TriggerNames triggerNames;
+  triggerNames.init(*trigResults);
+  std::vector<std::string>  hltNames = triggerNames.triggerNames();
+  TString nomTrigger[21] = {"HLT_Photon10_L1R","HLT_Photon15_L1R","HLT_Photon15_LooseEcalIso_L1R","HLT_Photon20_L1R","HLT_Photon30_L1R_8E29","HLT_DoublePhoton4_Jpsi_L1R","HLT_DoublePhoton4_Upsilon_L1R","HLT_DoublePhoton4_eeRes_L1R","HLT_DoublePhoton5_eeRes_L1R","HLT_DoublePhoton5_Jpsi_L1R","HLT_DoublePhoton5_Upsilon_L1R","HLT_DoublePhoton5_L1R","HLT_DoublePhoton10_L1R","HLT_DoubleEle5_SW_L1R","HLT_Ele20_LW_L1R","HLT_Ele15_SiStrip_L1R","HLT_Ele15_SC10_LW_L1R","HLT_Ele15_LW_L1R","HLT_Ele10_LW_EleId_L1R","HLT_Ele10_LW_L1R","HLT_Photon15_TrackIso_L1R"};
+  int laRef[21];
+  for (int j = 0 ; j < 21 ; j++) laRef[j]=-1;
+
+  for (unsigned int i = 0 ; i < hltNames.size() ; i++){
+//	std::cout << i << " " << hltNames[i] << std::endl;
+	for (int j = 0 ; j < 21 ; j++){
+		if (hltNames[i]==nomTrigger[j]) laRef[j]=i;
+        }
+
+  } 
+
+   
+
+
+//  triggerHLTTag_
+
 
 // HF collection 
    edm::Handle<HFRecHitCollection> HFrecHits;
@@ -292,6 +316,133 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
       if (technicalTriggerWordBeforeMask.at(39)) tree_.techTrigger39 = 1;
         else tree_.techTrigger39 = 0;
 
+	// recup the HTL paths !!!
+
+	if (laRef[0]<0) tree_.HLT_Photon10_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[0]))) tree_.HLT_Photon10_L1R = -1;
+	else if (trigResults->error(laRef[0])) tree_.HLT_Photon10_L1R = -2;
+	else if (trigResults->accept(laRef[0])) tree_.HLT_Photon10_L1R = 1;
+	else tree_.HLT_Photon10_L1R = 0;
+
+	if (laRef[1]<0) tree_.HLT_Photon15_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[1]))) tree_.HLT_Photon15_L1R = -1;
+	else if (trigResults->error(laRef[1])) tree_.HLT_Photon15_L1R = -2;
+	else if (trigResults->accept(laRef[1])) tree_.HLT_Photon15_L1R = 1;
+	else tree_.HLT_Photon15_L1R = 0;
+	if (laRef[2]<0) tree_.HLT_Photon15_LooseEcalIso_L1R = -3;
+	else if (!(trigResults->wasrun(laRef[2]))) tree_.HLT_Photon15_LooseEcalIso_L1R = -1;
+	else if (trigResults->error(laRef[2])) tree_.HLT_Photon15_LooseEcalIso_L1R = -2;
+	else if (trigResults->accept(laRef[2])) tree_.HLT_Photon15_LooseEcalIso_L1R = 1;
+	else tree_.HLT_Photon15_LooseEcalIso_L1R = 0;
+
+	if (laRef[3]<0) tree_.HLT_Photon20_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[3]))) tree_.HLT_Photon20_L1R = -1;
+	else if (trigResults->error(laRef[3])) tree_.HLT_Photon20_L1R = -2;
+	else if (trigResults->accept(laRef[3])) tree_.HLT_Photon20_L1R = 1;
+	else tree_.HLT_Photon20_L1R = 0;
+
+	if (laRef[4]<0) tree_.HLT_Photon30_L1R_8E29 = -3;
+        else if (!(trigResults->wasrun(laRef[4]))) tree_.HLT_Photon30_L1R_8E29 = -1;
+	else if (trigResults->error(laRef[4])) tree_.HLT_Photon30_L1R_8E29 = -2;
+	else if (trigResults->accept(laRef[4])) tree_.HLT_Photon30_L1R_8E29 = 1;
+	else tree_.HLT_Photon30_L1R_8E29 = 0;
+
+	if (laRef[5]<0) tree_.HLT_DoublePhoton4_Jpsi_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[5]))) tree_.HLT_DoublePhoton4_Jpsi_L1R = -1;
+        else if (trigResults->error(laRef[5])) tree_.HLT_DoublePhoton4_Jpsi_L1R = -2;
+        else if (trigResults->accept(laRef[5])) tree_.HLT_DoublePhoton4_Jpsi_L1R = 1;
+        else tree_.HLT_DoublePhoton4_Jpsi_L1R = 0;
+
+	if (laRef[6]<0) tree_.HLT_DoublePhoton4_Upsilon_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[6]))) tree_.HLT_DoublePhoton4_Upsilon_L1R = -1;
+        else if (trigResults->error(laRef[6])) tree_.HLT_DoublePhoton4_Upsilon_L1R = -2;
+        else if (trigResults->accept(laRef[6])) tree_.HLT_DoublePhoton4_Upsilon_L1R = 1;
+        else tree_.HLT_DoublePhoton4_Upsilon_L1R = 0;
+
+	if (laRef[7]<0) tree_.HLT_DoublePhoton4_eeRes_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[7]))) tree_.HLT_DoublePhoton4_eeRes_L1R = -1;
+        else if (trigResults->error(laRef[7])) tree_.HLT_DoublePhoton4_eeRes_L1R = -2;
+        else if (trigResults->accept(laRef[7])) tree_.HLT_DoublePhoton4_eeRes_L1R = 1;
+        else tree_.HLT_DoublePhoton4_eeRes_L1R = 0;
+
+	if (laRef[8]<0) tree_.HLT_DoublePhoton5_eeRes_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[8]))) tree_.HLT_DoublePhoton5_eeRes_L1R = -1;
+        else if (trigResults->error(laRef[8])) tree_.HLT_DoublePhoton5_eeRes_L1R = -2;
+        else if (trigResults->accept(laRef[8])) tree_.HLT_DoublePhoton5_eeRes_L1R = 1;
+        else tree_.HLT_DoublePhoton5_eeRes_L1R = 0;
+
+	if (laRef[9]<0) tree_.HLT_DoublePhoton5_Jpsi_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[9]))) tree_.HLT_DoublePhoton5_Jpsi_L1R = -1;
+        else if (trigResults->error(laRef[9])) tree_.HLT_DoublePhoton5_Jpsi_L1R = -2;
+        else if (trigResults->accept(laRef[9])) tree_.HLT_DoublePhoton5_Jpsi_L1R = 1;
+        else tree_.HLT_DoublePhoton5_Jpsi_L1R = 0;
+
+	if (laRef[10]<0) tree_.HLT_DoublePhoton5_Upsilon_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[10]))) tree_.HLT_DoublePhoton5_Upsilon_L1R = -1;
+        else if (trigResults->error(laRef[10])) tree_.HLT_DoublePhoton5_Upsilon_L1R = -2;
+        else if (trigResults->accept(laRef[10])) tree_.HLT_DoublePhoton5_Upsilon_L1R = 1;
+        else tree_.HLT_DoublePhoton5_Upsilon_L1R = 0;
+
+	if (laRef[11]<0) tree_.HLT_DoublePhoton5_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[11]))) tree_.HLT_DoublePhoton5_L1R = -1;
+        else if (trigResults->error(laRef[11])) tree_.HLT_DoublePhoton5_L1R = -2;
+        else if (trigResults->accept(laRef[11])) tree_.HLT_DoublePhoton5_L1R = 1;
+        else tree_.HLT_DoublePhoton5_L1R = 0;
+
+	if (laRef[12]<0) tree_.HLT_DoublePhoton10_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[12]))) tree_.HLT_DoublePhoton10_L1R = -1;
+        else if (trigResults->error(laRef[12])) tree_.HLT_DoublePhoton10_L1R = -2;
+        else if (trigResults->accept(laRef[12])) tree_.HLT_DoublePhoton10_L1R = 1;
+        else tree_.HLT_DoublePhoton10_L1R = 0;
+
+	if (laRef[13]<0) tree_.HLT_DoubleEle5_SW_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[13]))) tree_.HLT_DoubleEle5_SW_L1R = -1;
+        else if (trigResults->error(laRef[13])) tree_.HLT_DoubleEle5_SW_L1R = -2;
+        else if (trigResults->accept(laRef[13])) tree_.HLT_DoubleEle5_SW_L1R = 1;
+        else tree_.HLT_DoubleEle5_SW_L1R = 0;
+
+	if (laRef[14]<0) tree_.HLT_Ele20_LW_L1R =-3;
+        else if (!(trigResults->wasrun(laRef[14]))) tree_.HLT_Ele20_LW_L1R = -1;
+        else if (trigResults->error(laRef[14])) tree_.HLT_Ele20_LW_L1R = -2;
+        else if (trigResults->accept(laRef[14])) tree_.HLT_Ele20_LW_L1R = 1;
+        else tree_.HLT_Ele20_LW_L1R = 0;
+
+	if (laRef[15]<0) tree_.HLT_Ele15_SiStrip_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[15]))) tree_.HLT_Ele15_SiStrip_L1R = -1;
+        else if (trigResults->error(laRef[15])) tree_.HLT_Ele15_SiStrip_L1R = -2;
+        else if (trigResults->accept(laRef[15])) tree_.HLT_Ele15_SiStrip_L1R = 1;
+        else tree_.HLT_Ele15_SiStrip_L1R = 0;
+
+	if (laRef[16]<0) tree_.HLT_Ele15_SC10_LW_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[16]))) tree_.HLT_Ele15_SC10_LW_L1R = -1;
+        else if (trigResults->error(laRef[16])) tree_.HLT_Ele15_SC10_LW_L1R = -2;
+        else if (trigResults->accept(laRef[16])) tree_.HLT_Ele15_SC10_LW_L1R = 1;
+        else tree_.HLT_Ele15_SC10_LW_L1R = 0;
+
+	if (laRef[17]<0) tree_.HLT_Ele15_LW_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[17]))) tree_.HLT_Ele15_LW_L1R = -1;
+        else if (trigResults->error(laRef[17])) tree_.HLT_Ele15_LW_L1R = -2;
+        else if (trigResults->accept(laRef[17])) tree_.HLT_Ele15_LW_L1R = 1;
+        else tree_.HLT_Ele15_LW_L1R = 0;
+
+	if (laRef[18]<0) tree_.HLT_Ele10_LW_EleId_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[18]))) tree_.HLT_Ele10_LW_EleId_L1R = -1;
+        else if (trigResults->error(laRef[18])) tree_.HLT_Ele10_LW_EleId_L1R = -2;
+        else if (trigResults->accept(laRef[18])) tree_.HLT_Ele10_LW_EleId_L1R = 1;
+        else tree_.HLT_Ele10_LW_EleId_L1R = 0;
+
+	if (laRef[19]<0) tree_.HLT_Ele10_LW_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[19]))) tree_.HLT_Ele10_LW_L1R = -1;
+        else if (trigResults->error(laRef[19])) tree_.HLT_Ele10_LW_L1R = -2;
+        else if (trigResults->accept(laRef[19])) tree_.HLT_Ele10_LW_L1R = 1;
+        else tree_.HLT_Ele10_LW_L1R = 0;
+
+	if (laRef[20]<0) tree_.HLT_Photon15_TrackIso_L1R = -3;
+        else if (!(trigResults->wasrun(laRef[20]))) tree_.HLT_Photon15_TrackIso_L1R = -1;
+        else if (trigResults->error(laRef[20])) tree_.HLT_Photon15_TrackIso_L1R = -2;
+        else if (trigResults->accept(laRef[20])) tree_.HLT_Photon15_TrackIso_L1R = 1;
+        else tree_.HLT_Photon15_TrackIso_L1R = 0;
+
       // event caracteristics
       tree_.eventRef = iEvent.id().event();
       tree_.runNum = iEvent.id().run();
@@ -381,6 +532,8 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
       tree_.em_seedSrpFlag = leFlag->value();
       }
       if (!(eSeed==0)) tree_.em_fracRook = tree_.em_rookEnergy/eSeed;
+      tree_.em_swissCross = EcalClusterTools::eLeft(*(em->seed()),hit_collection,&(*topology)) + EcalClusterTools::eRight(*(em->seed()),hit_collection,&(*topology)) + EcalClusterTools::eTop(*(em->seed()),hit_collection,&(*topology)) + EcalClusterTools::eBottom(*(em->seed()),hit_collection,&(*topology));
+      if (!(eSeed==0)) tree_.em_scRatio = tree_.em_swissCross/eSeed; else tree_.em_scRatio=-1;		
       tree_.em_r19 = r19;
       tree_.em_br1 = tree_.em_pw1/tree_.em_ew1;
       tree_.em_nBC   = em->clustersSize();
@@ -431,6 +584,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          tree_.pho_phi = myphoton->phi();
          tree_.pho_theta = myphoton->theta();
          tree_.pho_r9 = myphoton->r9();
+	 tree_.pho_HoE = myphoton->hadronicOverEm();
       }
       else if (nbphoton==0){ // no photon from that SC
          tree_.em_isPhoton=0;
@@ -972,11 +1126,12 @@ FirstDataAnalyzer::beginJob()
 {
   myTree_ = new TTree("energyScale","");
   TString treeVariables = "eventRef/I:runNum/I:bx/I:orbite/I:triggerType/I:lumiBlock/I:"; //event references
-  treeVariables += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; // technical trigger 
+  treeVariables += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; // technical trigger
+  treeVariables  += "HLT_Photon10_L1R/I:HLT_Photon15_L1R/I:HLT_Photon15_LooseEcalIso_L1R/I:HLT_Photon20_L1R/I:HLT_Photon30_L1R_8E29/I:HLT_DoublePhoton4_Jpsi_L1R/I:HLT_DoublePhoton4_Upsilon_L1R/I:HLT_DoublePhoton4_eeRes_L1R/I:HLT_DoublePhoton5_eeRes_L1R/I:HLT_DoublePhoton5_Jpsi_L1R/I:HLT_DoublePhoton5_Upsilon_L1R/I:HLT_DoublePhoton5_L1R/I:HLT_DoublePhoton10_L1R/I:HLT_DoubleEle5_SW_L1R/I:HLT_Ele20_LW_L1R/I:HLT_Ele15_SiStrip_L1R/I:HLT_Ele15_SC10_LW_L1R/I:HLT_Ele15_LW_L1R/I:HLT_Ele10_LW_EleId_L1R/I:HLT_Ele10_LW_L1R/I:HLT_Photon15_TrackIso_L1R/I:"; // HLT trigger ! 
   treeVariables += "em_isInCrack/I:em_barrelOrEndcap/I:em_e/F:em_eRAW/F:em_et/F:em_etRAW/F:em_phi/F:em_eta/F:em_theta/F:em_e5x5/F:em_e2x2/F:"; // SC infos
-  treeVariables += "em_pw1/F:em_ew1/F:em_sigmaetaeta/F:em_sigmaietaieta/F:em_sigmaphiphi/F:em_sigmaiphiiphi/F:em_BCsigmaetaeta/F:em_BCsigmaietaieta/F:em_BCsigmaphiphi/F:em_BCsigmaiphiiphi/F:em_r9/F:em_r19/F:em_br1/F:em_nBC/I:em_nbcrystal/I:em_nbcrystalSEED/I:em_isholeinfirst/I:em_isholeinsecond/I:em_rookEnergy/F:em_fracRook/F:em_hasBadSrpFlag/I:em_seedEnergy/F:em_seedChi2/F:em_seedTime/F:em_seedFlag/I:em_seedSrpFlag/I:em_seedIphi/I:em_seedIeta/I:em_seedIx/I:em_seedIy/I:em_seedZside/I:"; // SC shape
+  treeVariables += "em_pw1/F:em_ew1/F:em_sigmaetaeta/F:em_sigmaietaieta/F:em_sigmaphiphi/F:em_sigmaiphiiphi/F:em_BCsigmaetaeta/F:em_BCsigmaietaieta/F:em_BCsigmaphiphi/F:em_BCsigmaiphiiphi/F:em_r9/F:em_r19/F:em_br1/F:em_nBC/I:em_nbcrystal/I:em_nbcrystalSEED/I:em_isholeinfirst/I:em_isholeinsecond/I:em_rookEnergy/F:em_fracRook/F:em_swissCross/F:em_scRatio/F:em_hasBadSrpFlag/I:em_seedEnergy/F:em_seedChi2/F:em_seedTime/F:em_seedFlag/I:em_seedSrpFlag/I:em_seedIphi/I:em_seedIeta/I:em_seedIx/I:em_seedIy/I:em_seedZside/I:"; // SC shape
   treeVariables += "emCorrEta_e/F:emCorrEta_et/F:emCorrBR1_e/F:emCorrBR1_et/F:emCorrBR1Full_e/F:emCorrBR1Full_et/F:"; // SC corrections
-  treeVariables += "em_isPhoton/I:pho_e/F:pho_et/F:pho_phi/F:pho_eta/F:pho_theta/F:pho_r9/F:pho_isConverted/I:"; // photon information
+  treeVariables += "em_isPhoton/I:pho_e/F:pho_et/F:pho_phi/F:pho_eta/F:pho_theta/F:pho_r9/F:pho_HoE/F:pho_isConverted/I:"; // photon information
   treeVariables += "pho_nTracks/I:pho_EoverP/F:pho_Rconv/F:pho_Zconv/F:pho_Xconv/F:pho_Yconv/F:"; // converted photon
   treeVariables += "em_isElectron/I:ele_e/F:ele_et/F:ele_phi/F:ele_eta/F:ele_theta/F:ele_charge/F:ele_mass/F:ele_EoverP/F:"; //electron information
   treeVariables += "em_isMatchWithMC/I:mc_PDGType/I:mc_e/F:mc_et/F:mc_eta/F:mc_phi/F:mc_theta/F:mc_nbMatch/I:";//general MC infos

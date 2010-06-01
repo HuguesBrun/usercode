@@ -13,7 +13,7 @@
 //
 // Original Author:  Hugues Louis Brun
 //         Created:  Mon Dec 21 16:16:59 CET 2009
-// $Id: FirstDataAnalyzer.h,v 1.2 2010/03/29 14:47:49 hbrun Exp $
+// $Id: FirstDataAnalyzer.h,v 1.3 2010/04/28 09:12:52 hbrun Exp $
 //
 //
 
@@ -64,6 +64,10 @@
 // L1 trigger 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
+// HLT trigger
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 
 // HF rechits
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -197,6 +201,8 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
       double deltaRMax_;	
 //		Trigger L1 technical bytes
       edm::InputTag triggerL1Tag_;
+//		HTL trigger byte
+      edm::InputTag triggerHLTTag_;		
 // 		Forward Hadronique Calorimeter recHits
       edm::InputTag HFrecHitsCollection_;
 //              Electromagnetic Calo Rec hits collections
@@ -258,6 +264,29 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 	        int techTrigger37;
 	        int techTrigger38;
 	        int techTrigger39;
+		// HTL trigger
+		int HLT_Photon10_L1R;
+		int HLT_Photon15_L1R;
+		int HLT_Photon15_LooseEcalIso_L1R;
+		int HLT_Photon20_L1R;
+		int HLT_Photon30_L1R_8E29;
+		int HLT_DoublePhoton4_Jpsi_L1R;
+		int HLT_DoublePhoton4_Upsilon_L1R;
+		int HLT_DoublePhoton4_eeRes_L1R;
+		int HLT_DoublePhoton5_eeRes_L1R;
+		int HLT_DoublePhoton5_Jpsi_L1R;
+		int HLT_DoublePhoton5_Upsilon_L1R;
+		int HLT_DoublePhoton5_L1R;
+		int HLT_DoublePhoton10_L1R;
+		int HLT_DoubleEle5_SW_L1R;
+		int HLT_Ele20_LW_L1R;
+		int HLT_Ele15_SiStrip_L1R;
+		int HLT_Ele15_SC10_LW_L1R;
+		int HLT_Ele15_LW_L1R;
+		int HLT_Ele10_LW_EleId_L1R;
+		int HLT_Ele10_LW_L1R;
+		int HLT_Photon15_TrackIso_L1R;
+
 		// info about the Super-Cluster
 	        int   em_isInCrack;
 		int   em_barrelOrEndcap;
@@ -291,6 +320,8 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 	        int   em_isholeinsecond;
                 float em_rookEnergy;
 		float em_fracRook;
+		float em_swissCross;
+		float em_scRatio;
                 int   em_hasBadSrpFlag; 
 		float em_seedEnergy;
 		float em_seedChi2;
@@ -317,6 +348,7 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
         	float pho_eta;
 	        float pho_theta;
 	        float pho_r9;
+		float pho_HoE;
 		// converted photons informations 
                 int   pho_isConverted;
                 int   pho_nTracks;
