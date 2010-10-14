@@ -266,7 +266,10 @@ int fillThisEvent(int iteLead, int iteTrail){
 
 	TLorentzVector Psum = P_loc[iteLead] + P_loc[iteTrail];
 	dipho_mgg = Psum.M();
-
+	dipho_costhetastar = CosThetaStar(P_loc[iteLead],P_loc[iteTrail]);
+	dipho_etastar = 1.0*(P_loc[iteLead].Eta()-P_loc[iteTrail].Eta())/2;
+	dipho_qt = Psum.Pt();
+	dipho_ql = Psum.Pz();
 	NbEntries++;
 
 	myTree_->Fill();
