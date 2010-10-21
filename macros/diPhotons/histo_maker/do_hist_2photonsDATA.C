@@ -39,7 +39,7 @@ int do_hist_2photonsDATA(){
   TFile *myFile = new TFile("diphoFile_DATA.root","RECREATE");
    chain->Add("diphoton_part*.root");
   
-TString baseCut = "event_nVertex==1&&(abs(pholead_eta)<=2.5)&&(!((abs(pholead_eta)>1.4442)&&(abs(pholead_eta)<1.566)))&&(abs(photrail_eta)<=2.5)&&(!((abs(photrail_eta)>1.4442)&&(abs(photrail_eta)<1.566)))&&pholead_hoe<0.05&&photrail_hoe<0.05&&pholead_pt>30&&photrail_pt>30";
+TString baseCut = "(abs(pholead_eta)<=2.5)&&(!((abs(pholead_eta)>1.4442)&&(abs(pholead_eta)<1.566)))&&(abs(photrail_eta)<=2.5)&&(!((abs(photrail_eta)>1.4442)&&(abs(photrail_eta)<1.566)))&&pholead_hoe<0.05&&photrail_hoe<0.05&&pholead_pt>30&&photrail_pt>30";
 TString isoLead = "(pholead_TrackerIso<2&&pholead_EcalIso<4.2&&pholead_HcalIso<2.2)";
 TString isoTrail = "(photrail_TrackerIso<2&&photrail_EcalIso<4.2&&photrail_HcalIso<2.2)";
 TString cutIeta = "(((pholead_isEB==1)&&(pholead_sigieta<0.01))||((pholead_isEE==1)&&(pholead_sigieta<0.03)))&&(((photrail_isEB==1)&&(photrail_sigieta<0.01))||((photrail_isEE==1)&&(photrail_sigieta<0.03)))";
