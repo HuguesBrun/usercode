@@ -236,7 +236,7 @@ int fillThisEvent(int iteLead, int iteTrail){
 	pholead_cPP = cPP_loc[iteLead];
 	pholead_sigmaphi = sigmaphi_loc[iteLead];
 	pholead_etawidth = EtaWidth_loc[iteLead];
-	pholead_sigieta = SigIeta_loc[iteLead];
+	pholead_sigieta = pho_sigmaIetaIeta_loc[iteLead];
  	pholead_HcalIso = HcalIso_loc[iteLead];
 	pholead_EcalIso = EcalIso_loc[iteLead];
 	pholead_TrackerIso = TrackerIso_loc[iteLead];
