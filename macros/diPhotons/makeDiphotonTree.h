@@ -21,9 +21,9 @@
 
 TFile *myFile;// = new TFile("theMiniTree.root","RECREATE");
 TTree *myTree_;
-TChain *chain = new TChain("photons");
+TChain *chain = new TChain("photonsNN");
 
-  bool doMC;
+  bool doMC, doNN;
   int NbEntries;
 
 // MiniTtree d'entr�e
@@ -141,6 +141,8 @@ TChain *chain = new TChain("photons");
                 float pho_SCbr;
                 int   pho_SCnbBC;
                 int   pho_SCnXtal;
+                // theNN
+                float pho_NNshapeOutput;
 
 // miniTree de sortie
 
@@ -150,7 +152,7 @@ int event_runNumber;
 int event_LumiSection; 
 int event_weightLO;                                       
 int event_weightNLO;                                     
-int event_eventPtHat; 
+float event_eventPtHat; 
 int event_nVertex;
 int dipho_cat4;                                           
 int dipho_cat4bis;                                        
@@ -241,6 +243,8 @@ int pholead_isEB;
 int photrail_isEB;
 int pholead_isEE;
 int photrail_isEE;
+float pholead_NNshapeOutput;
+float photrail_NNshapeOutput;
 int dipho_eventPassHLT_Photon30_L1R;
 int dipho_eventPassHLT_Photon50_L1R;
 int dipho_eventPassHLT_DoublePhoton10_L1R;
@@ -275,6 +279,8 @@ float dipho_Kfactor;
   int HasPixSeed_loc[100] ;
   int SeedSeverity_loc[100] ;
   int RecoFlag_loc[100] ;
+  
+  float NNshapeOutput_loc[100];
 
   double DrJetClosest_loc[100] ;
   double JetEMfraction_loc[100] ;

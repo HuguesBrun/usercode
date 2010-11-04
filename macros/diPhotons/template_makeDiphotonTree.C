@@ -114,6 +114,7 @@ int beforeMacro(){
 	chain->SetBranchAddress("pho_SCbr",&pho_SCbr);
 	chain->SetBranchAddress("pho_SCnbBC",&pho_SCnbBC);
 	chain->SetBranchAddress("pho_SCnXtal",&pho_SCnXtal);
+	chain->SetBranchAddress("pho_NNshapeOutput",&pho_NNshapeOutput);
 	
 		myTree_ = new TTree("diPhotons","DiPhotonsInfos");
                 myTree_->Branch("event_number",&event_number,"event_number/I");
@@ -209,16 +210,18 @@ int beforeMacro(){
                 myTree_->Branch("photrail_seedSeverity",&photrail_seedSeverity,"photrail_seedSeverity/I");
                 myTree_->Branch("pholead_recoFlag",&pholead_recoFlag,"pholead_recoFlag/I");
                 myTree_->Branch("photrail_recoFlag",&photrail_recoFlag,"photrail_recoFlag/I");
-		myTree_->Branch("pholead_isEB",&pholead_isEB,"pholead_isEB/I");
-		myTree_->Branch("photrail_isEB",&photrail_isEB,"photrail_isEB/I");
-		myTree_->Branch("pholead_isEE",&pholead_isEE,"pholead_isEE/I");
-		myTree_->Branch("photrail_isEE",&photrail_isEE,"photrail_isEE/I");
+				myTree_->Branch("pholead_isEB",&pholead_isEB,"pholead_isEB/I");
+				myTree_->Branch("photrail_isEB",&photrail_isEB,"photrail_isEB/I");
+				myTree_->Branch("pholead_isEE",&pholead_isEE,"pholead_isEE/I");
+				myTree_->Branch("photrail_isEE",&photrail_isEE,"photrail_isEE/I");
+				myTree_->Branch("pholead_NNshapeOutput",&pholead_NNshapeOutput, "pholead_NNshapeOutput/F");
+				myTree_->Branch("photrail_NNshapeOutput",&photrail_NNshapeOutput, "photrail_NNshapeOutput/F");
                 myTree_->Branch("dipho_eventPassHLT_Photon30_L1R",&dipho_eventPassHLT_Photon30_L1R,"dipho_eventPassHLT_Photon30_L1R/I");
                 myTree_->Branch("dipho_eventPassHLT_Photon50_L1R",&dipho_eventPassHLT_Photon50_L1R,"dipho_eventPassHLT_Photon50_L1R/I");
                 myTree_->Branch("dipho_eventPassHLT_DoublePhoton10_L1R",&dipho_eventPassHLT_DoublePhoton10_L1R,"dipho_eventPassHLT_DoublePhoton10_L1R/I");
                 myTree_->Branch("dipho_eventPassHLT_DoublePhoton15_L1R",&dipho_eventPassHLT_DoublePhoton15_L1R,"dipho_eventPassHLT_DoublePhoton15_L1R/I");
                 myTree_->Branch("dipho_Kfactor",&dipho_Kfactor,"dipho_Kfactor/F");
-
+				
 
 }
 
@@ -246,6 +249,7 @@ int fillThisEvent(int iteLead, int iteTrail){
 	pholead_HasPixSeed = HasPixSeed_loc[iteLead];
 	pholead_isEB = pho_isEB_loc[iteLead];
 	pholead_isEE = pho_isEE_loc[iteLead];
+	if (doNN) pholead_NNshapeOutput = NNshapeOutput_loc[iteLead];
 
 	photrail_pt = P_loc[iteTrail].Pt();
 	photrail_eta = Eta_loc[iteTrail];
@@ -263,6 +267,7 @@ int fillThisEvent(int iteLead, int iteTrail){
 	photrail_HasPixSeed = HasPixSeed_loc[iteTrail];
 	photrail_isEB = pho_isEB_loc[iteTrail];
 	photrail_isEE = pho_isEE_loc[iteTrail];
+	if (doNN) photrail_NNshapeOutput = NNshapeOutput_loc[iteTrail];
 
 	TLorentzVector Psum = P_loc[iteLead] + P_loc[iteTrail];
 	dipho_mgg = Psum.M();
@@ -279,7 +284,8 @@ int fillThisEvent(int iteLead, int iteTrail){
 
 //makeDiphotonTree(){
 	int main(){
-	doMC = true; 
+	doMC = true;
+	doNN = true; 
 	NbEntries = 0;
 	myFile = new TFile("diphoton_1.root","RECREATE");
 	float MggMin = 20;
@@ -342,6 +348,7 @@ int fillThisEvent(int iteLead, int iteTrail){
 		pho_sigmaIetaIeta_loc[ite] = pho_sigmaIetaIeta;
 		pho_isEB_loc[ite] = pho_isEB;
 		pho_isEE_loc[ite] = pho_isEE;
+		NNshapeOutput_loc[ite] = pho_NNshapeOutput;
 		ite++;
 
 		numEventBefore = pho_iEvent;
