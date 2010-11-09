@@ -18,33 +18,35 @@
 #include "TMath.h"
 #include "TSystem.h"
 
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
-#include "/sps/cms/hbrun/CMSSW_3_6_1_patch4_new/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
 
 TFile *myFile;// = new TFile("theMiniTree.root","RECREATE");
 TTree *myTree_;
 TChain *inputEventTree = new TChain("eventTree");
 TChain *inputRunTree = new TChain("runTree");
 
-string ListWantedHLTnames[5] = {"HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon50_Cleaned_L1R","HLT_DoublePhoton15_L1R","HLT_DoublePhoton20_L1R"};
+//string ListWantedHLTnames[5] = {"HLT_DoublePhoton15_L1R","HLT_DoublePhoton17_L1R","HLT_Photon10_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon20_Cleaned_L1R"};
+string ListWantedHLTnames[5] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon10_Cleaned_L1R","HLT_Photon70_Cleaned_L1R_v1","HLT_Photon40_Isol_Cleaned_L1R_v1"};
 int nbHlt = 5;
 
   bool doHLT;
@@ -104,7 +106,7 @@ int nbHlt = 5;
                 float pho_sigmaphi;
                 float pho_sigmaeta;
                 float pho_sigmaIetaIeta;
-		float pho_sigmaEtaEta;
+				float pho_sigmaEtaEta;
                 float pho_hoe;
                 float pho_IsoEcalRechit;
                 float pho_IsoHcalRechit;
@@ -134,24 +136,22 @@ int nbHlt = 5;
                 float pho_ptoverjetpt_sisCone_pt2;
                 float pho_ptoverjetpt_sisCone_pt5;
                 float pho_ptoverjetpt_sisCone_pt10;
-		float pho_transverseMomentumToJetDirection;
-		float pho_transverseMomentumToJetDirection_pt2;
-		float pho_transverseMomentumToJetDirection_pt5;
-		float pho_transverseMomentumToJetDirection_pt10;
-		float pho_transverseMomentumToJetDirection_pt20;
-		float pho_transverseToJetRatio;
-		float pho_transverseToJetRatio_pt2;
-		float pho_transverseToJetRatio_pt5;
-		float pho_transverseToJetRatio_pt10;
-		float pho_transverseToJetRatio_pt20;
-                int pho_isAfterCut1;
-                int pho_isAfterCut2;
-                int pho_isAfterCut3;
-                int pho_isAfterCut4;
-                int pho_isAfterCut5;
-                int pho_isAfterCut6;
-                int pho_isAfterCut7;
-                int pho_isAfterCut8;
+				float pho_transverseMomentumToJetDirection;
+				float pho_transverseMomentumToJetDirection_pt2;
+				float pho_transverseMomentumToJetDirection_pt5;
+				float pho_transverseMomentumToJetDirection_pt10;
+				float pho_transverseMomentumToJetDirection_pt20;
+				float pho_transverseToJetRatio;
+				float pho_transverseToJetRatio_pt2;
+				float pho_transverseToJetRatio_pt5;
+				float pho_transverseToJetRatio_pt10;
+				float pho_transverseToJetRatio_pt20;
+				// other collection matching
+				int   pho_isAlsoRecoAsElectron;
+				float pho_fBrem;
+				float pho_momentumCorrected;
+				float pho_d0;
+				int   pho_isAlsoRecoAsJet;			
                 float pho_jetEMfraction;
                 float pho_DrJetClosest;
                 int pho_isLoose;
@@ -182,10 +182,11 @@ int nbHlt = 5;
                 float pho_PromptGenIsoEnergyStatus2_cone04;
                 int pho_seedSeverity;
                 int pho_recoFlag;
-		int pho_HLT30;
-		int pho_HLT50;
-		int pho_HLTdiPho15;
-		int pho_HLTdiPho20;
+		int pho_HLT_bit0;
+		int pho_HLT_bit1;
+		int pho_HLT_bit2;
+		int pho_HLT_bit3;
+		int pho_HLT_bit4;
 		// sc infos
 		float pho_SCeta;
 		float pho_SCphi;

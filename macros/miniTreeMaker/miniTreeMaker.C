@@ -119,20 +119,20 @@ void beginMacro(){
 
   if(doMuon)
     {
-      inputEventTree->SetBranchAddress("Muons", &muons, &muons_br);
-      inputEventTree->SetBranchStatus("Muons", 1);
+      inputEventTree->SetBranchAddress("muons", &muons, &muons_br);
+      inputEventTree->SetBranchStatus("muons", 1);
     }
   
   if(doElectron)
     {
-      inputEventTree->SetBranchAddress("Electrons", &electrons, &electrons_br);
-      inputEventTree->SetBranchStatus("Electrons", 1);
+      inputEventTree->SetBranchAddress("gsfElectrons", &electrons, &electrons_br);
+      inputEventTree->SetBranchStatus("gsfElectrons", 1);
     }
   
   if(doPhoton)
     {
-      inputEventTree->SetBranchAddress("Photons", &photons, &photons_br);
-      inputEventTree->SetBranchStatus("Photons", 1);
+      inputEventTree->SetBranchAddress("photons", &photons, &photons_br);
+      inputEventTree->SetBranchStatus("photons", 1);
     }
   
   if(doCluster)
@@ -153,8 +153,8 @@ void beginMacro(){
 
   if(doMET)
     {
-      inputEventTree->SetBranchAddress("MET", &met, &met_br);
-      inputEventTree->SetBranchStatus("MET", 1);
+      inputEventTree->SetBranchAddress("met", &met, &met_br);
+      inputEventTree->SetBranchStatus("met", 1);
     }
   
   if(doBardak)
@@ -242,14 +242,11 @@ void beginMacro(){
 		myTree_->Branch("pho_transverseToJetRatio_pt5",&pho_transverseToJetRatio_pt5,"pho_transverseToJetRatio_pt5/F");
 		myTree_->Branch("pho_transverseToJetRatio_pt10",&pho_transverseToJetRatio_pt10,"pho_transverseToJetRatio_pt10/F");
 		myTree_->Branch("pho_transverseToJetRatio_pt20",&pho_transverseToJetRatio_pt20,"pho_transverseToJetRatio_pt20/F");
-                myTree_->Branch("pho_isAfterCut1",&pho_isAfterCut1,"pho_isAfterCut1/I");
-                myTree_->Branch("pho_isAfterCut2",&pho_isAfterCut2,"pho_isAfterCut2/I");
-                myTree_->Branch("pho_isAfterCut3",&pho_isAfterCut3,"pho_isAfterCut3/I");
-                myTree_->Branch("pho_isAfterCut4",&pho_isAfterCut4,"pho_isAfterCut4/I");
-                myTree_->Branch("pho_isAfterCut5",&pho_isAfterCut5,"pho_isAfterCut5/I");
-                myTree_->Branch("pho_isAfterCut6",&pho_isAfterCut6,"pho_isAfterCut6/I");
-                myTree_->Branch("pho_isAfterCut7",&pho_isAfterCut7,"pho_isAfterCut7/I");
-                myTree_->Branch("pho_isAfterCut8",&pho_isAfterCut8,"pho_isAfterCut8/I");
+				myTree_->Branch("pho_isAlsoRecoAsElectron",&pho_isAlsoRecoAsElectron,"pho_isAlsoRecoAsElectron/I");
+				myTree_->Branch("pho_fBrem",&pho_fBrem,"pho_fBrem/F");
+				myTree_->Branch("pho_momentumCorrected",&pho_momentumCorrected,"pho_momentumCorrected/F");
+				myTree_->Branch("pho_d0",&pho_d0,"pho_d0/F");
+				myTree_->Branch("pho_isAlsoRecoAsJet",&pho_isAlsoRecoAsJet,"pho_isAlsoRecoAsJet/I");
                 myTree_->Branch("pho_jetEMfraction",&pho_jetEMfraction,"pho_jetEMfraction/F");
                 myTree_->Branch("pho_DrJetClosest",&pho_DrJetClosest,"pho_DrJetClosest/F");
                 myTree_->Branch("pho_isLoose",&pho_isLoose,"pho_isLoose/I");
@@ -280,10 +277,11 @@ void beginMacro(){
                 myTree_->Branch("pho_PromptGenIsoEnergyStatus2_cone04",&pho_PromptGenIsoEnergyStatus2_cone04,"pho_PromptGenIsoEnergyStatus2_cone04/F");
                 myTree_->Branch("pho_seedSeverity",&pho_seedSeverity,"pho_seedSeverity/I");
                 myTree_->Branch("pho_recoFlag",&pho_recoFlag,"pho_recoFlag/I");
-                myTree_->Branch("pho_HLT30",&pho_HLT30,"pho_HLT30/I");
-                myTree_->Branch("pho_HLT50",&pho_HLT50,"pho_HLT50/I");
-                myTree_->Branch("pho_HLTdiPho15",&pho_HLTdiPho15,"pho_HLTdiPho15/I");
-                myTree_->Branch("pho_HLTdiPho20",&pho_HLTdiPho20,"pho_HLTdiPho20/I");
+                myTree_->Branch("pho_HLT_bit0",&pho_HLT_bit0,"pho_HLT_bit0/I");
+                myTree_->Branch("pho_HLT_bit1",&pho_HLT_bit1,"pho_HLT_bit1/I");
+                myTree_->Branch("pho_HLT_bit2",&pho_HLT_bit2,"pho_HLT_bit2/I");
+                myTree_->Branch("pho_HLT_bit3",&pho_HLT_bit3,"pho_HLT_bit3/I");
+                myTree_->Branch("pho_HLT_bit4",&pho_HLT_bit4,"pho_HLT_bit4/I");
                 myTree_->Branch("pho_SCeta",&pho_SCeta,"pho_SCeta/F");
                 myTree_->Branch("pho_SCphi",&pho_SCphi,"pho_SCphi/F");
                 myTree_->Branch("pho_SCEtraw",&pho_SCEtraw,"pho_SCEtraw/F");
@@ -306,9 +304,9 @@ void endMacro(){
 //miniTreeMaker(){
 int main(){
 	cout << "coucou" << endl;
-	gSystem->Load("/sps/cms/hbrun/CMSSW_3_6_2_new/src/Morgan/IpnTreeProducer/src/libToto.so");
-        inputEventTree->Add("/sps/cms/hbrun/dataset_3_6_1_patch7/Run2010A-PromptReco-v4//run144011_data_EG_goodVtx_noscrapping_2_1_nFO.root");
-//        inputRunTree->Add("/sps/cms/hbrun/dataset_3_6_1_patch7/Run2010A-PromptReco-v4//run144011_data_EG_goodVtx_noscrapping_2_1_nFO.root");
+	gSystem->Load("/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/src/libToto.so");
+        inputEventTree->Add("/sps/cms/hbrun/dataset_3_8_5_patch1/Run2010B-PromptReco-v2/run149003_data_EG_goodVtx_noscrapping_4_1_kJS.root");
+        inputRunTree->Add("/sps/cms/hbrun/dataset_3_8_5_patch1/Run2010B-PromptReco-v2/run149003_data_EG_goodVtx_noscrapping_4_1_kJS.root");
 
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
@@ -324,9 +322,9 @@ int main(){
 	int NbPhotonsCutEt = 0;
 	int NbPhotonsPb = 0;
 	
-//	cout << "trigger = " << runInfos->nHLTPaths() << endl;
+//	cout << "trigger = " << runInfos->nHLTPaths() << endl; /////  Deprecated 
 /// Find the trigger bits !
-        int *bits;
+/*        int *bits;
         int NbRunEntries = inputRunTree->GetEntries();
         if (NbRunEntries > 0) {
                 inputRunTree->GetEntry(0);
@@ -339,8 +337,8 @@ int main(){
 	                bits2 = InitializeHLTinfo(runInfos, ListWantedHLTnames, nbHlt);
 	                if (bits2[0]!=bits[0]) cout << "Alert ! ! = les bits ont changes ! " << endl;
         	}
-       }
-
+       }*/
+	cout << "nomFichier=" << inputEventTree->GetFile()->GetName() << " nbEntries=" << NbEvents << endl;
 	for (int ievt  = 0 ; ievt < NbEvents ; ievt++){
 	      inputEventTree->GetEvent(ievt);
 	      	if( (ievt%10==0 && ievt<=100)  || (ievt%100==0 && ievt<=1000)   || (ievt%1000==0 && ievt>1000)  )
@@ -348,16 +346,15 @@ int main(){
 		  cout <<"Analyzing "<< ievt << "th event: " << endl;
 		}
 		if (doHLT){
-			if (bits[0] == -1) break;
-			if (!(event->trigHLT(bits[0])==1)) continue;
-//			if (!((event->trigHLT(bits[0])==1)||(event->trigHLT(bits[5])==1))) continue; // continue if not the bit photon20
-			NbHLT20++;
-			if (bits[1]>-1) {if (event->trigHLT(bits[1])) pho_HLT30=1; else pho_HLT30=0;} else pho_HLT30=-1;
-			if (bits[2]>-1) {if (event->trigHLT(bits[2])) pho_HLT50=1; else pho_HLT50=0;} else pho_HLT50=-1;
-			if (bits[3]>-1) {if (event->trigHLT(bits[3])) pho_HLTdiPho15=1; else pho_HLTdiPho15=0;} else pho_HLTdiPho15=-1;
-			if (bits[4]>-1) {if (event->trigHLT(bits[4])) pho_HLTdiPho20=1; else pho_HLTdiPho20=0;} else pho_HLTdiPho20=-1;
+			
+			if (!((event->hltAccept(ListWantedHLTnames[0]))||(event->hltAccept(ListWantedHLTnames[1]))||(event->hltAccept(ListWantedHLTnames[2])))) continue;
+			if (event->hltAccept(ListWantedHLTnames[0])) pho_HLT_bit0 = 1; else pho_HLT_bit0 = 0;
+			if (event->hltAccept(ListWantedHLTnames[1])) pho_HLT_bit1 = 1; else pho_HLT_bit1 = 0;
+			if (event->hltAccept(ListWantedHLTnames[2])) pho_HLT_bit2 = 1; else pho_HLT_bit2 = 0;
+			if (event->hltAccept(ListWantedHLTnames[3])) pho_HLT_bit3 = 1; else pho_HLT_bit3 = 0;
+			if (event->hltAccept(ListWantedHLTnames[4])) pho_HLT_bit4 = 1; else pho_HLT_bit4 = 0;
 		}
-	      
+	    	NbHLT20++;
 		pho_nVertex = vertices->GetEntriesFast();		
 
 		for (int iphoton=0; iphoton< photons->GetEntriesFast(); iphoton++){
@@ -513,7 +510,11 @@ int main(){
 		      pho_transverseToJetRatio_pt10 = pho_transverseMomentumToJetDirection_pt10/pho_et;
 		      pho_transverseToJetRatio_pt20 = pho_transverseMomentumToJetDirection_pt20/pho_et;
 
-
+			  pho_isAlsoRecoAsElectron = 0;
+			  pho_fBrem = -1;
+			  pho_momentumCorrected = -1;
+			  pho_d0 = -1;
+			  matchWithAnElectron(myphoton, electrons, &pho_isAlsoRecoAsElectron, &pho_fBrem, &pho_momentumCorrected, &pho_d0);
 		      //conpho_closestSC_dR
 		      double dR=10;
 		      for (int isc=0; isc<superClusters->GetEntriesFast(); isc++){
@@ -562,7 +563,7 @@ int main(){
 	}
 
 
-	cout << "NbEvents=" << NbEvents << " NbEventsHLT20= " << NbHLT20 << endl;
-	cout << "NbPhotons=" << NbPhotons << " NbPhotonsCleaned=" << NbPhotonsCleaned <<  " NbPhotonsCutEt=" << NbPhotonsCutEt << " NbPhotonsPb=" << NbPhotonsPb << endl;
+	cout << "NbEventsTot=" << NbEvents << " NbEventsHLT20=" << NbHLT20 << endl;
+	cout << "NbPhotonsTot=" << NbPhotons << " NbPhotonsCleaned=" << NbPhotonsCleaned <<  " NbPhotonsCutEt=" << NbPhotonsCutEt << " NbPhotonsPb=" << NbPhotonsPb << endl;
 	endMacro();
 }

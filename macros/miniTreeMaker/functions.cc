@@ -10,8 +10,8 @@ double DeltaR(double phi1, double phi2, double eta1, double eta2){
   return dR;
 }
 
-
-int* InitializeHLTinfo(TRootRun* runInfos, string* ListWantedHLTnames, int nPathWanted){
+///   Deprecated since the last version of TotoAna
+/*int* InitializeHLTinfo(TRootRun* runInfos, string* ListWantedHLTnames, int nPathWanted){
 
   cout << "Initializing HLT info"<<endl;
   unsigned int nPaths = runInfos->nHLTPaths();
@@ -43,7 +43,7 @@ int* InitializeHLTinfo(TRootRun* runInfos, string* ListWantedHLTnames, int nPath
   }
 
   return ListHLT;
-}
+}*/
 
 double GetClosestJetEMFraction(TRootPhoton* myphoton, TClonesArray* jets, double JetPt){
            double EMFraction = -1;
@@ -214,4 +214,27 @@ void doGenInfo(TRootPhoton* myphoton, TClonesArray* mcParticles, Int_t* pho_GenI
   *pho_PromptGenIsoEnergyStatus2 = etsumStatus2;
 
   return;
+}
+
+void matchWithAnElectron(TRootPhoton *myPhoton, TClonesArray *electrons, int *isAlsoaRecoElectron, float *pho_fBrem, float *pho_momentumCorrected, float *pho_d0){
+	double dRcj = 0.1;
+	unsigned int isl=1000;
+	int theSCphoton = myPhoton->scIndex();
+	for (unsigned int i=0 ; i < electrons->GetEntriesFast() ; i++){
+		TRootElectron *theElectron = (TRootElectron*) electrons->At(i);
+/*	if (theElectron->Pt() < 10 ) continue;
+		double DR = DeltaR(myPhoton->Phi(), theElectron->Phi(), myPhoton->Eta(), theElectron->Eta());
+		if (DR < dRcj) {
+			//dRcj = DR;
+			isl = i;	
+		}*/
+		if (theElectron->scIndex() == theSCphoton) isl = i;
+	}
+	if (isl != 1000){
+		TRootElectron *candidate = (TRootElectron*) electrons->At(isl);
+		*isAlsoaRecoElectron = 1;
+		*pho_fBrem = candidate->fbrem();
+		*pho_momentumCorrected = candidate->momentumCorrected();
+		*pho_d0 = candidate->d0();
+	}
 }
