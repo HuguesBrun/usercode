@@ -14,17 +14,24 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #  destinations = cms.untracked.vstring('cout')
 #)
 
+process.options = cms.untracked.PSet(
+wantSummary = cms.untracked.bool(True)
+)
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # Needed for GlobalPositionRcd
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START36_V9::All'
+process.GlobalTag.globaltag = cms.string('START38_V12::All')
+#process.GlobalTag.globaltag = cms.string('GR10_P_V11::All')
+#process.GlobalTag.globaltag = cms.string('GR_R_38X_V14::All')
 
 # Global geometry
 #process.load("Configuration.StandardSequences.Geometry_cff")
 #process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
+#process.load('Configuration.StandardSequences.GeometryDB_cff')
 
 # Transient Track Builder
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
@@ -43,75 +50,20 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+#process.maxLuminosityBlocks = cms.untracked.PSet(
+#   input = cms.untracked.int32(2)
+#)
 
 process.source = cms.Source("PoolSource",
 
 # RECO
-fileNames = cms.untracked.vstring(
-#'file:/sps/cms/hbrun/dataset_3_6_2/RECO_test/theRECOfile.root'
-'file:/sps/cms/hbrun/dataset_3_6_2/recoTest/theRECOfile2.root'
-#'file:/sps/cms/hbrun/dataset_3_6_2/recoTest/theRECOfile3.root'
-  )
+fileNames = cms.untracked.vstring('file:/sps/cms/hbrun/dataset_3_8_4_patch3/testRECO/theRECOfile.root')
+#,skipEvents=cms.untracked.uint32(26015)
+#,firstRun = cms.untracked.uint32(144114),
+#,firstLumi   = cms.untracked.uintt32(5),
+#,firstEvent = cms.untracked.uint32(135841750)
+#eventsToProcess = cms.untracked.VEventRange('144114:135841760-144114:135841771','143192:24655772,-143192:24655772,'),
 )
-
-#process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-#process.L1T1coll=process.hltLevel1GTSeed.clone()
-
-import HLTrigger.HLTfilters.hltHighLevelDev_cfi
-
-
-process.EG_1e28 = HLTrigger.HLTfilters.hltHighLevelDev_cfi.hltHighLevelDev.clone(andOr = True)
-process.EG_1e28.TriggerResultsTag = cms.InputTag('TriggerResults','','REDIGI36X')
-process.EG_1e28.HLTPaths = (
-"HLT_Photon10_L1R",
-"HLT_Photon15_L1R",
-"HLT_Photon15_LooseEcalIso_L1R",
-"HLT_Photon20_L1R",
-"HLT_Photon30_L1R_8E29",
-"HLT_DoublePhoton4_Jpsi_L1R",
-"HLT_DoublePhoton4_Upsilon_L1R",
-"HLT_DoublePhoton4_eeRes_L1R",
-"HLT_DoublePhoton5_eeRes_L1R", #added to match the /cdaq/physics/firstCollisions10/v2.0/HLT_7TeV/V5 table
-"HLT_DoublePhoton5_Jpsi_L1R",
-"HLT_DoublePhoton5_Upsilon_L1R",
-"HLT_DoublePhoton5_L1R",
-"HLT_DoublePhoton10_L1R",
-"HLT_DoubleEle5_SW_L1R",
-"HLT_Ele20_LW_L1R",
-"HLT_Ele15_SiStrip_L1R",
-"HLT_Ele15_SC10_LW_L1R",
-"HLT_Ele15_LW_L1R",
-"HLT_Ele10_LW_EleId_L1R",
-"HLT_Ele10_LW_L1R",
-"HLT_Photon15_TrackIso_L1R"
-)
-process.EG_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
-process.EG_1e28.HLTOverallPrescale = cms.uint32(1)
-process.EG_1e28.throw = False
-process.EG_1e28.andOr = True
-
-
-process.primaryVertexFilter = cms.EDFilter("VertexSelector",
-   src = cms.InputTag("offlinePrimaryVertices"),
-   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut
-   filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
-)
-
-process.noscraping = cms.EDFilter("FilterOutScraping",
-applyfilter = cms.untracked.bool(True),
-debugOn = cms.untracked.bool(True),
-numtrack = cms.untracked.uint32(10),
-thresh = cms.untracked.double(0.25)
-)
-
-
-process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
-process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
-
-#mport HLTrigger.Configuration.HLTrigger_Datasets_cff
-#process.theEG = HLTrigger.Configuration.HLTrigger_Datasets_cff.streamA_datasetEG_selector.clone()
-#process.theEG.hltResults = cms.InputTag('TriggerResults', '', 'REDIGI36X')
-
 
 process.totoana = cms.EDAnalyzer("TotoAnalyzer",
    myConfig = cms.PSet(
@@ -130,16 +82,17 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
       verbosity = cms.untracked.int32(1),
 
       # name of output root file
-      RootFileName = cms.untracked.string('MC_EMEnriched_Pt20to30-Summer10-START36_V9.root'),
+      RootFileName = cms.untracked.string('toto_outputMC.root'),
 
       # DATASET Infos  (will be written in runTree for bookeeping)
       xsection = cms.untracked.double(0.674770994),
-      description = cms.untracked.string('MC_EMEnriched_Pt20to30-Summer10-START36_V9.root'),
+      description = cms.untracked.string('Le dataset pourri a Roberto'),
 
       # What is written to rootuple
       doLHCInfo = cms.untracked.bool(True),
       doL1 = cms.untracked.bool(True),
       doHLT = cms.untracked.bool(True),
+      doHLTObject = cms.untracked.bool(False),
       doMC = cms.untracked.bool(True),
       doPDFInfo = cms.untracked.bool(True),
       doSignalMuMuGamma = cms.untracked.bool(False),  # not tested in 2.X.X or 3.X.X
@@ -160,7 +113,7 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
 
       doBeamSpot = cms.untracked.bool(True),
       doPrimaryVertex = cms.untracked.bool(True),
-      doZeePrimaryVertex = cms.untracked.bool(False),
+      doZeePrimaryVertex = cms.untracked.bool(True),
       doTrack = cms.untracked.bool(True),
       doJet = cms.untracked.bool(True),
       doMuon = cms.untracked.bool(True),
@@ -218,39 +171,40 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
       verbose = cms.untracked.bool(False),
       algorithm = cms.string('AdaptiveVertexFitter'),
       useBeamConstraint = cms.bool(True),
-
+      beamSpotLabel = cms.InputTag("offlineBeamSpot"),
+      minNdof  = cms.double(2.0),
+      TrackLabel = cms.InputTag("generalTracks"), # label of tracks to be used
+                       
       PVSelParameters = cms.PSet(
-         maxDistanceToBeam = cms.double(0.05), ## 200 / 500 microns if useBeamConstraint = true / false
-         minVertexFitProb = cms.double(0.01) ## 1% vertex fit probability
+         maxDistanceToBeam = cms.double(2), ## (in cm) 200 / 500 microns if useBeamConstraint = true / false
+         #minVertexFitProb = cms.double(0.01) ## 1% vertex fit probability
       ),
 
       TkFilterParameters = cms.PSet(
-         maxNormalizedChi2 = cms.double(5.0),
-         minSiliconHits = cms.int32(7), ## hits > 7
-         maxD0Significance = cms.double(10.0), ## keep most primary tracks
-         minPt = cms.double(0.0), ## better for softish events
-         minPixelHits = cms.int32(1) ## hits > 2
+         maxNormalizedChi2 = cms.double(20.0),
+         minSiliconLayersWithHits = cms.int32(5), # >= 5
+         minPixelLayersWithHits = cms.int32(2),   # >= 2
+         maxD0Significance = cms.double(100.0),     # keep most primary tracks
+         minPt = cms.double(0.0),                 # better for softish events
+         trackQuality = cms.string("any")
       ),
 
-      VtxFinderParameters = cms.PSet(
-      ptCut = cms.double(0.0),
-      vtxFitProbCut = cms.double(0.01), ## 1% vertex fit probability
-      trackCompatibilityToSVcut = cms.double(0.01), ## 1%
-      trackCompatibilityToPVcut = cms.double(0.05), ## 5%
-      maxNbOfVertices = cms.int32(0) ## search all vertices in each cluster
-      ),
-
+      # clustering
       TkClusParameters = cms.PSet(
-         zSeparation = cms.double(0.1) ## 1 mm max separation betw. clusters
-      ),
-
+         algorithm   = cms.string('gap'),
+         TkGapClusParameters = cms.PSet(
+            zSeparation = cms.double(0.2) ## 2 mm max separation betw. clusters
+         )
+      )
+      
    ),
 
    producersNamesRECO = cms.PSet(
       dataType = cms.untracked.string("RECO"),
       allowMissingCollection = cms.untracked.bool(True),
       l1Producer = cms.InputTag("gtDigis"),
-      hltProducer = cms.InputTag("TriggerResults","","REDIGI36X"),
+      hltProducer = cms.InputTag("TriggerResults","","HLT"),
+      hltEvent = cms.InputTag("patTriggerEvent","","HLT"),
       genParticlesProducer = cms.InputTag("genParticles"),
       genJetsProducer = cms.InputTag("antikt5GenJets"),
       genMETsProducer = cms.InputTag("genMetTrue"),
@@ -261,10 +215,10 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
          cms.InputTag("ak5CaloJets"),
          cms.InputTag("kt4PFJets"),
          ),
-      muonProducer = cms.InputTag("muons"),
-      electronProducer = cms.InputTag("gsfElectrons"),
-      photonProducer = cms.InputTag("photons"),
-      metProducer = cms.InputTag("met"),
+      muonProducer = cms.VInputTag(cms.InputTag("muons")),
+      electronProducer = cms.VInputTag(cms.InputTag("gsfElectrons")),
+      photonProducer = cms.VInputTag(cms.InputTag("photons")),
+      metProducer = cms.VInputTag(cms.InputTag("met")),
       barrelEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
       endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
       reducedBarrelEcalRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
@@ -272,7 +226,8 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
       caloTowerCollection = cms.InputTag("towerMaker"),
       hbheRecHitProducer = cms.InputTag("hbhereco"),
       hoRecHitProducer = cms.InputTag("horeco"),
-      hfRecHitProducer = cms.InputTag("hfreco")
+      hfRecHitProducer = cms.InputTag("hfreco"),
+      electronProducerForZeeVertex = cms.InputTag("gsfElectrons")
    ),
 
    producersNamesPAT = cms.PSet(
@@ -281,6 +236,7 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
       patEncapsulation = cms.untracked.bool(False),
       l1Producer = cms.InputTag("gtDigis"),
       hltProducer = cms.InputTag("TriggerResults","","HLT"),
+      hltEvent = cms.InputTag("patTriggerEvent","","PAT"),
       genParticlesProducer = cms.InputTag("genParticles"),
       genJetsProducer = cms.InputTag("antikt5GenJets"),
       genMETsProducer = cms.InputTag("genMetTrue"),
@@ -289,10 +245,10 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
       primaryVertexProducer = cms.InputTag("offlinePrimaryVertices"),
       trackProducer = cms.InputTag("generalTracks"),
       jetProducer = cms.VInputTag(cms.InputTag("cleanPatJets")),
-      muonProducer = cms.InputTag("cleanPatMuons"),
-      electronProducer = cms.InputTag("cleanPatElectrons"),
-      photonProducer = cms.InputTag("cleanPatPhotons"),
-      metProducer = cms.InputTag("patMETs"),
+      muonProducer = cms.VInputTag(cms.InputTag("cleanPatMuons")),
+      electronProducer = cms.VInputTag(cms.InputTag("cleanPatElectrons")),
+      photonProducer = cms.VInputTag(cms.InputTag("cleanPatPhotons")),
+      metProducer = cms.VInputTag(cms.InputTag("patMETs")),
       barrelEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
       endcapEcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
       reducedBarrelEcalRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
@@ -311,11 +267,37 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
 ##    TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 ##)
 
+process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+   src = cms.InputTag("offlinePrimaryVertices"),
+   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), # tracksSize() > 3 for the older cut
+   filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
+)
+
+process.noscraping = cms.EDFilter("FilterOutScraping",
+  applyfilter = cms.untracked.bool(True),
+  debugOn = cms.untracked.bool(False),
+  numtrack = cms.untracked.uint32(10),
+  thresh = cms.untracked.double(0.25)
+)
+import HLTrigger.HLTfilters.triggerResultsFilter_cfi 
+process.streamA_datasetPhoton_selector = HLTrigger.HLTfilters.triggerResultsFilter_cfi.triggerResultsFilter.clone()
+process.streamA_datasetPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+process.streamA_datasetPhoton_selector.l1tResults = cms.InputTag('')
+process.streamA_datasetPhoton_selector.throw      = cms.bool(False)
+process.streamA_datasetPhoton_selector.triggerConditions = cms.vstring(
+    'HLT_Photon20_Cleaned_L1R', 
+    'HLT_DoublePhoton5_CEP_L1R', 
+    'HLT_Photon30_Cleaned_L1R', 
+    'HLT_DoublePhoton17_L1R', 
+    'HLT_Photon50_NoHE_Cleaned_L1R',
+#   'HLT_Photon10_Cleaned_L1R'	#the bit that i would like to add ;)
+)
+
+
 
 # TotoAna standalone
-process.p = cms.Path(process.EG_1e28+process.primaryVertexFilter+process.noscraping+process.hltPhysicsDeclared+process.totoana)
-#process.p = cms.Path(process.totoana)
-#process.p = cms.Path(process.primaryVertexFilter*process.totoana)
+process.p = cms.Path(process.streamA_datasetPhoton_selector+process.primaryVertexFilter+process.noscraping+process.totoana)
+#process.p = cms.Path(process.primaryVertexFilter+process.noscraping+process.totoana)
 
 # Photon reReco + TotoAna
 #process.load("photonReReco")
@@ -324,3 +306,5 @@ process.p = cms.Path(process.EG_1e28+process.primaryVertexFilter+process.noscrap
 # Pi0disc + TotoAna
 #process.p = cms.Path(process.preshowerClusterShape*process.piZeroDiscriminators*process.totoana)
 
+# PrimaryVertexFilter + noscraping + hltPhysicsDeclared + TotoAna
+#process.p = cms.Path(process.primaryVertexFilter+process.noscraping+process.hltPhysicsDeclared+process.totoana)
