@@ -36,6 +36,9 @@ process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cf
 # Transient Track Builder
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+
 # Geometry needed for clustering and calo shapes variables
 # process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
 
@@ -82,7 +85,7 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
       verbosity = cms.untracked.int32(1),
 
       # name of output root file
-      RootFileName = cms.untracked.string('toto_outputMC.root'),
+      RootFileName = cms.untracked.string('totoOutputMC.root'),
 
       # DATASET Infos  (will be written in runTree for bookeeping)
       xsection = cms.untracked.double(0.674770994),
@@ -92,15 +95,15 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
       doLHCInfo = cms.untracked.bool(True),
       doL1 = cms.untracked.bool(True),
       doHLT = cms.untracked.bool(True),
-      doHLTObject = cms.untracked.bool(False),
+      doHLTObject = cms.untracked.bool(True),
       doMC = cms.untracked.bool(True),
       doPDFInfo = cms.untracked.bool(True),
       doSignalMuMuGamma = cms.untracked.bool(False),  # not tested in 2.X.X or 3.X.X
       doSignalTopTop = cms.untracked.bool(False),
-#     signalGenerator = cms.untracked.string('PYTHIA'),
+      signalGenerator = cms.untracked.string('PYTHIA'),
 #     signalGenerator = cms.untracked.string('COMPHEP'),
 #     signalGenerator = cms.untracked.string('ALPGEN'),
-      signalGenerator = cms.untracked.string('MADGRAPH'),
+      #signalGenerator = cms.untracked.string('MADGRAPH'),
       doPhotonConversionMC = cms.untracked.bool(True),
 
       doPhotonMC = cms.untracked.bool(True),
@@ -284,20 +287,17 @@ process.streamA_datasetPhoton_selector = HLTrigger.HLTfilters.triggerResultsFilt
 process.streamA_datasetPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 process.streamA_datasetPhoton_selector.l1tResults = cms.InputTag('')
 process.streamA_datasetPhoton_selector.throw      = cms.bool(False)
-process.streamA_datasetPhoton_selector.triggerConditions = cms.vstring(
-    'HLT_Photon20_Cleaned_L1R', 
+process.streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_Photon20_Cleaned_L1R', 
     'HLT_DoublePhoton5_CEP_L1R', 
     'HLT_Photon30_Cleaned_L1R', 
     'HLT_DoublePhoton17_L1R', 
-    'HLT_Photon50_NoHE_Cleaned_L1R',
-#   'HLT_Photon10_Cleaned_L1R'	#the bit that i would like to add ;)
-)
+    'HLT_Photon50_NoHE_Cleaned_L1R')
 
 
 
 # TotoAna standalone
 process.p = cms.Path(process.streamA_datasetPhoton_selector+process.primaryVertexFilter+process.noscraping+process.totoana)
-#process.p = cms.Path(process.primaryVertexFilter+process.noscraping+process.totoana)
+#process.p = cms.Path(process.primaryVertexFilter*process.noscraping*process.conversionSequence*process.photonSequence*process.photonIDSequence*process.totoana)
 
 # Photon reReco + TotoAna
 #process.load("photonReReco")
