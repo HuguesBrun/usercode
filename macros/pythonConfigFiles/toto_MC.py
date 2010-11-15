@@ -296,8 +296,8 @@ process.streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_Phot
 
 
 # TotoAna standalone
-process.p = cms.Path(process.streamA_datasetPhoton_selector+process.primaryVertexFilter+process.noscraping+process.totoana)
-#process.p = cms.Path(process.primaryVertexFilter*process.noscraping*process.conversionSequence*process.photonSequence*process.photonIDSequence*process.totoana)
+process.p = cms.Path(process.primaryVertexFilter+process.noscraping+process.streamA_datasetPhoton_selector+process.totoana)
+#process.p = cms.Path(process.primaryVertexFilter*process.noscraping*process.streamA_datasetPhoton_selector*process.conversionSequence*process.photonSequence*process.photonIDSequence*process.totoana)
 
 # Photon reReco + TotoAna
 #process.load("photonReReco")
