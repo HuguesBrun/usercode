@@ -92,7 +92,7 @@ process.totoana = cms.EDAnalyzer("TotoAnalyzer",
       description = cms.untracked.string('Le dataset pourri a Roberto'),
 
       # What is written to rootuple
-      doLHCInfo = cms.untracked.bool(True),
+      doLHCInfo = cms.untracked.bool(False),
       doL1 = cms.untracked.bool(True),
       doHLT = cms.untracked.bool(True),
       doHLTObject = cms.untracked.bool(True),
@@ -296,8 +296,8 @@ process.streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_Phot
 
 
 # TotoAna standalone
-#process.p = cms.Path(process.primaryVertexFilter+process.noscraping+process.streamA_datasetPhoton_selector+process.totoana)
-process.p = cms.Path(process.primaryVertexFilter*process.noscraping*process.streamA_datasetPhoton_selector*process.conversionSequence*process.photonSequence*process.photonIDSequence*process.totoana)
+process.p = cms.Path(process.primaryVertexFilter+process.noscraping+process.streamA_datasetPhoton_selector+process.totoana)
+#process.p = cms.Path(process.primaryVertexFilter*process.noscraping*process.streamA_datasetPhoton_selector*process.conversionSequence*process.photonSequence*process.photonIDSequence*process.totoana)
 
 # Photon reReco + TotoAna
 #process.load("photonReReco")
