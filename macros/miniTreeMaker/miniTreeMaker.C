@@ -277,6 +277,8 @@ void beginMacro(){
                 myTree_->Branch("pho_PromptGenIsoEnergyStatus2_cone04",&pho_PromptGenIsoEnergyStatus2_cone04,"pho_PromptGenIsoEnergyStatus2_cone04/F");
                 myTree_->Branch("pho_seedSeverity",&pho_seedSeverity,"pho_seedSeverity/I");
                 myTree_->Branch("pho_recoFlag",&pho_recoFlag,"pho_recoFlag/I");
+		myTree_->Branch("pho_seedEnergy",&pho_seedEnergy,"pho_seedEnergy/F");
+		myTree_->Branch("pho_seedTime",&pho_seedTime,"pho_seedTime/F");
                 myTree_->Branch("pho_HLT_bit0",&pho_HLT_bit0,"pho_HLT_bit0/I");
                 myTree_->Branch("pho_HLT_bit1",&pho_HLT_bit1,"pho_HLT_bit1/I");
                 myTree_->Branch("pho_HLT_bit2",&pho_HLT_bit2,"pho_HLT_bit2/I");
@@ -290,7 +292,7 @@ void beginMacro(){
                 myTree_->Branch("pho_SCbr",&pho_SCbr,"pho_SCbr/F");
                 myTree_->Branch("pho_SCnbBC",&pho_SCnbBC,"pho_SCnbBC/I");
                 myTree_->Branch("pho_SCnXtal",&pho_SCnXtal,"pho_SCnXtal/I");
-
+		myTree_->Branch("isAspike",&isAspike,"isAspike/I");
 
 
 }
@@ -306,7 +308,7 @@ int main(){
 	cout << "coucou" << endl;
 	gSystem->Load("/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/src/libToto.so");
         inputEventTree->Add("/sps/cms/hbrun/dataset_3_8_5_patch1/Run2010B-PromptReco-v2/run149003_data_EG_goodVtx_noscrapping_4_1_kJS.root");
-        inputRunTree->Add("/sps/cms/hbrun/dataset_3_8_5_patch1/Run2010B-PromptReco-v2/run149003_data_EG_goodVtx_noscrapping_4_1_kJS.root");
+//        inputRunTree->Add("/sps/cms/hbrun/dataset_3_8_5_patch1/Run2010B-PromptReco-v2/run149003_data_EG_goodVtx_noscrapping_4_1_kJS.root");
 
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
@@ -347,7 +349,7 @@ int main(){
 		}
 		if (doHLT){
 			
-			if (!((event->hltAccept(ListWantedHLTnames[0]))||(event->hltAccept(ListWantedHLTnames[1]))||(event->hltAccept(ListWantedHLTnames[2])))) continue;
+			if (!((event->hltAccept(ListWantedHLTnames[0]))||(event->hltAccept(ListWantedHLTnames[1]))||(event->hltAccept(ListWantedHLTnames[2]))||(event->hltAccept(ListWantedHLTnames[3])))) continue;
 			if (event->hltAccept(ListWantedHLTnames[0])) pho_HLT_bit0 = 1; else pho_HLT_bit0 = 0;
 			if (event->hltAccept(ListWantedHLTnames[1])) pho_HLT_bit1 = 1; else pho_HLT_bit1 = 0;
 			if (event->hltAccept(ListWantedHLTnames[2])) pho_HLT_bit2 = 1; else pho_HLT_bit2 = 0;
@@ -371,8 +373,13 @@ int main(){
 			}
 			float abs_eta = fabs(myphoton->superCluster()->Eta());
 			float scRawEt = myphoton->superCluster()->rawEnergy() * sin(myphoton->superCluster()->Theta());
-			if ( (myphoton->superCluster()->seedSeverity()==3)||(myphoton->superCluster()->seedSeverity()==4)||(myphoton->superCluster()->seedRecoFlag()==2)) continue;
-			NbPhotonsCleaned++;
+			if ( ((myphoton->superCluster()->seedSeverity()==5)||(myphoton->superCluster()->seedSeverity()==4)||((myphoton->superCluster()->seedRecoFlag()==2)&&(myphoton->superCluster()->seedEnergy()<130))||((myphoton->superCluster()->seedEnergy()>=130)&&(myphoton->superCluster()->seedTime()<0)&&(myphoton->superCluster()->seedRecoFlag()==2))||(myphoton->sigmaIetaIeta()<0.001)||(TMath::Sqrt(myphoton->covPhiPhi())<0.001))&&pho_isEB==1) isAspike =1; 
+			else {
+				NbPhotonsCleaned++;
+				isAspike = 0;
+			}
+			pho_seedTime = myphoton->superCluster()->seedTime();
+			pho_seedEnergy = myphoton->superCluster()->seedEnergy();
 			/*if ( abs_eta>2.5 ) continue;
                         if ( abs_eta>1.4442 && abs_eta<1.566 ) continue;
 			NbPhotonsAccept++;

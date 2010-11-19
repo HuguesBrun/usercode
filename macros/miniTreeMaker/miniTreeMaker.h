@@ -45,8 +45,8 @@ TTree *myTree_;
 TChain *inputEventTree = new TChain("eventTree");
 TChain *inputRunTree = new TChain("runTree");
 
-//string ListWantedHLTnames[5] = {"HLT_DoublePhoton15_L1R","HLT_DoublePhoton17_L1R","HLT_Photon10_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon20_Cleaned_L1R"};
-string ListWantedHLTnames[5] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon10_Cleaned_L1R","HLT_Photon70_Cleaned_L1R_v1","HLT_Photon40_Isol_Cleaned_L1R_v1"};
+//string ListWantedHLTnames[5] = {"HLT_DoublePhoton15_L1R","HLT_DoublePhoton17_L1R","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon20_Cleaned_L1R"};
+string ListWantedHLTnames[5] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R_","HLT_Photon40_Isol_Cleaned_L1R_v1"};
 int nbHlt = 5;
 
   bool doHLT;
@@ -182,6 +182,8 @@ int nbHlt = 5;
                 float pho_PromptGenIsoEnergyStatus2_cone04;
                 int pho_seedSeverity;
                 int pho_recoFlag;
+		float pho_seedTime;
+		float pho_seedEnergy;
 		int pho_HLT_bit0;
 		int pho_HLT_bit1;
 		int pho_HLT_bit2;
@@ -196,7 +198,7 @@ int nbHlt = 5;
 		float pho_SCbr;
 		int   pho_SCnbBC;
 		int   pho_SCnXtal;
-		
+		int  isAspike; // if we want do ID spikes ;)		
 
 
 TBranch* event_br = 0;
