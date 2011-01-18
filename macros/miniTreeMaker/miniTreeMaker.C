@@ -284,6 +284,13 @@ void beginMacro(){
                 myTree_->Branch("pho_HLT_bit2",&pho_HLT_bit2,"pho_HLT_bit2/I");
                 myTree_->Branch("pho_HLT_bit3",&pho_HLT_bit3,"pho_HLT_bit3/I");
                 myTree_->Branch("pho_HLT_bit4",&pho_HLT_bit4,"pho_HLT_bit4/I");
+                myTree_->Branch("pho_HLT_bit5",&pho_HLT_bit5,"pho_HLT_bit5/I");
+                myTree_->Branch("pho_HLT_bit6",&pho_HLT_bit6,"pho_HLT_bit6/I");
+                myTree_->Branch("pho_HLT_bit7",&pho_HLT_bit7,"pho_HLT_bit7/I");
+                myTree_->Branch("pho_HLT_bit8",&pho_HLT_bit8,"pho_HLT_bit8/I");
+                myTree_->Branch("pho_HLT_bit9",&pho_HLT_bit9,"pho_HLT_bit9/I");
+                myTree_->Branch("pho_HLT_bit10",&pho_HLT_bit10,"pho_HLT_bit10/I");
+                myTree_->Branch("pho_HLT_bit11",&pho_HLT_bit11,"pho_HLT_bit11/I");
                 myTree_->Branch("pho_SCeta",&pho_SCeta,"pho_SCeta/F");
                 myTree_->Branch("pho_SCphi",&pho_SCphi,"pho_SCphi/F");
                 myTree_->Branch("pho_SCEtraw",&pho_SCEtraw,"pho_SCEtraw/F");
@@ -293,8 +300,15 @@ void beginMacro(){
                 myTree_->Branch("pho_SCnbBC",&pho_SCnbBC,"pho_SCnbBC/I");
                 myTree_->Branch("pho_SCnXtal",&pho_SCnXtal,"pho_SCnXtal/I");
 		myTree_->Branch("isAspike",&isAspike,"isAspike/I");
-
-
+		myTree_->Branch("pho_etaLAT",&pho_etaLAT,"pho_etaLAT/F");
+		myTree_->Branch("pho_phiLAT",&pho_phiLAT,"pho_phiLAT/F");
+		myTree_->Branch("pho_LAT",&pho_LAT,"pho_LAT/F");
+		myTree_->Branch("pho_Zernike20",&pho_Zernike20,"pho_Zernike20/F");
+		myTree_->Branch("pho_Zernike42",&pho_Zernike42,"pho_Zernike42/F");
+		myTree_->Branch("pho_secondMomentMaj",&pho_secondMomentMaj,"pho_secondMomentMaj/F");
+		myTree_->Branch("pho_secondMomentMin",&pho_secondMomentMin,"pho_secondMomentMin/F");
+		myTree_->Branch("pho_secondMomentAlpha",&pho_secondMomentAlpha,"pho_secondMomentAlpha/F");
+		myTree_->Branch("pho_ESratio",&pho_ESratio,"pho_ESratio/F");
 }
 
 void endMacro(){
@@ -306,8 +320,8 @@ void endMacro(){
 //miniTreeMaker(){
 int main(){
 	cout << "coucou" << endl;
-	gSystem->Load("/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/src/libToto.so");
-        inputEventTree->Add("/sps/cms/hbrun/dataset_3_8_5_patch1/Run2010B-PromptReco-v2/run149003_data_EG_goodVtx_noscrapping_4_1_kJS.root");
+	gSystem->Load("/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/src/libToto.so");
+        inputEventTree->Add("/sps/cms/hbrun/dataset_3_8_6/dataReReco3nov/part1/data_EG_goodVtx_noscrapping_90_1_ws1.root");
 //        inputRunTree->Add("/sps/cms/hbrun/dataset_3_8_5_patch1/Run2010B-PromptReco-v2/run149003_data_EG_goodVtx_noscrapping_4_1_kJS.root");
 
 
@@ -349,12 +363,19 @@ int main(){
 		}
 		if (doHLT){
 			
-			if (!((event->hltAccept(ListWantedHLTnames[0]))||(event->hltAccept(ListWantedHLTnames[1]))||(event->hltAccept(ListWantedHLTnames[2]))||(event->hltAccept(ListWantedHLTnames[3])))) continue;
-			if (event->hltAccept(ListWantedHLTnames[0])) pho_HLT_bit0 = 1; else pho_HLT_bit0 = 0;
-			if (event->hltAccept(ListWantedHLTnames[1])) pho_HLT_bit1 = 1; else pho_HLT_bit1 = 0;
-			if (event->hltAccept(ListWantedHLTnames[2])) pho_HLT_bit2 = 1; else pho_HLT_bit2 = 0;
-			if (event->hltAccept(ListWantedHLTnames[3])) pho_HLT_bit3 = 1; else pho_HLT_bit3 = 0;
-			if (event->hltAccept(ListWantedHLTnames[4])) pho_HLT_bit4 = 1; else pho_HLT_bit4 = 0;
+			//if (!((event->hltAccept(ListWantedHLTnames[0]))||(event->hltAccept(ListWantedHLTnames[1]))||(event->hltAccept(ListWantedHLTnames[2]))||(event->hltAccept(ListWantedHLTnames[3])))) continue;
+			if (nbHlt > 0) {if (event->hltAccept(ListWantedHLTnames[0])) pho_HLT_bit0 = 1; else pho_HLT_bit0 = 0;}
+			if (nbHlt > 1) {if (event->hltAccept(ListWantedHLTnames[1])) pho_HLT_bit1 = 1; else pho_HLT_bit1 = 0;}
+			if (nbHlt > 2) {if (event->hltAccept(ListWantedHLTnames[2])) pho_HLT_bit2 = 1; else pho_HLT_bit2 = 0;}
+			if (nbHlt > 3) {if (event->hltAccept(ListWantedHLTnames[3])) pho_HLT_bit3 = 1; else pho_HLT_bit3 = 0;}
+			if (nbHlt > 4) {if (event->hltAccept(ListWantedHLTnames[4])) pho_HLT_bit4 = 1; else pho_HLT_bit4 = 0;}
+			if (nbHlt > 5) {if (event->hltAccept(ListWantedHLTnames[5])) pho_HLT_bit5 = 1; else pho_HLT_bit5 = 0;}
+			if (nbHlt > 6) {if (event->hltAccept(ListWantedHLTnames[6])) pho_HLT_bit6 = 1; else pho_HLT_bit6 = 0;}
+			if (nbHlt > 7) {if (event->hltAccept(ListWantedHLTnames[7])) pho_HLT_bit7 = 1; else pho_HLT_bit7 = 0;}
+			if (nbHlt > 8) {if (event->hltAccept(ListWantedHLTnames[8])) pho_HLT_bit8 = 1; else pho_HLT_bit8 = 0;}
+			if (nbHlt > 9) {if (event->hltAccept(ListWantedHLTnames[9])) pho_HLT_bit9 = 1; else pho_HLT_bit9 = 0;}
+			if (nbHlt > 10) {if (event->hltAccept(ListWantedHLTnames[10])) pho_HLT_bit10 = 1; else pho_HLT_bit10 = 0;}
+			if (nbHlt > 11) {if (event->hltAccept(ListWantedHLTnames[11])) pho_HLT_bit11 = 1; else pho_HLT_bit11 = 0;}
 		}
 	    	NbHLT20++;
 		pho_nVertex = vertices->GetEntriesFast();		
@@ -373,7 +394,7 @@ int main(){
 			}
 			float abs_eta = fabs(myphoton->superCluster()->Eta());
 			float scRawEt = myphoton->superCluster()->rawEnergy() * sin(myphoton->superCluster()->Theta());
-			if ( ((myphoton->superCluster()->seedSeverity()==5)||(myphoton->superCluster()->seedSeverity()==4)||((myphoton->superCluster()->seedRecoFlag()==2)&&(myphoton->superCluster()->seedEnergy()<130))||((myphoton->superCluster()->seedEnergy()>=130)&&(myphoton->superCluster()->seedTime()<0)&&(myphoton->superCluster()->seedRecoFlag()==2))||(myphoton->sigmaIetaIeta()<0.001)||(TMath::Sqrt(myphoton->covPhiPhi())<0.001))&&pho_isEB==1) isAspike =1; 
+			if ( ((myphoton->superCluster()->seedSeverity()==5)||(myphoton->superCluster()->seedSeverity()==4)||((myphoton->superCluster()->seedRecoFlag()==2)&&(myphoton->superCluster()->seedEnergy()<130))||((myphoton->superCluster()->seedEnergy()>=130)&&(myphoton->superCluster()->seedTime()<0)&&(myphoton->superCluster()->seedRecoFlag()==2))||(myphoton->sigmaIetaIeta()<0.001)||(TMath::Sqrt(myphoton->covPhiPhi())<0.001))&&myphoton->isEBPho()==1) isAspike =1; 
 			else {
 				NbPhotonsCleaned++;
 				isAspike = 0;
@@ -409,6 +430,16 @@ int main(){
 	               pho_cEP = myphoton->covEtaPhi();
 	               pho_cPP = myphoton->covPhiPhi();
 
+		       // new cluster shape variables
+			pho_etaLAT = myphoton->etaLAT();
+			pho_phiLAT = myphoton->phiLAT();
+			pho_LAT = myphoton->lat();
+			pho_Zernike20 = myphoton->zernike20();
+			pho_Zernike42 = myphoton->zernike42();
+			pho_secondMomentMaj = myphoton->secondMomentMaj();
+			pho_secondMomentMin = myphoton->secondMomentMin();
+			pho_secondMomentAlpha = myphoton->secondMomentAlpha();
+			pho_ESratio = myphoton->superCluster()->esRatio();
 
 		      //Energy
 		      pho_et = myphoton->Et();

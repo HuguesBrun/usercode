@@ -18,35 +18,35 @@
 #include "TMath.h"
 #include "TSystem.h"
 
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
-#include "/sps/cms/hbrun/CMSSW_3_8_5_patch1/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
+#include "/sps/cms/hbrun/CMSSW_3_8_6/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
 
 TFile *myFile;// = new TFile("theMiniTree.root","RECREATE");
 TTree *myTree_;
 TChain *inputEventTree = new TChain("eventTree");
 TChain *inputRunTree = new TChain("runTree");
 
-//string ListWantedHLTnames[5] = {"HLT_DoublePhoton15_L1R","HLT_DoublePhoton17_L1R","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon20_Cleaned_L1R"};
-string ListWantedHLTnames[5] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R_","HLT_Photon40_Isol_Cleaned_L1R_v1"};
+string ListWantedHLTnames[5] = {"HLT_DoublePhoton5_CEP_L1R","HLT_DoublePhoton17_L1R","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon50_NoHE_Cleaned_L1R"};
+//string ListWantedHLTnames[12] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon40_Isol_Cleaned_L1R_v1","HLT_DoublePhoton5_CEP_L1R_v3","HLT_Photon110_NoHE_Cleaned_L1R_v1","HLT_Photon17_Isol_SC17HE_L1R_v1","HLT_Photon22_SC22HE_L1R_v1","HLT_Photon40_CaloId_Cleaned_L1R_v1","HLT_Photon50_Cleaned_L1R_v1","HLT_Photon70_Cleaned_L1R_v1"};
 int nbHlt = 5;
 
   bool doHLT;
@@ -189,6 +189,13 @@ int nbHlt = 5;
 		int pho_HLT_bit2;
 		int pho_HLT_bit3;
 		int pho_HLT_bit4;
+		int pho_HLT_bit5;
+		int pho_HLT_bit6;
+		int pho_HLT_bit7;
+		int pho_HLT_bit8;
+		int pho_HLT_bit9;
+		int pho_HLT_bit10;
+		int pho_HLT_bit11;
 		// sc infos
 		float pho_SCeta;
 		float pho_SCphi;
@@ -198,7 +205,16 @@ int nbHlt = 5;
 		float pho_SCbr;
 		int   pho_SCnbBC;
 		int   pho_SCnXtal;
-		int  isAspike; // if we want do ID spikes ;)		
+		int  isAspike; // if we want do ID spikes ;)	
+		float pho_etaLAT;
+		float pho_phiLAT;
+		float pho_LAT;
+		float pho_Zernike20;
+		float pho_Zernike42;
+		float pho_secondMomentMaj;
+		float pho_secondMomentMin;
+		float pho_secondMomentAlpha;
+		float pho_ESratio;	
 
 
 TBranch* event_br = 0;
