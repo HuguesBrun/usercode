@@ -39,7 +39,7 @@ do_scatPlot(TString nom, TString variable1, TString variable2, float Xmin, float
 	TString localPart="1";
 	if (part ==1) {localPart="pho_isEB==1"; nom +="_EB";}
 	else if (part ==2) {localPart="pho_isEE==1"; nom += "_EE";}
-	else nom += "_all";
+	else nom += "_All";
 
 	TString theCut = Cuts+"&&"+cutEnPlus+"&&"+localPart;
 	TString theTotalNom = nom+"_"+nomEnPlus;
@@ -65,12 +65,14 @@ do_IsoPlots(){
 	
 	TString theTriggerCutIsol = "pho_IsoEcalRechit03<(5+0.006*pho_et)&&pho_IsoHcalRechit03<(3+0.0025*pho_et)";
 	TString theTotalIdTriggerCutIsol = "pho_hasPixelSeed==0&&pho_IsoEcalRechit<4.2&&pho_IsoHcalRechit<2.2&&((pho_isEB==1&&pho_sigmaIetaIeta<0.01)||(pho_isEE==1&&pho_sigmaIetaIeta<0.03))&&pho_IsoHollowTrkCone03<(3+0.001*pho_et)&&pho_IsoEcalRechit03<(5+0.006*pho_et)&&pho_IsoHcalRechit03<(3+0.0025*pho_et)";
+	TString theRef= "pho_hasPixelSeed==0&&pho_IsoEcalRechit<4.2&&pho_IsoHcalRechit<2.2&&((pho_isEB==1&&pho_sigmaIetaIeta<0.01)||(pho_isEE==1&&pho_sigmaIetaIeta<0.03))";
 	
 
 	do_theHistos("ratio","pho_IsoHollowTrkCone/pho_IsoHollowTrkCone03",0,5,100, theBaseCut,1,"Isol",theTriggerCutIsol);
 	do_theHistos("relaDiff","(pho_IsoHollowTrkCone-pho_IsoHollowTrkCone03)/pho_IsoHollowTrkCone",-2,2,100, theBaseCut,1,"Isol",theTriggerCutIsol);
 	
 	do_theHistos("ecalIso","pho_IsoHollowTrkCone",-1,20,42, theBaseCut,0,"Isol",theTotalIdTriggerCutIsol);
+	do_theHistos("ecalIsoRef","pho_IsoHollowTrkCone",-1,20,42, theBaseCut,0,"Isol",theRef);
 	
 	do_AllscatPlot("scat", "pho_IsoHollowTrkCone", "pho_IsoHollowTrkCone03", 0, 15, 100,  theBaseCut, 1, "Isol", theTriggerCutIsol);
 
@@ -113,12 +115,14 @@ TString theBaseCut="isAspike==0&&(abs(pho_SCeta)<=2.5)&&(!((abs(pho_SCeta)>1.444
 
 TString theTriggerCutIsol = "pho_IsoEcalRechit03<(5+0.006*pho_et)&&pho_IsoHcalRechit03<(3+0.0025*pho_et)";
 TString theTotalIdTriggerCutIsol = "pho_hasPixelSeed==0&&pho_IsoEcalRechit<4.2&&pho_IsoHcalRechit<2.2&&((pho_isEB==1&&pho_sigmaIetaIeta<0.01)||(pho_isEE==1&&pho_sigmaIetaIeta<0.03))&&pho_IsoHollowTrkCone03<(3+0.001*pho_et)&&pho_IsoEcalRechit03<(5+0.006*pho_et)&&pho_IsoHcalRechit03<(3+0.0025*pho_et)";
+TString theRef = "pho_hasPixelSeed==0&&pho_IsoEcalRechit<4.2&&pho_IsoHcalRechit<2.2&&((pho_isEB==1&&pho_sigmaIetaIeta<0.01)||(pho_isEE==1&&pho_sigmaIetaIeta<0.03))";
 
 
 do_theHistos("ratio","pho_IsoHollowTrkCone/pho_IsoHollowTrkCone03",0,5,100, theBaseCut,1,"IsolMidEt",theTriggerCutIsol);
 do_theHistos("relaDiff","(pho_IsoHollowTrkCone-pho_IsoHollowTrkCone03)/pho_IsoHollowTrkCone",-2,2,100, theBaseCut,1,"IsolMidEt",theTriggerCutIsol);
 
 do_theHistos("ecalIso","pho_IsoHollowTrkCone",-1,20,42, theBaseCut,0,"IsolMidEt",theTotalIdTriggerCutIsol);
+do_theHistos("ecalIsoRef","pho_IsoHollowTrkCone",-1,20,42, theBaseCut,0,"IsolMidEt",theRef);
 
 do_AllscatPlot("scat", "pho_IsoHollowTrkCone", "pho_IsoHollowTrkCone03", 0, 15, 100,  theBaseCut, 1, "IsolMidEt", theTriggerCutIsol);
 
@@ -160,12 +164,14 @@ TString theBaseCut="isAspike==0&&(abs(pho_SCeta)<=2.5)&&(!((abs(pho_SCeta)>1.444
 
 TString theTriggerCutIsol = "pho_IsoEcalRechit03<(5+0.006*pho_et)&&pho_IsoHcalRechit03<(3+0.0025*pho_et)";
 TString theTotalIdTriggerCutIsol = "pho_hasPixelSeed==0&&pho_IsoEcalRechit<4.2&&pho_IsoHcalRechit<2.2&&((pho_isEB==1&&pho_sigmaIetaIeta<0.01)||(pho_isEE==1&&pho_sigmaIetaIeta<0.03))&&pho_IsoHollowTrkCone03<(3+0.001*pho_et)&&pho_IsoEcalRechit03<(5+0.006*pho_et)&&pho_IsoHcalRechit03<(3+0.0025*pho_et)";
+TString theRef = "pho_hasPixelSeed==0&&pho_IsoEcalRechit<4.2&&pho_IsoHcalRechit<2.2&&((pho_isEB==1&&pho_sigmaIetaIeta<0.01)||(pho_isEE==1&&pho_sigmaIetaIeta<0.03))";
 
 
 do_theHistos("ratio","pho_IsoHollowTrkCone/pho_IsoHollowTrkCone03",0,5,100, theBaseCut,1,"IsolHighEt",theTriggerCutIsol);
 do_theHistos("relaDiff","(pho_IsoHollowTrkCone-pho_IsoHollowTrkCone03)/pho_IsoHollowTrkCone",-2,2,100, theBaseCut,1,"IsolHighEt",theTriggerCutIsol);
 
 do_theHistos("ecalIso","pho_IsoHollowTrkCone",-1,20,42, theBaseCut,0,"IsolHighEt",theTotalIdTriggerCutIsol);
+do_theHistos("ecalIsoRef","pho_IsoHollowTrkCone",-1,20,42, theBaseCut,0,"IsolHighEt",theRef);
 
 do_AllscatPlot("scat", "pho_IsoHollowTrkCone", "pho_IsoHollowTrkCone03", 0, 15, 100,  theBaseCut, 1, "IsolHighEt", theTriggerCutIsol);
 
