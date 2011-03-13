@@ -18,28 +18,28 @@
 #include "TMath.h"
 #include "TSystem.h"
 
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
-#include "/sps/cms/hbrun/CMSSW_3_9_7/src/Morgan/IpnTreeProducer/interface/TRootHLTObject.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootHLTObject.h"
 
 
 TFile *myFile;// = new TFile("theMiniTree.root","RECREATE");
@@ -117,6 +117,7 @@ int nbHlt = 12;
                 float pho_IsoHcalRechit;
                 float pho_IsoSolidTrkCone;
                 float pho_IsoHollowTrkCone;
+		int   pho_IsoNNiceTracks;
                 float pho_IsoEcalRechit03;
                 float pho_IsoHcalRechit03;
                 float pho_IsoSolidTrkCone03;

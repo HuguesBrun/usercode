@@ -44,7 +44,7 @@ void beginMacro(){
 	superClusters = new TClonesArray("TRootSuperCluster", 0);
 	conversionTracks = new TClonesArray("TRootTrack", 0);
 	met = new TClonesArray("TRootMET", 0);
-	HLTObjects = new TClonesArray("TRootHLTObjects", 0);
+	HLTObjects = new TClonesArray("TRootHLTObject", 0);
 
 
   inputEventTree->SetBranchAddress("Event", &event, &event_br);
@@ -166,8 +166,8 @@ void beginMacro(){
     }
   if (doHLTobject)
     {
-		inputEventTree->SetBranchAddress("HLTObjects",&HLTObjects, &HLTObjects_br);
-		inputEventTree->SetBranchStatus("HLTObjects", 1);
+      inputEventTree->SetBranchAddress("HLTObjects",&HLTObjects, &HLTObjects_br);
+      inputEventTree->SetBranchStatus("HLTObjects", 1);
     }
 
 
@@ -214,6 +214,7 @@ void beginMacro(){
                 myTree_->Branch("pho_IsoHcalRechit",&pho_IsoHcalRechit,"pho_IsoHcalRechit/F");
                 myTree_->Branch("pho_IsoSolidTrkCone",&pho_IsoSolidTrkCone,"pho_IsoSolidTrkCone/F");
                 myTree_->Branch("pho_IsoHollowTrkCone",&pho_IsoHollowTrkCone,"pho_IsoHollowTrkCone/F");
+		myTree_->Branch("pho_IsoNNiceTracks",&pho_IsoNNiceTracks,"pho_IsoNNiceTracks/I");
                 myTree_->Branch("pho_IsoEcalRechit03",&pho_IsoEcalRechit03,"pho_IsoEcalRechit03/F");
                 myTree_->Branch("pho_IsoHcalRechit03",&pho_IsoHcalRechit03,"pho_IsoHcalRechit03/F");
                 myTree_->Branch("pho_IsoSolidTrkCone03",&pho_IsoSolidTrkCone03,"pho_IsoSolidTrkCone03/F");
@@ -333,7 +334,7 @@ void beginMacro(){
 		myTree_->Branch("pho_truePz",&pho_truePz,"pho_truePz/F");
 		myTree_->Branch("pho_trueEta",&pho_trueEta,"pho_trueEta/F");
 		myTree_->Branch("pho_truePhi",&pho_truePhi,"pho_truePhi/F");
-	myTree_->Branch("pho_isMatchingWithHLTObject",&pho_isMatchingWithHLTObject,"pho_isMatchingWithHLTObject/I");
+		myTree_->Branch("pho_isMatchingWithHLTObject",&pho_isMatchingWithHLTObject,"pho_isMatchingWithHLTObject/I");
 }
 
 void endMacro(){
@@ -345,8 +346,8 @@ void endMacro(){
 //miniTreeMaker(){
 int main(){
 	cout << "coucou" << endl;
-	gSystem->Load("/sps/cms/hbrun/CMSSW_3_9_7_new/src/Morgan/IpnTreeProducer/src/libToto.so");
-        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/run_148952Ter/data_EG_goodVtx_noscrapping_*.root");
+	gSystem->Load("/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/src/libToto.so");
+        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/run149291new/data_EG_goodVtx_noscrapping_12_1_ynk.root");
 
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
@@ -354,7 +355,7 @@ int main(){
 	beginMacro();
 
 	int NbEvents = inputEventTree->GetEntries();	cout << "NbEvents = " << NbEvents << endl;
-	//NbEvents = 100;
+//	NbEvents = 10;
 	int NbHLT20 = 0;
 	int NbPhotons = 0;
 	int NbPhotonsCleaned = 0;
@@ -500,6 +501,7 @@ int main(){
 		      pho_IsoHcalRechit = myphoton->dR04IsolationHcalRecHit();
 		      pho_IsoSolidTrkCone = myphoton->dR04IsolationSolidTrkCone();
 		      pho_IsoHollowTrkCone = myphoton->dR04IsolationHollowTrkCone();
+		      pho_IsoNNiceTracks = myphoton->dR04IsolationNNiceTracks();
 		      pho_IsoEcalRechit03 = myphoton->dR03IsolationEcalRecHit();
 		      pho_IsoHcalRechit03 = myphoton->dR03IsolationHcalRecHit();
 		      pho_IsoSolidTrkCone03 = myphoton->dR03IsolationSolidTrkCone();
@@ -608,8 +610,7 @@ int main(){
 			pho_SCnbBC = myphoton->superCluster()->nBasicClusters();
 			pho_SCnXtal = myphoton->superCluster()->nXtals();
 			
-
-				
+			pho_isMatchingWithHLTObject = findMatchingWithAnHLTObjet(myphoton, HLTObjects, "hltL1NonIsoHLTNonIsoDoublePhotonEt17SingleIsolTrackIsolFilter");	
 				myTree_->Fill();
 
 		}

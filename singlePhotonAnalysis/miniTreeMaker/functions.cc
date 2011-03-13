@@ -260,3 +260,20 @@ void matchWithAnElectron(TRootPhoton *myPhoton, TClonesArray *electrons, int *is
 
 	}
 }
+
+int findMatchingWithAnHLTObjet(TRootPhoton *myPhoton, TClonesArray *HLTobject, TString filterName){
+	int NbHLTSize = HLTobject->GetEntriesFast();
+	if (NbHLTSize==0) return 0;
+//	cout << "Size = " << NbHLTSize << endl;
+	float dR;
+	int isAgood = 0;
+	for (int i = 0 ; i < NbHLTSize ; i++){
+		TRootHLTObject *theHLT = (TRootHLTObject*) HLTobject->At(i);
+		dR = DeltaR(theHLT->Phi(),myPhoton->Phi(),theHLT->Eta(),myPhoton->Eta());
+		if (dR < 0.3) {
+			if (filterName==theHLT->hltFilter()) isAgood=1;
+		}
+	}
+	if (isAgood == 1) return 1;
+	else return 0;
+}
