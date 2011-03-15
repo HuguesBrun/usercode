@@ -240,7 +240,25 @@ int nbHlt = 12;
 		float pho_trueEta;
 		float pho_truePhi;
 		// HLT object
-        int pho_isMatchingWithHLTObject;
+        	int pho_isMatchingWithHLTObject;
+		// convertion variables
+		int pho_isConverted;
+		int pho_NtrackConv;
+		float pho_convEoverP;
+		float pho_convMass;
+		float pho_convCotanTheta;
+		float pho_convLikely;
+		float pho_convVertexX;
+		float pho_convVertexY;
+		float pho_convVertexZ;
+		//MC truth conversions variables
+		int pho_MCisConverted;
+		float pho_MCconvEoverP;
+		float pho_MCconvMass;
+		float pho_MCconvCotanTheta;
+		float pho_MCconvVertexX;
+		float pho_MCconvVertexY;
+		float pho_MCconvVertexZ;
 
 TBranch* event_br = 0;
 TBranch* run_br = 0;

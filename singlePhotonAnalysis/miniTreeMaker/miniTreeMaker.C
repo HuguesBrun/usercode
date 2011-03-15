@@ -4,13 +4,13 @@ void beginMacro(){
 
 	doHLT                    = true;
 	doHLTobject		 = true;
-  	doMC                     = false;
+  	doMC                     = true;
   	doJetMC                  = false;
   	doMETMC                  = false;
   	doPDFInfo                = true;
   	doSignalMuMuGamma        = false;
   	doSignalTopTop           = false;
-  	doPhotonConversionMC     = false;
+  	doPhotonConversionMC     = true;
   	doBeamSpot               = true;
   	doPrimaryVertex          = true;
   	doZeePrimaryVertex       = false;
@@ -335,6 +335,21 @@ void beginMacro(){
 		myTree_->Branch("pho_trueEta",&pho_trueEta,"pho_trueEta/F");
 		myTree_->Branch("pho_truePhi",&pho_truePhi,"pho_truePhi/F");
 		myTree_->Branch("pho_isMatchingWithHLTObject",&pho_isMatchingWithHLTObject,"pho_isMatchingWithHLTObject/I");
+		myTree_->Branch("pho_isConverted",&pho_isConverted,"pho_isConverted/I");
+		myTree_->Branch("pho_NtrackConv",&pho_NtrackConv,"pho_NtrackConv/I");
+		myTree_->Branch("pho_convEoverP",&pho_convEoverP,"pho_convEoverP/F");
+		myTree_->Branch("pho_convMass",&pho_convMass,"pho_convMass/F");
+		myTree_->Branch("pho_convCotanTheta",&pho_convCotanTheta,"pho_convCotanTheta/F");
+		myTree_->Branch("pho_convLikely",&pho_convLikely,"pho_convLikely/F");
+		myTree_->Branch("pho_convVertexX",&pho_convVertexX,"pho_convVertexX/F");
+		myTree_->Branch("pho_convVertexY",&pho_convVertexY,"pho_convVertexY/F");
+		myTree_->Branch("pho_convVertexZ",&pho_convVertexZ,"pho_convVertexZ/F");
+		myTree_->Branch("pho_MCisConverted",&pho_MCisConverted,"pho_MCisConverted/I");
+		myTree_->Branch("pho_MCconvEoverP",&pho_MCconvEoverP,"pho_MCconvEoverP/F");
+		myTree_->Branch("pho_MCconvCotanTheta",&pho_MCconvCotanTheta,"pho_MCconvCotanTheta/F");
+		myTree_->Branch("pho_MCconvVertexX",&pho_MCconvVertexX,"pho_MCconvVertexX/F");
+		myTree_->Branch("pho_MCconvVertexY",&pho_MCconvVertexY,"pho_MCconvVertexY/F");
+		myTree_->Branch("pho_MCconvVertexZ",&pho_MCconvVertexZ,"pho_MCconvVertexZ/F");
 }
 
 void endMacro(){
@@ -347,8 +362,8 @@ void endMacro(){
 int main(){
 	cout << "coucou" << endl;
 	gSystem->Load("/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/src/libToto.so");
-        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/run149291new/data_EG_goodVtx_noscrapping_12_1_ynk.root");
-
+//        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/run149291/data_EG_goodVtx_noscrapping_10_1_oUP.root");
+	inputEventTree->Add("../test/MC_EG_goodVtx_noscrapping.root");
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
 
@@ -610,8 +625,26 @@ int main(){
 			pho_SCnbBC = myphoton->superCluster()->nBasicClusters();
 			pho_SCnXtal = myphoton->superCluster()->nXtals();
 			
-			pho_isMatchingWithHLTObject = findMatchingWithAnHLTObjet(myphoton, HLTObjects, "hltL1NonIsoHLTNonIsoDoublePhotonEt17SingleIsolTrackIsolFilter");	
-				myTree_->Fill();
+			pho_isMatchingWithHLTObject = findMatchingWithAnHLTObjet(myphoton, HLTObjects, "hltL1NonIsoHLTNonIsoDoublePhotonEt17SingleIsolTrackIsolFilter");
+
+
+			// now fill the conversions variables
+			pho_isConverted = 0;
+			if (myphoton->convNTracks() > 0 ) pho_isConverted = 1; 
+			pho_NtrackConv = myphoton->convNTracks();
+			pho_convEoverP = myphoton->convEoverP();
+			pho_convMass = myphoton->convMass();
+			pho_convCotanTheta = myphoton->convCotanTheta();
+			pho_convLikely = myphoton->convLikely();
+			pho_convVertexX = myphoton->convVertex().x();
+			pho_convVertexY = myphoton->convVertex().y();
+			pho_convVertexZ = myphoton->convVertex().z();
+			
+			if (doPhotonConversionMC){
+				findConversionMCtruth(myphoton, mcPhotons, pho_MCisConverted, pho_MCconvEoverP, pho_MCconvMass, pho_MCconvCotanTheta, pho_MCconvVertexX, pho_MCconvVertexY, pho_MCconvVertexZ);
+			}
+
+			myTree_->Fill();
 
 		}
 

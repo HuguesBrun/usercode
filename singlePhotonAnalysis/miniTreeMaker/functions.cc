@@ -160,9 +160,9 @@ void doGenInfo(TRootPhoton* myphoton, TClonesArray* mcParticles, Int_t* pho_GenI
     if (mygenparticle->type()==22 && mygenparticle->motherType()==22) *pho_isPromptGenPho = 1;
     else *pho_isPromptGenPho = 0;
 
+    *pho_isFromQuarkGen = 0;
     if (mygenparticle->type()==22 && mygenparticle->motherType()!=22) {
 
-      *pho_isFromQuarkGen = 0;
       *pho_isPi0Gen = 0;
       *pho_isEtaGen = 0;
       *pho_isRhoGen = 0;
@@ -276,4 +276,42 @@ int findMatchingWithAnHLTObjet(TRootPhoton *myPhoton, TClonesArray *HLTobject, T
 	}
 	if (isAgood == 1) return 1;
 	else return 0;
+}
+
+void findConversionMCtruth(TRootPhoton *myPhoton, TClonesArray *theMCphotons, int &pho_MCisConverted, float &pho_MCconvEoverP, float &pho_MCconvMass, float &pho_MCconvCotanTheta, float &pho_MCconvVertexX, float &pho_MCconvVertexY, float &pho_MCconvVertexZ){
+float dr = 0;
+int theIteMin = -1000;
+float theDiff;
+float theMinDiff = 100000;
+for (unsigned int i =0 ; i < theMCphotons->GetEntriesFast() ; i++){
+	TRootMCPhoton *theMCphoton = (TRootMCPhoton*) theMCphotons->At(i);
+	dr = DeltaR(myPhoton->Phi(),theMCphoton->Phi(),myPhoton->Eta(),theMCphoton->Eta());
+	if (dr < 0.3){
+		theDiff = fabs(theMCphoton->Pt()-myPhoton->Pt());
+		if (theDiff < theMinDiff){
+			theMinDiff = theDiff;
+			theIteMin = i;	
+		}
+	}
+}
+if (theIteMin == -1000){
+	pho_MCisConverted = 0;
+	pho_MCconvEoverP = -10000;
+	pho_MCconvMass = -10000;
+	pho_MCconvCotanTheta = -10000;
+	pho_MCconvVertexX = -10000;
+	pho_MCconvVertexY = -10000;
+	pho_MCconvVertexZ = -10000;
+}
+else {
+	TRootMCPhoton *theMCphoton = (TRootMCPhoton*) theMCphotons->At(theIteMin);
+	pho_MCisConverted = 1;
+	pho_MCconvEoverP = theMCphoton->convEoverP();
+	pho_MCconvMass = theMCphoton->convMass();
+	pho_MCconvCotanTheta = theMCphoton->convDeltaCotanTheta();
+	pho_MCconvVertexX = theMCphoton->conv_vx();
+	pho_MCconvVertexY = theMCphoton->conv_vy();
+	pho_MCconvVertexZ = theMCphoton->conv_vz();
+
+}
 }
