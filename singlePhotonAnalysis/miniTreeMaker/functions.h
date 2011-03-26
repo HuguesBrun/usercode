@@ -8,6 +8,7 @@
 #include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
 #include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
 #include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootMCElectron.h"
 #include "/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/interface/TRootHLTObject.h"
 
 

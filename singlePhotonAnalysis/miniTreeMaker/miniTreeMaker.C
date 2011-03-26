@@ -4,13 +4,14 @@ void beginMacro(){
 
 	doHLT                    = true;
 	doHLTobject		 = true;
-  	doMC                     = true;
+  	doMC                     = false;
   	doJetMC                  = false;
   	doMETMC                  = false;
   	doPDFInfo                = true;
   	doSignalMuMuGamma        = false;
   	doSignalTopTop           = false;
-  	doPhotonConversionMC     = true;
+  	doPhotonConversionMC     = false;
+  	doElectronConversionMC   = false;
   	doBeamSpot               = true;
   	doPrimaryVertex          = true;
   	doZeePrimaryVertex       = false;
@@ -31,6 +32,7 @@ void beginMacro(){
 	genJets = new TClonesArray("TRootParticle", 0);
 	genMETs = new TClonesArray("TRootParticle", 0);
 	mcPhotons = new TClonesArray("TRootMCPhoton", 0);
+	mcElectrons = new TClonesArray("TRootMCElectron", 0);
 	vertices = new TClonesArray("TRootVertex", 0);
 	zeeVertices = new TClonesArray("TRootVertex", 0);
 	tracks = new TClonesArray("TRootTrack", 0);
@@ -88,6 +90,11 @@ void beginMacro(){
       inputEventTree->SetBranchStatus("MCPhotons", 1);
     }
 
+  if (doElectronConversionMC)
+    {
+      inputEventTree->SetBranchAddress("MCElectrons",&mcElectrons, &mcElectrons_br);
+      inputEventTree->SetBranchStatus("MCElectrons",1);
+    }
   if(doBeamSpot)
     {
       inputEventTree->SetBranchAddress("BeamSpot", &beamSpot, &beamSpot_br);
@@ -350,6 +357,9 @@ void beginMacro(){
 		myTree_->Branch("pho_MCconvVertexX",&pho_MCconvVertexX,"pho_MCconvVertexX/F");
 		myTree_->Branch("pho_MCconvVertexY",&pho_MCconvVertexY,"pho_MCconvVertexY/F");
 		myTree_->Branch("pho_MCconvVertexZ",&pho_MCconvVertexZ,"pho_MCconvVertexZ/F");
+		myTree_->Branch("pho_xVertex",&pho_xVertex,"pho_xVertex/F");
+		myTree_->Branch("pho_yVertex",&pho_yVertex,"pho_yVertex/F");
+		myTree_->Branch("pho_zVertex",&pho_zVertex,"pho_zVertex/F");
 }
 
 void endMacro(){
@@ -362,15 +372,16 @@ void endMacro(){
 int main(){
 	cout << "coucou" << endl;
 	gSystem->Load("/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/src/libToto.so");
-//        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/run149291/data_EG_goodVtx_noscrapping_10_1_oUP.root");
-	inputEventTree->Add("../test/MC_EG_goodVtx_noscrapping.root");
+        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/run149291Iso/data_*.root");
+//	inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/testDY/MC_EG_goodVtx_noscrapping*.root");
+//	inputEventTree->Add("../test/data_EG_goodVtx_noscrapping.root");
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
 
 	beginMacro();
 
 	int NbEvents = inputEventTree->GetEntries();	cout << "NbEvents = " << NbEvents << endl;
-//	NbEvents = 10;
+//	NbEvents = 500;
 	int NbHLT20 = 0;
 	int NbPhotons = 0;
 	int NbPhotonsCleaned = 0;
@@ -584,6 +595,11 @@ int main(){
 			pho_eleMissHits = -1;
 
 			  matchWithAnElectron(myphoton, electrons, &pho_isAlsoRecoAsElectron, &pho_fBrem, &pho_momentumCorrected, &pho_d0,&pho_tightEleId, &pho_eleTrkIso, &pho_eleEcalIso, &pho_eleHcalIso, &pho_eleDeltaPhiIn, &pho_eleDeltaEtaIn, &pho_eleHoE, &pho_eleSigmaIetaIeta, &pho_eleMissHits, &pho_eleDistConvPartner, &pho_eleDcotConvPartner);
+	
+			if ((pho_isAlsoRecoAsElectron==1)&&(doElectronConversionMC)) {
+				findTheMCelectron(myphoton,mcElectrons);	
+			}			
+	
 		      //conpho_closestSC_dR
 		      double dR=10;
 		      for (int isc=0; isc<superClusters->GetEntriesFast(); isc++){
@@ -625,7 +641,7 @@ int main(){
 			pho_SCnbBC = myphoton->superCluster()->nBasicClusters();
 			pho_SCnXtal = myphoton->superCluster()->nXtals();
 			
-			pho_isMatchingWithHLTObject = findMatchingWithAnHLTObjet(myphoton, HLTObjects, "hltL1NonIsoHLTNonIsoDoublePhotonEt17SingleIsolTrackIsolFilter");
+			pho_isMatchingWithHLTObject = findMatchingWithAnHLTObjet(myphoton, HLTObjects, "hltL1NonIsoHLTNonIsoSinglePhotonEt40IsolCleanedTrackIsolFilter");
 
 
 			// now fill the conversions variables
@@ -643,6 +659,9 @@ int main(){
 			if (doPhotonConversionMC){
 				findConversionMCtruth(myphoton, mcPhotons, pho_MCisConverted, pho_MCconvEoverP, pho_MCconvMass, pho_MCconvCotanTheta, pho_MCconvVertexX, pho_MCconvVertexY, pho_MCconvVertexZ);
 			}
+			pho_xVertex = myphoton->vx();
+			pho_yVertex = myphoton->vy();
+			pho_zVertex = myphoton->vz();
 
 			myTree_->Fill();
 

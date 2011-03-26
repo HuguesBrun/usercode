@@ -73,7 +73,8 @@ int nbHlt = 12;
   bool doMET;
   bool doBardak;
   bool doPhotonVertexCorrection;
-  bool doPhotonIsolation;    
+  bool doPhotonIsolation;   
+  bool doElectronConversionMC; 
 
 
                 int pho_iEvent;
@@ -259,6 +260,10 @@ int nbHlt = 12;
 		float pho_MCconvVertexX;
 		float pho_MCconvVertexY;
 		float pho_MCconvVertexZ;
+		// vertex infos of the photon
+		float pho_xVertex;
+		float pho_yVertex;
+		float pho_zVertex;
 
 TBranch* event_br = 0;
 TBranch* run_br = 0;
@@ -268,6 +273,7 @@ TBranch* genMETs_br = 0;
 TBranch* mcSignalMuMuGamma_br = 0;
 TBranch* mcTopTopEvent_br = 0;
 TBranch* mcPhotons_br = 0;
+TBranch* mcElectrons_br = 0;
 TBranch* beamSpot_br = 0;
 TBranch* vertices_br = 0;
 TBranch* zeeVertices_br = 0;
@@ -293,6 +299,7 @@ TClonesArray* genMETs; // = new TClonesArray("TRootParticle", 0);
 TRootSignalEvent* mcMuMuGammaEvent = 0;
 TRootSignalEvent* mcTopTopEvent = 0;
 TClonesArray* mcPhotons; // = new TClonesArray("TRootMCPhoton", 0);
+TClonesArray* mcElectrons;
 TRootBeamSpot* beamSpot = 0;
 TClonesArray* vertices; // = new TClonesArray("TRootVertex", 0);
 TClonesArray* zeeVertices; // = new TClonesArray("TRootVertex", 0);

@@ -315,3 +315,29 @@ else {
 
 }
 }
+void findTheMCelectron(TRootPhoton *myPhoton, TClonesArray *theMCelectron){
+	int theIteMin = -1000;
+	float theMinDiff  = 10000;
+	float theDiff;
+	float dr;
+	for (unsigned int i = 0 ; i < theMCelectron->GetEntriesFast() ; i++){
+		TRootMCElectron *theElectron  = (TRootMCElectron*) theMCelectron->At(i);
+		dr = DeltaR(myPhoton->Phi(),theElectron->Phi(),myPhoton->Eta(),theElectron->Eta());
+		if (dr < 0.3){
+			theDiff = fabs(theElectron->Pt()-myPhoton->Pt());
+			if (theDiff < theMinDiff){
+				theMinDiff = theDiff;
+				theIteMin = i;	
+			}
+		}
+	}
+	if (theIteMin > 0 ) {
+		TRootMCElectron *theElectron  = (TRootMCElectron*) theMCelectron->At(theIteMin);
+		cout << "photon phi = " << myPhoton->Phi() << " electron phi " << theElectron->Phi() << endl;
+		std::vector<float> theBrem = theElectron->energyLoss(); 
+		cout << "taille = " << theBrem.size() << endl;
+		for (int j = 0 ; j < theBrem.size() ; j++){
+			cout << "brem loss = " << theBrem[j] << endl;
+		}	
+	}
+}
