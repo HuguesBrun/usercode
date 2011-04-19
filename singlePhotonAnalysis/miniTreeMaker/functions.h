@@ -30,3 +30,5 @@ void doGenInfo(TRootPhoton* myphoton, TClonesArray* mcParticles, Int_t* pho_GenI
 void matchWithAnElectron(TRootPhoton *myPhoton, TClonesArray *electrons, int *isAlsoaRecoElectron, float *pho_fBrem, float *pho_momentumCorrected, float *pho_d0, float *pho_tightEleId, float *pho_eleTrkIso, float *pho_eleEcalIso, float *pho_eleHcalIso, float *pho_eleDeltaPhiIn, float *pho_eleDeltaEtaIn, float *pho_eleHoE, float *pho_eleSigmaIetaIeta, int *pho_eleMissHits, float *pho_eleDistConvPartner, float *pho_eleDcotConvPartner);
 int findMatchingWithAnHLTObjet(TRootPhoton *myPhoton, TClonesArray *HLTobject, TString filterName);
 void findConversionMCtruth(TRootPhoton *myPhoton, TClonesArray *theMCphotons, int &pho_MCisConverted, float &pho_MCconvEoverP, float &pho_MCconvMass, float &pho_MCconvCotanTheta, float &pho_MCconvVertexX, float &pho_MCconvVertexY, float &pho_MCconvVertexZ);
+
+void findTheMCelectron(TRootPhoton *myPhoton, TClonesArray *theMCelectron, float &pho_eleMCtruthBrem, int &pho_eleMCtruthNBrem);

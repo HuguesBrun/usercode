@@ -153,7 +153,6 @@ void doGenInfo(TRootPhoton* myphoton, TClonesArray* mcParticles, Int_t* pho_GenI
    
     *pho_GenId = mygenparticle->type();
     *pho_MotherId = mygenparticle->motherType();
-
     if (abs(mygenparticle->type())==11) *pho_isGenElectron = 1;
     else *pho_isGenElectron = 0;
 
@@ -315,7 +314,7 @@ else {
 
 }
 }
-void findTheMCelectron(TRootPhoton *myPhoton, TClonesArray *theMCelectron){
+void findTheMCelectron(TRootPhoton *myPhoton, TClonesArray *theMCelectron, float &pho_eleMCtruthBrem, int &pho_eleMCtruthNBrem){
 	int theIteMin = -1000;
 	float theMinDiff  = 10000;
 	float theDiff;
@@ -333,11 +332,14 @@ void findTheMCelectron(TRootPhoton *myPhoton, TClonesArray *theMCelectron){
 	}
 	if (theIteMin > 0 ) {
 		TRootMCElectron *theElectron  = (TRootMCElectron*) theMCelectron->At(theIteMin);
-		cout << "photon phi = " << myPhoton->Phi() << " electron phi " << theElectron->Phi() << endl;
+//		cout << "photon phi = " << myPhoton->Phi() << " electron phi " << theElectron->Phi() << endl;
 		std::vector<float> theBrem = theElectron->energyLoss(); 
-		cout << "taille = " << theBrem.size() << endl;
+//$		cout << "taille = " << theBrem.size() << endl;
+		pho_eleMCtruthBrem = 0;
+		pho_eleMCtruthNBrem = theBrem.size();
 		for (int j = 0 ; j < theBrem.size() ; j++){
-			cout << "brem loss = " << theBrem[j] << endl;
+	//		cout << "brem loss = " << theBrem[j] << endl;
+			pho_eleMCtruthBrem += theBrem[j];
 		}	
 	}
 }

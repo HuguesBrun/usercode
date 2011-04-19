@@ -4,13 +4,13 @@ void beginMacro(){
 
 	doHLT                    = true;
 	doHLTobject		 = true;
-  	doMC                     = false;
+  	doMC                     = true;
   	doJetMC                  = false;
   	doMETMC                  = false;
   	doPDFInfo                = true;
   	doSignalMuMuGamma        = false;
   	doSignalTopTop           = false;
-  	doPhotonConversionMC     = false;
+  	doPhotonConversionMC     = true;
   	doElectronConversionMC   = false;
   	doBeamSpot               = true;
   	doPrimaryVertex          = true;
@@ -26,6 +26,7 @@ void beginMacro(){
   	doBardak                 = false;
   	doPhotonVertexCorrection = false;
   	doPhotonIsolation        = true;
+	doDiphotons		 = true;
 
 
 	mcParticles = new TClonesArray("TRootMCParticle", 0);
@@ -227,6 +228,7 @@ void beginMacro(){
                 myTree_->Branch("pho_IsoSolidTrkCone03",&pho_IsoSolidTrkCone03,"pho_IsoSolidTrkCone03/F");
                 myTree_->Branch("pho_IsoHollowTrkCone03",&pho_IsoHollowTrkCone03,"pho_IsoHollowTrkCone03/F");
                 myTree_->Branch("pho_esRatio",&pho_esRatio,"pho_esRatio/F");
+		myTree_->Branch("pho_nbOther",&pho_nbOther,"pho_nbOther/I");
                 myTree_->Branch("pho_convNTracks",&pho_convNTracks,"pho_convNTracks/I");
                 myTree_->Branch("pho_ptoverjetpt",&pho_ptoverjetpt,"pho_ptoverjetpt/F");
                 myTree_->Branch("pho_DrSCclosest",&pho_DrSCclosest,"pho_DrSCclosest/F");
@@ -360,6 +362,8 @@ void beginMacro(){
 		myTree_->Branch("pho_xVertex",&pho_xVertex,"pho_xVertex/F");
 		myTree_->Branch("pho_yVertex",&pho_yVertex,"pho_yVertex/F");
 		myTree_->Branch("pho_zVertex",&pho_zVertex,"pho_zVertex/F");
+		myTree_->Branch("pho_eleMCtruthBrem",&pho_eleMCtruthBrem,"pho_eleMCtruthBrem/F");
+		myTree_->Branch("pho_eleMCtruthNBrem",&pho_eleMCtruthNBrem,"pho_eleMCtruthNBrem/I");
 }
 
 void endMacro(){
@@ -372,9 +376,7 @@ void endMacro(){
 int main(){
 	cout << "coucou" << endl;
 	gSystem->Load("/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/src/libToto.so");
-        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/run149291Iso/data_*.root");
-//	inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/testDY/MC_EG_goodVtx_noscrapping*.root");
-//	inputEventTree->Add("../test/data_EG_goodVtx_noscrapping.root");
+        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/DYtoEE/DYtoEE_973.root");
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
 
@@ -414,7 +416,16 @@ int main(){
 			if (nbHlt > 11) {if (event->hltAccept(ListWantedHLTnames[11])) pho_HLT_bit11 = 1; else pho_HLT_bit11 = 0;}
 		}
 	    	NbHLT20++;
-		pho_nVertex = vertices->GetEntriesFast();		
+		pho_nVertex = vertices->GetEntriesFast();	
+		int nbDipho = 0;
+		if (doDiphotons) {
+			for (int iphoton=0; iphoton< photons->GetEntriesFast(); iphoton++){
+				TRootPhoton *myphoton = (TRootPhoton*) photons->At(iphoton);
+				if (myphoton->Et() > secondPhotonCut) {
+					nbDipho++;
+				} 
+			}
+		}
 
 		for (int iphoton=0; iphoton< photons->GetEntriesFast(); iphoton++){
 			NbPhotons++;
@@ -438,7 +449,7 @@ int main(){
 			pho_seedTime = myphoton->superCluster()->seedTime();
 			pho_seedEnergy = myphoton->superCluster()->seedEnergy();
 
-
+			pho_nbOther = nbDipho;
 			pho_iEvent = ievt;
 			pho_EventNumber = event->eventId();
 			pho_RunNumber = event->runId();
@@ -593,11 +604,13 @@ int main(){
 			pho_eleHoE = -1;
 			pho_eleSigmaIetaIeta = -1;
 			pho_eleMissHits = -1;
+			pho_eleMCtruthBrem = -10000;
+			pho_eleMCtruthNBrem = -10000;
 
 			  matchWithAnElectron(myphoton, electrons, &pho_isAlsoRecoAsElectron, &pho_fBrem, &pho_momentumCorrected, &pho_d0,&pho_tightEleId, &pho_eleTrkIso, &pho_eleEcalIso, &pho_eleHcalIso, &pho_eleDeltaPhiIn, &pho_eleDeltaEtaIn, &pho_eleHoE, &pho_eleSigmaIetaIeta, &pho_eleMissHits, &pho_eleDistConvPartner, &pho_eleDcotConvPartner);
 	
 			if ((pho_isAlsoRecoAsElectron==1)&&(doElectronConversionMC)) {
-				findTheMCelectron(myphoton,mcElectrons);	
+				findTheMCelectron(myphoton,mcElectrons, pho_eleMCtruthBrem, pho_eleMCtruthNBrem);	
 			}			
 	
 		      //conpho_closestSC_dR
@@ -641,8 +654,9 @@ int main(){
 			pho_SCnbBC = myphoton->superCluster()->nBasicClusters();
 			pho_SCnXtal = myphoton->superCluster()->nXtals();
 			
-			pho_isMatchingWithHLTObject = findMatchingWithAnHLTObjet(myphoton, HLTObjects, "hltL1NonIsoHLTNonIsoSinglePhotonEt40IsolCleanedTrackIsolFilter");
-
+			if (doHLTobject){	
+				pho_isMatchingWithHLTObject = findMatchingWithAnHLTObjet(myphoton, HLTObjects, theHTLobject);
+			}
 
 			// now fill the conversions variables
 			pho_isConverted = 0;
