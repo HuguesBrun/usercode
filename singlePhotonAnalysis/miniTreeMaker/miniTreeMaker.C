@@ -3,7 +3,7 @@
 void beginMacro(){
 
 	doHLT                    = true;
-	doHLTobject		 = true;
+	doHLTobject		 = false;
   	doMC                     = true;
   	doJetMC                  = false;
   	doMETMC                  = false;
@@ -184,9 +184,9 @@ void beginMacro(){
                myTree_->Branch("pho_iEvent",&pho_iEvent,"pho_iEvent/I");
                 myTree_->Branch("pho_EventNumber",&pho_EventNumber,"pho_EventNumber/I");
                 myTree_->Branch("pho_RunNumber",&pho_RunNumber,"pho_RunNumber/I");
-				myTree_->Branch("pho_lumiSection",&pho_lumiSection,"pho_lumiSection/I");
-	myTree_->Branch("pho_eventProcessId",&pho_eventProcessId,"pho_eventProcessId/I");
-
+		myTree_->Branch("pho_lumiSection",&pho_lumiSection,"pho_lumiSection/I");
+		myTree_->Branch("pho_eventProcessId",&pho_eventProcessId,"pho_eventProcessId/I");
+		myTree_->Branch("pho_rho",&pho_rho,"pho_rho/F");
                 myTree_->Branch("pho_isEB",&pho_isEB,"pho_isEB/I");
                 myTree_->Branch("pho_isEE",&pho_isEE,"pho_isEE/I");
                 myTree_->Branch("pho_isEEP",&pho_isEEP,"pho_isEEP/I");
@@ -207,6 +207,8 @@ void beginMacro(){
                 myTree_->Branch("pho_e2nd",&pho_e2nd,"pho_e2nd/F");
                 myTree_->Branch("pho_r19",&pho_r19,"pho_r19/F");
                 myTree_->Branch("pho_r9",&pho_r9,"pho_r9/F");
+		myTree_->Branch("pho_e2x2",&pho_e2x2,"pho_e2x2/F");
+		myTree_->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5/F");
                 myTree_->Branch("pho_S9overS9minusS1S2",&pho_S9overS9minusS1S2,"pho_S9overS9minusS1S2/F");
                 myTree_->Branch("pho_cEE",&pho_cEE,"pho_cEE/F");
                 myTree_->Branch("pho_cEP",&pho_cEP,"pho_cEP/F");
@@ -222,6 +224,8 @@ void beginMacro(){
                 myTree_->Branch("pho_IsoHcalRechit",&pho_IsoHcalRechit,"pho_IsoHcalRechit/F");
                 myTree_->Branch("pho_IsoSolidTrkCone",&pho_IsoSolidTrkCone,"pho_IsoSolidTrkCone/F");
                 myTree_->Branch("pho_IsoHollowTrkCone",&pho_IsoHollowTrkCone,"pho_IsoHollowTrkCone/F");
+		myTree_->Branch("pho_IsoSolidNtrackCone",&pho_IsoSolidNtrackCone,"pho_IsoSolidNtrackCone/I");
+		myTree_->Branch("pho_IsoHollowNtrackCone",&pho_IsoHollowNtrackCone,"pho_IsoHollowNtrackCone/I");
 		myTree_->Branch("pho_IsoNNiceTracks",&pho_IsoNNiceTracks,"pho_IsoNNiceTracks/I");
                 myTree_->Branch("pho_IsoEcalRechit03",&pho_IsoEcalRechit03,"pho_IsoEcalRechit03/F");
                 myTree_->Branch("pho_IsoHcalRechit03",&pho_IsoHcalRechit03,"pho_IsoHcalRechit03/F");
@@ -295,6 +299,7 @@ void beginMacro(){
                 myTree_->Branch("pho_eventPassHLT_DoublePhoton10_L1R",&pho_eventPassHLT_DoublePhoton10_L1R,"pho_eventPassHLT_DoublePhoton10_L1R/I");
                 myTree_->Branch("pho_eventPtHat",&pho_eventPtHat,"pho_eventPtHat/F");
                 myTree_->Branch("pho_nVertex",&pho_nVertex,"pho_nVertex/I");
+                myTree_->Branch("pho_nGenVertex",&pho_nGenVertex,"pho_nGenVertex/I");
                 myTree_->Branch("pho_PromptGenIsoEnergyStatus1_cone02",&pho_PromptGenIsoEnergyStatus1_cone02,"pho_PromptGenIsoEnergyStatus1_cone02/F");
                 myTree_->Branch("pho_PromptGenIsoEnergyStatus2_cone02",&pho_PromptGenIsoEnergyStatus2_cone02,"pho_PromptGenIsoEnergyStatus2_cone02/F");
                 myTree_->Branch("pho_PromptGenIsoEnergyStatus1_cone03",&pho_PromptGenIsoEnergyStatus1_cone03,"pho_PromptGenIsoEnergyStatus1_cone03/F");
@@ -322,6 +327,7 @@ void beginMacro(){
                 myTree_->Branch("pho_SCeta",&pho_SCeta,"pho_SCeta/F");
                 myTree_->Branch("pho_SCphi",&pho_SCphi,"pho_SCphi/F");
                 myTree_->Branch("pho_SCEtraw",&pho_SCEtraw,"pho_SCEtraw/F");
+		myTree_->Branch("pho_SCEraw",&pho_SCEraw,"pho_SCEraw/F");
                 myTree_->Branch("pho_SCEt",&pho_SCEt,"pho_SCEt/F");
                 myTree_->Branch("pho_SCr9",&pho_SCr9,"pho_SCr9/F");
                 myTree_->Branch("pho_SCbr",&pho_SCbr,"pho_SCbr/F");
@@ -375,8 +381,8 @@ void endMacro(){
 //miniTreeMaker(){
 int main(){
 	cout << "coucou" << endl;
-	gSystem->Load("/sps/cms/hbrun/CMSSW_3_9_7_dev/src/Morgan/IpnTreeProducer/src/libToto.so");
-        inputEventTree->Add("/sps/cms/hbrun/dataset_3_9_7/DYtoEE/DYtoEE_973.root");
+	gSystem->Load("/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/src/libToto.so");
+        inputEventTree->Add("/sps/cms/obondu/CMSSW_4_1_4_patch2_v3/src/UserCode/IpnTreeProducer/test/GJet_Pt-20_doubleEMEnriched_TuneZ2_7TeV-pythia6//GJet_Pt-20_doubleEMEnriched_TuneZ2_7TeV-pythia6_8_1_jRe.root");
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
 
@@ -453,6 +459,7 @@ int main(){
 			pho_iEvent = ievt;
 			pho_EventNumber = event->eventId();
 			pho_RunNumber = event->runId();
+			pho_rho = event->rho();
 			pho_lumiSection = event->luminosityBlock();
 		 	pho_isEB = myphoton->isEBPho();
 			pho_isEE = myphoton->isEEPho();
@@ -498,6 +505,8 @@ int main(){
 		      pho_eMax = myphoton->eMax();
 		      pho_e2nd = myphoton->e2nd();
 		      pho_r19 = myphoton->r19();
+		      pho_e2x2 = myphoton->e2x2();
+		      pho_e5x5 = myphoton->e5x5();
 		      pho_r9 = myphoton->r9();
 		      if (myphoton->e3x3()-myphoton->eMax()-myphoton->e2nd()!=0) pho_S9overS9minusS1S2 = myphoton->e3x3()/(myphoton->e3x3()-myphoton->eMax()-myphoton->e2nd());
 		      else pho_S9overS9minusS1S2 = -999;
@@ -538,6 +547,8 @@ int main(){
 		      pho_IsoHcalRechit = myphoton->dR04IsolationHcalRecHit();
 		      pho_IsoSolidTrkCone = myphoton->dR04IsolationSolidTrkCone();
 		      pho_IsoHollowTrkCone = myphoton->dR04IsolationHollowTrkCone();
+		      pho_IsoSolidNtrackCone = myphoton->dR04IsolationNTracksSolidCone();
+		      pho_IsoHollowNtrackCone = myphoton->dR04IsolationNTracksHollowCone();
 		      pho_IsoNNiceTracks = myphoton->dR04IsolationNNiceTracks();
 		      pho_IsoEcalRechit03 = myphoton->dR03IsolationEcalRecHit();
 		      pho_IsoHcalRechit03 = myphoton->dR03IsolationHcalRecHit();
@@ -653,6 +664,7 @@ int main(){
 			if (myphoton->superCluster()->etaWidth()!=0) pho_SCbr = myphoton->superCluster()->phiWidth()/myphoton->superCluster()->etaWidth(); else pho_SCbr = -1;
 			pho_SCnbBC = myphoton->superCluster()->nBasicClusters();
 			pho_SCnXtal = myphoton->superCluster()->nXtals();
+			pho_SCEraw = myphoton->superCluster()->rawEnergy();
 			
 			if (doHLTobject){	
 				pho_isMatchingWithHLTObject = findMatchingWithAnHLTObjet(myphoton, HLTObjects, theHTLobject);

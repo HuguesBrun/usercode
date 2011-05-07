@@ -144,7 +144,7 @@ void doGenInfo(TRootPhoton* myphoton, TClonesArray* mcParticles, Int_t* pho_GenI
   }
   if (igpsl!=-1){
     mygenparticle = (TRootMCParticle*) mcParticles->At(igpsl);
-    *pho_trueE = mygenparticle->Mag();
+    *pho_trueE = mygenparticle->E();
     *pho_truePx = mygenparticle->Px();
     *pho_truePy = mygenparticle->Py();
     *pho_truePz = mygenparticle->Pz();
