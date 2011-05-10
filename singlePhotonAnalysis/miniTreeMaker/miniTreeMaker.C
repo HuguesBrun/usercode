@@ -3,14 +3,14 @@
 void beginMacro(){
 
 	doHLT                    = true;
-	doHLTobject		 = false;
-  	doMC                     = true;
+	doHLTobject		 = true;
+  	doMC                     = false;
   	doJetMC                  = false;
   	doMETMC                  = false;
   	doPDFInfo                = true;
   	doSignalMuMuGamma        = false;
   	doSignalTopTop           = false;
-  	doPhotonConversionMC     = true;
+  	doPhotonConversionMC     = false;
   	doElectronConversionMC   = false;
   	doBeamSpot               = true;
   	doPrimaryVertex          = true;
@@ -324,6 +324,12 @@ void beginMacro(){
                 myTree_->Branch("pho_HLT_bit9",&pho_HLT_bit9,"pho_HLT_bit9/I");
                 myTree_->Branch("pho_HLT_bit10",&pho_HLT_bit10,"pho_HLT_bit10/I");
                 myTree_->Branch("pho_HLT_bit11",&pho_HLT_bit11,"pho_HLT_bit11/I");
+                myTree_->Branch("pho_HLT_bit12",&pho_HLT_bit12,"pho_HLT_bit12/I");
+                myTree_->Branch("pho_HLT_bit13",&pho_HLT_bit13,"pho_HLT_bit13/I");
+                myTree_->Branch("pho_HLT_bit14",&pho_HLT_bit14,"pho_HLT_bit14/I");
+                myTree_->Branch("pho_HLT_bit15",&pho_HLT_bit15,"pho_HLT_bit15/I");
+                myTree_->Branch("pho_HLT_bit16",&pho_HLT_bit16,"pho_HLT_bit16/I");
+                myTree_->Branch("pho_HLT_bit17",&pho_HLT_bit17,"pho_HLT_bit17/I");
                 myTree_->Branch("pho_SCeta",&pho_SCeta,"pho_SCeta/F");
                 myTree_->Branch("pho_SCphi",&pho_SCphi,"pho_SCphi/F");
                 myTree_->Branch("pho_SCEtraw",&pho_SCEtraw,"pho_SCEtraw/F");
@@ -382,7 +388,7 @@ void endMacro(){
 int main(){
 	cout << "coucou" << endl;
 	gSystem->Load("/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/src/libToto.so");
-        inputEventTree->Add("/sps/cms/obondu/CMSSW_4_1_4_patch2_v3/src/UserCode/IpnTreeProducer/test/GJet_Pt-20_doubleEMEnriched_TuneZ2_7TeV-pythia6//GJet_Pt-20_doubleEMEnriched_TuneZ2_7TeV-pythia6_8_1_jRe.root");
+        inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data//store/user/hbrun/data2011toMay/part1AODbis/data_EG_goodVtx_noscrapping_1_1_i4f.root");
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
 
@@ -420,6 +426,12 @@ int main(){
 			if (nbHlt > 9) {if (event->hltAccept(ListWantedHLTnames[9])) pho_HLT_bit9 = 1; else pho_HLT_bit9 = 0;}
 			if (nbHlt > 10) {if (event->hltAccept(ListWantedHLTnames[10])) pho_HLT_bit10 = 1; else pho_HLT_bit10 = 0;}
 			if (nbHlt > 11) {if (event->hltAccept(ListWantedHLTnames[11])) pho_HLT_bit11 = 1; else pho_HLT_bit11 = 0;}
+			if (nbHlt > 12) {if (event->hltAccept(ListWantedHLTnames[12])) pho_HLT_bit12 = 1; else pho_HLT_bit12 = 0;}
+			if (nbHlt > 13) {if (event->hltAccept(ListWantedHLTnames[13])) pho_HLT_bit13 = 1; else pho_HLT_bit13 = 0;}
+			if (nbHlt > 14) {if (event->hltAccept(ListWantedHLTnames[14])) pho_HLT_bit14 = 1; else pho_HLT_bit14 = 0;}
+			if (nbHlt > 15) {if (event->hltAccept(ListWantedHLTnames[15])) pho_HLT_bit15 = 1; else pho_HLT_bit15 = 0;}
+			if (nbHlt > 16) {if (event->hltAccept(ListWantedHLTnames[16])) pho_HLT_bit16 = 1; else pho_HLT_bit16 = 0;}
+			if (nbHlt > 17) {if (event->hltAccept(ListWantedHLTnames[17])) pho_HLT_bit17 = 1; else pho_HLT_bit17 = 0;}
 		}
 	    	NbHLT20++;
 		pho_nVertex = vertices->GetEntriesFast();	
