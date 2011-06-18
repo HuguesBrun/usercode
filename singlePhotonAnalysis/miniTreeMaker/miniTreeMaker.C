@@ -9,6 +9,7 @@ void beginMacro(){
   	doMETMC                  = false;
   	doPDFInfo                = true;
   	doSignalMuMuGamma        = false;
+	doLeadingPhoton		 = true;
   	doSignalTopTop           = false;
   	doPhotonConversionMC     = false;
   	doElectronConversionMC   = false;
@@ -233,6 +234,7 @@ void beginMacro(){
                 myTree_->Branch("pho_IsoHollowTrkCone03",&pho_IsoHollowTrkCone03,"pho_IsoHollowTrkCone03/F");
                 myTree_->Branch("pho_esRatio",&pho_esRatio,"pho_esRatio/F");
 		myTree_->Branch("pho_nbOther",&pho_nbOther,"pho_nbOther/I");
+		myTree_->Branch("pho_nbOtherIso",&pho_nbOtherIso,"pho_nbOtherIso/I");
                 myTree_->Branch("pho_convNTracks",&pho_convNTracks,"pho_convNTracks/I");
                 myTree_->Branch("pho_ptoverjetpt",&pho_ptoverjetpt,"pho_ptoverjetpt/F");
                 myTree_->Branch("pho_DrSCclosest",&pho_DrSCclosest,"pho_DrSCclosest/F");
@@ -330,6 +332,28 @@ void beginMacro(){
                 myTree_->Branch("pho_HLT_bit15",&pho_HLT_bit15,"pho_HLT_bit15/I");
                 myTree_->Branch("pho_HLT_bit16",&pho_HLT_bit16,"pho_HLT_bit16/I");
                 myTree_->Branch("pho_HLT_bit17",&pho_HLT_bit17,"pho_HLT_bit17/I");
+                myTree_->Branch("pho_HLT_bit18",&pho_HLT_bit18,"pho_HLT_bit18/I");
+                myTree_->Branch("pho_HLT_bit19",&pho_HLT_bit19,"pho_HLT_bit19/I");
+                myTree_->Branch("pho_HLT_bit20",&pho_HLT_bit20,"pho_HLT_bit20/I");
+                myTree_->Branch("pho_HLT_bit21",&pho_HLT_bit21,"pho_HLT_bit21/I");
+                myTree_->Branch("pho_HLT_bit22",&pho_HLT_bit22,"pho_HLT_bit22/I");
+                myTree_->Branch("pho_HLT_bit23",&pho_HLT_bit23,"pho_HLT_bit23/I");
+                myTree_->Branch("pho_HLT_bit24",&pho_HLT_bit24,"pho_HLT_bit24/I");
+                myTree_->Branch("pho_HLT_bit25",&pho_HLT_bit25,"pho_HLT_bit25/I");
+                myTree_->Branch("pho_HLT_bit26",&pho_HLT_bit26,"pho_HLT_bit26/I");
+                myTree_->Branch("pho_HLT_bit27",&pho_HLT_bit27,"pho_HLT_bit27/I");
+                myTree_->Branch("pho_HLT_bit28",&pho_HLT_bit28,"pho_HLT_bit28/I");
+                myTree_->Branch("pho_HLT_bit29",&pho_HLT_bit29,"pho_HLT_bit29/I");
+                myTree_->Branch("pho_HLT_bit30",&pho_HLT_bit30,"pho_HLT_bit30/I");
+                myTree_->Branch("pho_HLT_bit31",&pho_HLT_bit31,"pho_HLT_bit31/I");
+                myTree_->Branch("pho_HLT_bit32",&pho_HLT_bit32,"pho_HLT_bit32/I");
+                myTree_->Branch("pho_HLT_bit33",&pho_HLT_bit33,"pho_HLT_bit33/I");
+                myTree_->Branch("pho_HLT_bit34",&pho_HLT_bit34,"pho_HLT_bit34/I");
+                myTree_->Branch("pho_HLT_bit35",&pho_HLT_bit35,"pho_HLT_bit35/I");
+                myTree_->Branch("pho_HLT_bit36",&pho_HLT_bit36,"pho_HLT_bit36/I");
+                myTree_->Branch("pho_HLT_bit37",&pho_HLT_bit37,"pho_HLT_bit37/I");
+                myTree_->Branch("pho_HLT_bit38",&pho_HLT_bit38,"pho_HLT_bit38/I");
+                myTree_->Branch("pho_HLT_bit39",&pho_HLT_bit39,"pho_HLT_bit39/I");
                 myTree_->Branch("pho_SCeta",&pho_SCeta,"pho_SCeta/F");
                 myTree_->Branch("pho_SCphi",&pho_SCphi,"pho_SCphi/F");
                 myTree_->Branch("pho_SCEtraw",&pho_SCEtraw,"pho_SCEtraw/F");
@@ -376,6 +400,7 @@ void beginMacro(){
 		myTree_->Branch("pho_zVertex",&pho_zVertex,"pho_zVertex/F");
 		myTree_->Branch("pho_eleMCtruthBrem",&pho_eleMCtruthBrem,"pho_eleMCtruthBrem/F");
 		myTree_->Branch("pho_eleMCtruthNBrem",&pho_eleMCtruthNBrem,"pho_eleMCtruthNBrem/I");
+		myTree_->Branch("pho_isLeadingPhoton",&pho_isLeadingPhoton,"pho_isLeadingPhoton/I");
 }
 
 void endMacro(){
@@ -387,7 +412,7 @@ void endMacro(){
 //miniTreeMaker(){
 int main(){
 	cout << "coucou" << endl;
-	gSystem->Load("/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/src/libToto.so");
+	gSystem->Load("/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/src/libToto.so");
         inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data//store/user/hbrun/data2011toMay/part1AODbis/data_EG_goodVtx_noscrapping_1_1_i4f.root");
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
@@ -432,16 +457,45 @@ int main(){
 			if (nbHlt > 15) {if (event->hltAccept(ListWantedHLTnames[15])) pho_HLT_bit15 = 1; else pho_HLT_bit15 = 0;}
 			if (nbHlt > 16) {if (event->hltAccept(ListWantedHLTnames[16])) pho_HLT_bit16 = 1; else pho_HLT_bit16 = 0;}
 			if (nbHlt > 17) {if (event->hltAccept(ListWantedHLTnames[17])) pho_HLT_bit17 = 1; else pho_HLT_bit17 = 0;}
+			if (nbHlt > 18) {if (event->hltAccept(ListWantedHLTnames[18])) pho_HLT_bit18 = 1; else pho_HLT_bit18 = 0;}
+			if (nbHlt > 19) {if (event->hltAccept(ListWantedHLTnames[19])) pho_HLT_bit19 = 1; else pho_HLT_bit19 = 0;}
+			if (nbHlt > 20) {if (event->hltAccept(ListWantedHLTnames[20])) pho_HLT_bit20 = 1; else pho_HLT_bit20 = 0;}
+			if (nbHlt > 21) {if (event->hltAccept(ListWantedHLTnames[21])) pho_HLT_bit21 = 1; else pho_HLT_bit21 = 0;}
+			if (nbHlt > 22) {if (event->hltAccept(ListWantedHLTnames[22])) pho_HLT_bit22 = 1; else pho_HLT_bit22 = 0;}
+			if (nbHlt > 23) {if (event->hltAccept(ListWantedHLTnames[23])) pho_HLT_bit23 = 1; else pho_HLT_bit23 = 0;}
+			if (nbHlt > 24) {if (event->hltAccept(ListWantedHLTnames[24])) pho_HLT_bit24 = 1; else pho_HLT_bit24 = 0;}
+			if (nbHlt > 25) {if (event->hltAccept(ListWantedHLTnames[25])) pho_HLT_bit25 = 1; else pho_HLT_bit25 = 0;}
+			if (nbHlt > 26) {if (event->hltAccept(ListWantedHLTnames[26])) pho_HLT_bit26 = 1; else pho_HLT_bit26 = 0;}
+			if (nbHlt > 27) {if (event->hltAccept(ListWantedHLTnames[27])) pho_HLT_bit27 = 1; else pho_HLT_bit27 = 0;}
+			if (nbHlt > 28) {if (event->hltAccept(ListWantedHLTnames[28])) pho_HLT_bit28 = 1; else pho_HLT_bit28 = 0;}
+			if (nbHlt > 29) {if (event->hltAccept(ListWantedHLTnames[29])) pho_HLT_bit29 = 1; else pho_HLT_bit29 = 0;}
+			if (nbHlt > 30) {if (event->hltAccept(ListWantedHLTnames[30])) pho_HLT_bit30 = 1; else pho_HLT_bit30 = 0;}
+			if (nbHlt > 31) {if (event->hltAccept(ListWantedHLTnames[31])) pho_HLT_bit31 = 1; else pho_HLT_bit31 = 0;}
+			if (nbHlt > 32) {if (event->hltAccept(ListWantedHLTnames[32])) pho_HLT_bit32 = 1; else pho_HLT_bit32 = 0;}
+			if (nbHlt > 33) {if (event->hltAccept(ListWantedHLTnames[33])) pho_HLT_bit33 = 1; else pho_HLT_bit33 = 0;}
+			if (nbHlt > 34) {if (event->hltAccept(ListWantedHLTnames[34])) pho_HLT_bit34 = 1; else pho_HLT_bit34 = 0;}
+			if (nbHlt > 35) {if (event->hltAccept(ListWantedHLTnames[35])) pho_HLT_bit35 = 1; else pho_HLT_bit35 = 0;}
+			if (nbHlt > 36) {if (event->hltAccept(ListWantedHLTnames[36])) pho_HLT_bit36 = 1; else pho_HLT_bit36 = 0;}
+			if (nbHlt > 37) {if (event->hltAccept(ListWantedHLTnames[37])) pho_HLT_bit37 = 1; else pho_HLT_bit37 = 0;}
+			if (nbHlt > 38) {if (event->hltAccept(ListWantedHLTnames[38])) pho_HLT_bit38 = 1; else pho_HLT_bit38 = 0;}
+			if (nbHlt > 39) {if (event->hltAccept(ListWantedHLTnames[39])) pho_HLT_bit39 = 1; else pho_HLT_bit39 = 0;}
 		}
 	    	NbHLT20++;
 		pho_nVertex = vertices->GetEntriesFast();	
 		int nbDipho = 0;
-		if (doDiphotons) {
+		int nbDiphoIso = 0;
+		float maxEnergy = 0;
+		if ((doDiphotons)||(doLeadingPhoton)) {
 			for (int iphoton=0; iphoton< photons->GetEntriesFast(); iphoton++){
 				TRootPhoton *myphoton = (TRootPhoton*) photons->At(iphoton);
 				if (myphoton->Et() > secondPhotonCut) {
 					nbDipho++;
+					if ((myphoton->dR04IsolationEcalRecHit()<IsoEcal)&&(myphoton->dR04IsolationHcalRecHit()<IsoHcal)&&(myphoton->dR04IsolationHollowTrkCone()<IsoTrk)){
+						nbDiphoIso++;
+					}
 				} 
+				if (myphoton->Et() > maxEnergy) maxEnergy = myphoton->Et();
+				
 			}
 		}
 
@@ -467,7 +521,10 @@ int main(){
 			pho_seedTime = myphoton->superCluster()->seedTime();
 			pho_seedEnergy = myphoton->superCluster()->seedEnergy();
 
+			if (myphoton->Et()== maxEnergy) pho_isLeadingPhoton = 1;
+			else pho_isLeadingPhoton = 0; 
 			pho_nbOther = nbDipho;
+			pho_nbOtherIso = nbDiphoIso;
 			pho_iEvent = ievt;
 			pho_EventNumber = event->eventId();
 			pho_RunNumber = event->runId();

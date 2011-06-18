@@ -18,28 +18,28 @@
 #include "TMath.h"
 #include "TSystem.h"
 
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
-#include "/sps/cms/hbrun/CMSSW_4_1_4_patch2/src/Morgan/IpnTreeProducer/interface/TRootHLTObject.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootHLTObject.h"
 
 
 TFile *myFile;// = new TFile("theMiniTree.root","RECREATE");
@@ -51,10 +51,139 @@ TChain *inputRunTree = new TChain("runTree");
 
 //string ListWantedHLTnames[18] = {"HLT_DoublePhoton33_v2","HLT_Photon125_NoSpikeFilter_v2","HLT_Photon20_CaloIdVL_IsoL_v1","HLT_Photon20_R9Id_Photon18_R9Id_v2","HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v2","HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v1","HLT_Photon26_CaloIdL_IsoVL_Photon18_v2","HLT_Photon26_IsoVL_Photon18_IsoVL_v2","HLT_Photon26_IsoVL_Photon18_v2","HLT_Photon26_Photon18_v2","HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v1","HLT_Photon30_CaloIdVL_IsoL_v2","HLT_Photon30_CaloIdVL_v2","HLT_Photon32_CaloIdL_Photon26_CaloIdL_v2","HLT_Photon36_CaloIdL_Photon22_CaloIdL_v1","HLT_Photon50_CaloIdVL_IsoL_v1","HLT_Photon75_CaloIdVL_IsoL_v2","HLT_Photon75_CaloIdVL_v2"};
 
-string ListWantedHLTnames[18] = {"HLT_DoublePhoton33_v3","HLT_Photon125_NoSpikeFilter_v3","HLT_Photon20_CaloIdVL_IsoL_v2","HLT_Photon20_R9Id_Photon18_R9Id_v3","HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v3","HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v2","HLT_Photon26_CaloIdL_IsoVL_Photon18_v3","HLT_Photon26_IsoVL_Photon18_IsoVL_v3","HLT_Photon26_IsoVL_Photon18_v3","HLT_Photon26_Photon18_v3","HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v2","HLT_Photon30_CaloIdVL_IsoL_v3","HLT_Photon30_CaloIdVL_v3","HLT_Photon32_CaloIdL_Photon26_CaloIdL_v3","HLT_Photon36_CaloIdL_Photon22_CaloIdL_v2","HLT_Photon50_CaloIdVL_IsoL_v2","HLT_Photon75_CaloIdVL_IsoL_v3","HLT_Photon75_CaloIdVL_v3"};
-int nbHlt = 18;
+//string ListWantedHLTnames[18] = {"HLT_DoublePhoton33_v3","HLT_Photon125_NoSpikeFilter_v3","HLT_Photon20_CaloIdVL_IsoL_v2","HLT_Photon20_R9Id_Photon18_R9Id_v3","HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v3","HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v2","HLT_Photon26_CaloIdL_IsoVL_Photon18_v3","HLT_Photon26_IsoVL_Photon18_IsoVL_v3","HLT_Photon26_IsoVL_Photon18_v3","HLT_Photon26_Photon18_v3","HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v2","HLT_Photon30_CaloIdVL_IsoL_v3","HLT_Photon30_CaloIdVL_v3","HLT_Photon32_CaloIdL_Photon26_CaloIdL_v3","HLT_Photon36_CaloIdL_Photon22_CaloIdL_v2","HLT_Photon50_CaloIdVL_IsoL_v2","HLT_Photon75_CaloIdVL_IsoL_v3","HLT_Photon75_CaloIdVL_v3"};
+
+/*string ListWantedHLTnames[34] = { // Run2011 1e33 v1.3 
+"HLT_DoubleEle33_CaloIdL_v1",
+"HLT_DoubleEle33_v1",
+"HLT_DoublePhoton33_HEVT_v1",
+"HLT_DoublePhoton33_v4",
+"HLT_DoublePhoton40_MR150_v1",
+"HLT_DoublePhoton40_R014_MR150_v1",
+"HLT_DoublePhoton50_v1",
+"HLT_DoublePhoton5_IsoVL_CEP_v3",
+"HLT_DoublePhoton60_v1",
+"HLT_Photon125_v1",
+"HLT_Photon200_NoHE_v1",
+"HLT_Photon20_CaloIdVL_IsoL_v3",
+"HLT_Photon20_R9Id_Photon18_R9Id_v4",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v4",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v3",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_v4",
+"HLT_Photon26_IsoVL_Photon18_IsoVL_v4",
+"HLT_Photon26_IsoVL_Photon18_v4",
+"HLT_Photon26_Photon18_v4",
+"HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v3",
+"HLT_Photon26_R9Id_Photon18_R9Id_v1",
+"HLT_Photon30_CaloIdVL_IsoL_v4",
+"HLT_Photon30_CaloIdVL_v4",
+"HLT_Photon32_CaloIdL_Photon26_CaloIdL_v4",
+"HLT_Photon36_CaloIdL_IsoVL_Photon22_v1",
+"HLT_Photon36_CaloIdL_Photon22_CaloIdL_v3",
+"HLT_Photon36_IsoVL_Photon22_v1",
+"HLT_Photon40_CaloIdL_Photon28_CaloIdL_v1",
+"HLT_Photon50_CaloIdVL_IsoL_v3",
+"HLT_Photon50_CaloIdVL_v1",
+"HLT_Photon75_CaloIdVL_IsoL_v4",
+"HLT_Photon75_CaloIdVL_v4",
+"HLT_Photon90_CaloIdVL_IsoL_v1",
+"HLT_Photon90_CaloIdVL_IsoL_v1"
+};*/
+
+
+string ListWantedHLTnames[38] = { // Run2011 1e33 v2.3
+"HLT_DoubleEle33_CaloIdL_v2",
+"HLT_DoubleEle33_v2",
+"HLT_DoublePhoton33_HEVT_v2",
+"HLT_DoublePhoton33_v5",
+"HLT_DoublePhoton40_MR150_v3",
+"HLT_DoublePhoton40_R014_MR150_v3",
+"HLT_DoublePhoton50_v2",
+"HLT_DoublePhoton5_IsoVL_CEP_v4",
+"HLT_DoublePhoton60_v2",
+"HLT_Photon125_v2",
+"HLT_Photon200_NoHE_v2",
+"HLT_Photon20_CaloIdVL_IsoL_v4",
+"HLT_Photon20_R9Id_Photon18_R9Id_v5",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v5",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v4",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_v5",
+"HLT_Photon26_IsoVL_Photon18_IsoVL_v5",
+"HLT_Photon26_IsoVL_Photon18_v5",
+"HLT_Photon26_Photon18_v5",
+"HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v4",
+"HLT_Photon26_R9Id_Photon18_R9Id_v2",
+"HLT_Photon30_CaloIdVL_IsoL_v5",
+"HLT_Photon30_CaloIdVL_v5",
+"HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v1",
+"HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_v1",
+"HLT_Photon36_CaloIdL_IsoVL_Photon22_v2",
+"HLT_Photon36_CaloIdL_Photon22_CaloIdL_v4",
+"HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v1",
+"HLT_Photon36_IsoVL_Photon22_v2",
+"HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v1",
+"HLT_Photon36_R9Id_Photon22_R9Id_v1",
+"HLT_Photon40_CaloIdL_Photon28_CaloIdL_v2",
+"HLT_Photon50_CaloIdVL_IsoL_v4",
+"HLT_Photon50_CaloIdVL_v2",
+"HLT_Photon75_CaloIdVL_IsoL_v5",
+"HLT_Photon75_CaloIdVL_v5",
+"HLT_Photon90_CaloIdVL_IsoL_v2",
+"HLT_Photon90_CaloIdVL_v2"
+};
+
+
+string ListWantedHLTnames[38] = { // Run2011 1e33 v2.4
+"HLT_DoubleEle33_CaloIdL_v2",
+"HLT_DoubleEle33_v2",
+"HLT_DoublePhoton33_HEVT_v2",
+"HLT_DoublePhoton33_v5",
+"HLT_DoublePhoton40_MR150_v3",
+"HLT_DoublePhoton40_R014_MR150_v3",
+"HLT_DoublePhoton50_v2",
+"HLT_DoublePhoton5_IsoVL_CEP_v4",
+"HLT_DoublePhoton60_v2",
+"HLT_Photon125_v2",
+"HLT_Photon200_NoHE_v2",
+"HLT_Photon20_CaloIdVL_IsoL_v4",
+"HLT_Photon20_R9Id_Photon18_R9Id_v5",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v5",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v4",
+"HLT_Photon26_CaloIdL_IsoVL_Photon18_v5",
+"HLT_Photon26_IsoVL_Photon18_IsoVL_v5",
+"HLT_Photon26_IsoVL_Photon18_v5",
+"HLT_Photon26_Photon18_v5",
+"HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v4",
+"HLT_Photon26_R9Id_Photon18_R9Id_v2",
+"HLT_Photon30_CaloIdVL_IsoL_v5",
+"HLT_Photon30_CaloIdVL_v5",
+"HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v1",
+"HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_v1",
+"HLT_Photon36_CaloIdL_IsoVL_Photon22_v2",
+"HLT_Photon36_CaloIdL_Photon22_CaloIdL_v4",
+"HLT_Photon36_CaloId_IsoVL_Photon22_R9Id_v1",
+"HLT_Photon36_IsoVL_Photon22_v2",
+"HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v1",
+"HLT_Photon36_R9Id_Photon22_R9Id_v1",
+"HLT_Photon40_CaloIdL_Photon28_CaloIdL_v2",
+"HLT_Photon50_CaloIdVL_IsoL_v4",
+"HLT_Photon50_CaloIdVL_v2",
+"HLT_Photon75_CaloIdVL_IsoL_v5",
+"HLT_Photon75_CaloIdVL_v5",
+"HLT_Photon90_CaloIdVL_IsoL_v2",
+"HLT_Photon90_CaloIdVL_v2"
+};
+
+//string ListWantedHLTnames[12] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon40_Isol_Cleaned_L1R_v1","HLT_DoublePhoton5_CEP_L1R_v3","HLT_Photon110_NoHE_Cleaned_L1R_v1","HLT_Photon17_Isol_SC17HE_L1R_v1","HLT_Photon22_SC22HE_L1R_v1","HLT_Photon40_CaloId_Cleaned_L1R_v1","HLT_Photon50_Cleaned_L1R_v1","HLT_Photon70_Cleaned_L1R_v1"};
+
+int nbHlt = 38; 
+
 
 float secondPhotonCut = 20.0;
+float IsoTrk = 6.0;
+float IsoEcal = 4.0;
+float IsoHcal = 4.0;
+
 
 TString theHTLobject = "hltPhoton26IsoVLTrackIsoFilter";
 
@@ -65,6 +194,7 @@ TString theHTLobject = "hltPhoton26IsoVLTrackIsoFilter";
   bool doMETMC;
   bool doPDFInfo;
   bool doDiphotons;
+  bool doLeadingPhoton;
   bool doSignalMuMuGamma;
   bool doSignalTopTop;
   bool doPhotonConversionMC;
@@ -137,6 +267,7 @@ TString theHTLobject = "hltPhoton26IsoVLTrackIsoFilter";
                 float pho_IsoHollowTrkCone03;
                 float pho_esRatio;
 		int   pho_nbOther;
+		int   pho_nbOtherIso;
                 int pho_convNTracks;
                 float pho_ptoverjetpt;
                 float pho_DrSCclosest;
@@ -237,6 +368,29 @@ TString theHTLobject = "hltPhoton26IsoVLTrackIsoFilter";
 		int pho_HLT_bit15;
 		int pho_HLT_bit16;
 		int pho_HLT_bit17;
+		int pho_HLT_bit18;
+		int pho_HLT_bit19;
+		int pho_HLT_bit20;
+		int pho_HLT_bit21;
+		int pho_HLT_bit22;
+		int pho_HLT_bit23;
+		int pho_HLT_bit24;
+		int pho_HLT_bit25;
+		int pho_HLT_bit26;
+		int pho_HLT_bit27;
+		int pho_HLT_bit28;
+		int pho_HLT_bit29;
+		int pho_HLT_bit30;
+		int pho_HLT_bit31;
+		int pho_HLT_bit32;
+		int pho_HLT_bit33;
+		int pho_HLT_bit34;
+		int pho_HLT_bit35;
+		int pho_HLT_bit36;
+		int pho_HLT_bit37;
+		int pho_HLT_bit38;
+		int pho_HLT_bit39;
+		int pho_HLT_bit40;
 		// sc infos
 		float pho_SCEraw;
 		float pho_SCeta;
@@ -287,6 +441,8 @@ TString theHTLobject = "hltPhoton26IsoVLTrackIsoFilter";
 		float pho_xVertex;
 		float pho_yVertex;
 		float pho_zVertex;
+		// know if it is a leading photon
+		int pho_isLeadingPhoton;
 
 TBranch* event_br = 0;
 TBranch* run_br = 0;
