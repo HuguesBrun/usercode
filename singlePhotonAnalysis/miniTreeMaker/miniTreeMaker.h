@@ -90,7 +90,7 @@ TChain *inputRunTree = new TChain("runTree");
 "HLT_Photon90_CaloIdVL_IsoL_v1"
 };*/
 
-
+/*
 string ListWantedHLTnames[38] = { // Run2011 1e33 v2.3
 "HLT_DoubleEle33_CaloIdL_v2",
 "HLT_DoubleEle33_v2",
@@ -132,8 +132,8 @@ string ListWantedHLTnames[38] = { // Run2011 1e33 v2.3
 "HLT_Photon90_CaloIdVL_v2"
 };
 
-
-string ListWantedHLTnames[38] = { // Run2011 1e33 v2.4
+*/
+/*string ListWantedHLTnames[38] = { // Run2011 1e33 v2.4
 "HLT_DoubleEle33_CaloIdL_v2",
 "HLT_DoubleEle33_v2",
 "HLT_DoublePhoton33_HEVT_v2",
@@ -172,11 +172,11 @@ string ListWantedHLTnames[38] = { // Run2011 1e33 v2.4
 "HLT_Photon75_CaloIdVL_v5",
 "HLT_Photon90_CaloIdVL_IsoL_v2",
 "HLT_Photon90_CaloIdVL_v2"
-};
+};*/
 
-//string ListWantedHLTnames[12] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon40_Isol_Cleaned_L1R_v1","HLT_DoublePhoton5_CEP_L1R_v3","HLT_Photon110_NoHE_Cleaned_L1R_v1","HLT_Photon17_Isol_SC17HE_L1R_v1","HLT_Photon22_SC22HE_L1R_v1","HLT_Photon40_CaloId_Cleaned_L1R_v1","HLT_Photon50_Cleaned_L1R_v1","HLT_Photon70_Cleaned_L1R_v1"};
+string ListWantedHLTnames[12] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon40_Isol_Cleaned_L1R_v1","HLT_DoublePhoton5_CEP_L1R_v3","HLT_Photon110_NoHE_Cleaned_L1R_v1","HLT_Photon17_Isol_SC17HE_L1R_v1","HLT_Photon22_SC22HE_L1R_v1","HLT_Photon40_CaloId_Cleaned_L1R_v1","HLT_Photon50_Cleaned_L1R_v1","HLT_Photon70_Cleaned_L1R_v1"};
 
-int nbHlt = 38; 
+int nbHlt = 12; 
 
 
 float secondPhotonCut = 20.0;

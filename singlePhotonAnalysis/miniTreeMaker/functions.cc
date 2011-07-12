@@ -243,7 +243,7 @@ void matchWithAnElectron(TRootPhoton *myPhoton, TClonesArray *electrons, int *is
 		TRootElectron *candidate = (TRootElectron*) electrons->At(isl);
 		*isAlsoaRecoElectron = 1;
 		*pho_fBrem = candidate->fbrem();
-		*pho_momentumCorrected = candidate->momentumCorrected();
+		*pho_momentumCorrected = 0;//candidate->momentumCorrected();
 		*pho_d0 = candidate->d0();
 		*pho_tightEleId = candidate->idCutBasedFixedThresholdTight(); 
 		*pho_eleTrkIso = candidate->trackIso();
@@ -343,3 +343,15 @@ void findTheMCelectron(TRootPhoton *myPhoton, TClonesArray *theMCelectron, float
 		}	
 	}
 }
+
+bool isMatchingWithAMuon(TRootPhoton *thePhoton, TClonesArray *theMuons){
+bool caMatch = false;
+	for (int i = 0 ; i < theMuons->GetEntriesFast() ; i++){
+		TRootMuon *theMuon = (TRootMuon*) theMuons->At(i);
+		float dR = DeltaR(theMuon->Phi(), thePhoton->Phi(), theMuon->Eta(), thePhoton->Eta());
+		if (dR < 0.4) caMatch = true;
+	}
+
+return caMatch;
+}
+

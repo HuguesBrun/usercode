@@ -4,14 +4,14 @@ void beginMacro(){
 
 	doHLT                    = true;
 	doHLTobject		 = true;
-  	doMC                     = false;
+  	doMC                     = true;
   	doJetMC                  = false;
   	doMETMC                  = false;
   	doPDFInfo                = true;
   	doSignalMuMuGamma        = false;
 	doLeadingPhoton		 = true;
   	doSignalTopTop           = false;
-  	doPhotonConversionMC     = false;
+  	doPhotonConversionMC     = true;
   	doElectronConversionMC   = false;
   	doBeamSpot               = true;
   	doPrimaryVertex          = true;
@@ -413,7 +413,7 @@ void endMacro(){
 int main(){
 	cout << "coucou" << endl;
 	gSystem->Load("/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/src/libToto.so");
-        inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data//store/user/hbrun/data2011toMay/part1AODbis/data_EG_goodVtx_noscrapping_1_1_i4f.root");
+        inputEventTree->Add("../test/MC_EG_goodVtx_noscrapping.root");
 
 	myFile=new TFile("theMiniTree.root","RECREATE");
 
@@ -757,6 +757,8 @@ int main(){
 			pho_xVertex = myphoton->vx();
 			pho_yVertex = myphoton->vy();
 			pho_zVertex = myphoton->vz();
+
+			bool isAMuon = isMatchingWithAMuon(myphoton, muons);
 
 			myTree_->Fill();
 
