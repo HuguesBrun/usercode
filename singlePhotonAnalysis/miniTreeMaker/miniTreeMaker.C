@@ -4,14 +4,14 @@ void beginMacro(){
 
 	doHLT                    = true;
 	doHLTobject		 = true;
-  	doMC                     = true;
+  	doMC                     = false;
   	doJetMC                  = false;
   	doMETMC                  = false;
   	doPDFInfo                = true;
   	doSignalMuMuGamma        = false;
 	doLeadingPhoton		 = true;
   	doSignalTopTop           = false;
-  	doPhotonConversionMC     = true;
+  	doPhotonConversionMC     = false;
   	doElectronConversionMC   = false;
   	doBeamSpot               = true;
   	doPrimaryVertex          = true;
@@ -354,6 +354,12 @@ void beginMacro(){
                 myTree_->Branch("pho_HLT_bit37",&pho_HLT_bit37,"pho_HLT_bit37/I");
                 myTree_->Branch("pho_HLT_bit38",&pho_HLT_bit38,"pho_HLT_bit38/I");
                 myTree_->Branch("pho_HLT_bit39",&pho_HLT_bit39,"pho_HLT_bit39/I");
+                myTree_->Branch("pho_HLT_bit40",&pho_HLT_bit40,"pho_HLT_bit40/I");
+                myTree_->Branch("pho_HLT_bit41",&pho_HLT_bit41,"pho_HLT_bit41/I");
+                myTree_->Branch("pho_HLT_bit42",&pho_HLT_bit42,"pho_HLT_bit42/I");
+                myTree_->Branch("pho_HLT_bit43",&pho_HLT_bit43,"pho_HLT_bit43/I");
+                myTree_->Branch("pho_HLT_bit44",&pho_HLT_bit44,"pho_HLT_bit44/I");
+                myTree_->Branch("pho_HLT_bit45",&pho_HLT_bit45,"pho_HLT_bit45/I");
                 myTree_->Branch("pho_SCeta",&pho_SCeta,"pho_SCeta/F");
                 myTree_->Branch("pho_SCphi",&pho_SCphi,"pho_SCphi/F");
                 myTree_->Branch("pho_SCEtraw",&pho_SCEtraw,"pho_SCEtraw/F");
@@ -401,6 +407,7 @@ void beginMacro(){
 		myTree_->Branch("pho_eleMCtruthBrem",&pho_eleMCtruthBrem,"pho_eleMCtruthBrem/F");
 		myTree_->Branch("pho_eleMCtruthNBrem",&pho_eleMCtruthNBrem,"pho_eleMCtruthNBrem/I");
 		myTree_->Branch("pho_isLeadingPhoton",&pho_isLeadingPhoton,"pho_isLeadingPhoton/I");
+		myTree_->Branch("pho_isMatchWithMuon",&pho_isMatchWithMuon,"pho_isMatchWithMuon/I");
 }
 
 void endMacro(){
@@ -479,6 +486,12 @@ int main(){
 			if (nbHlt > 37) {if (event->hltAccept(ListWantedHLTnames[37])) pho_HLT_bit37 = 1; else pho_HLT_bit37 = 0;}
 			if (nbHlt > 38) {if (event->hltAccept(ListWantedHLTnames[38])) pho_HLT_bit38 = 1; else pho_HLT_bit38 = 0;}
 			if (nbHlt > 39) {if (event->hltAccept(ListWantedHLTnames[39])) pho_HLT_bit39 = 1; else pho_HLT_bit39 = 0;}
+			if (nbHlt > 40) {if (event->hltAccept(ListWantedHLTnames[40])) pho_HLT_bit40 = 1; else pho_HLT_bit40 = 0;}
+			if (nbHlt > 41) {if (event->hltAccept(ListWantedHLTnames[41])) pho_HLT_bit41 = 1; else pho_HLT_bit41 = 0;}
+			if (nbHlt > 42) {if (event->hltAccept(ListWantedHLTnames[42])) pho_HLT_bit42 = 1; else pho_HLT_bit42 = 0;}
+			if (nbHlt > 43) {if (event->hltAccept(ListWantedHLTnames[43])) pho_HLT_bit43 = 1; else pho_HLT_bit43 = 0;}
+			if (nbHlt > 44) {if (event->hltAccept(ListWantedHLTnames[44])) pho_HLT_bit44 = 1; else pho_HLT_bit44 = 0;}
+			if (nbHlt > 45) {if (event->hltAccept(ListWantedHLTnames[45])) pho_HLT_bit45 = 1; else pho_HLT_bit45 = 0;}
 		}
 	    	NbHLT20++;
 		pho_nVertex = vertices->GetEntriesFast();	
@@ -758,7 +771,7 @@ int main(){
 			pho_yVertex = myphoton->vy();
 			pho_zVertex = myphoton->vz();
 
-			bool isAMuon = isMatchingWithAMuon(myphoton, muons);
+			pho_isMatchWithMuon = isMatchingWithAMuon(myphoton, muons);
 
 			myTree_->Fill();
 
