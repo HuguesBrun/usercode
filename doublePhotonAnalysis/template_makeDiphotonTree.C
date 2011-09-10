@@ -41,6 +41,8 @@ int beforeMacro(){
 	chain->SetBranchAddress("pho_IsoHcalRechit",&pho_IsoHcalRechit);                  
 	chain->SetBranchAddress("pho_IsoSolidTrkCone",&pho_IsoSolidTrkCone);              
 	chain->SetBranchAddress("pho_IsoHollowTrkCone",&pho_IsoHollowTrkCone);            
+	chain->SetBranchAddress("pho_IsoSolidNtrackCone",&pho_IsoSolidNtrackCone);
+	chain->SetBranchAddress("pho_IsoHollowNtrackCone",&pho_IsoHollowNtrackCone);
 	chain->SetBranchAddress("pho_IsoEcalRechit03",&pho_IsoEcalRechit03);              
 	chain->SetBranchAddress("pho_IsoHcalRechit03",&pho_IsoHcalRechit03);              
 	chain->SetBranchAddress("pho_IsoSolidTrkCone03",&pho_IsoSolidTrkCone03);          
@@ -82,6 +84,7 @@ int beforeMacro(){
 	chain->SetBranchAddress("pho_isOmegaGen",&pho_isOmegaGen);
 	chain->SetBranchAddress("pho_isGenElectron",&pho_isGenElectron);
 	chain->SetBranchAddress("pho_eventPtHat",&pho_eventPtHat);
+	chain->SetBranchAddress("pho_rho",&pho_rho);
 	if (doMC) {chain->SetBranchAddress("pho_eventProcessId",&pho_eventProcessId);
 	chain->SetBranchAddress("pho_trueE",&pho_trueE);
 	chain->SetBranchAddress("pho_truePx",&pho_truePx);
@@ -91,6 +94,8 @@ int beforeMacro(){
 	chain->SetBranchAddress("pho_trueEta",&pho_trueEta);
 	}
 	chain->SetBranchAddress("pho_nVertex",&pho_nVertex);
+	chain->SetBranchAddress("pho_nGenVertex",&pho_nGenVertex);
+	chain->SetBranchAddress("pho_nGenOOTVertex",&pho_nGenOOTVertex);
 	chain->SetBranchAddress("pho_PromptGenIsoEnergyStatus1_cone02",&pho_PromptGenIsoEnergyStatus1_cone02);
 	chain->SetBranchAddress("pho_PromptGenIsoEnergyStatus2_cone02",&pho_PromptGenIsoEnergyStatus2_cone02);
 	chain->SetBranchAddress("pho_PromptGenIsoEnergyStatus1_cone03",&pho_PromptGenIsoEnergyStatus1_cone03);
@@ -106,7 +111,6 @@ int beforeMacro(){
         chain->SetBranchAddress("pho_HLT_bit2",&pho_HLT_bit2);
         chain->SetBranchAddress("pho_HLT_bit3",&pho_HLT_bit3);
         chain->SetBranchAddress("pho_HLT_bit4",&pho_HLT_bit4);
-	if (doAllHlt){
         	chain->SetBranchAddress("pho_HLT_bit5",&pho_HLT_bit5);
         	chain->SetBranchAddress("pho_HLT_bit6",&pho_HLT_bit6);
         	chain->SetBranchAddress("pho_HLT_bit7",&pho_HLT_bit7);
@@ -114,7 +118,40 @@ int beforeMacro(){
         	chain->SetBranchAddress("pho_HLT_bit9",&pho_HLT_bit9);
         	chain->SetBranchAddress("pho_HLT_bit10",&pho_HLT_bit10);
         	chain->SetBranchAddress("pho_HLT_bit11",&pho_HLT_bit11);
-	}
+        	chain->SetBranchAddress("pho_HLT_bit12",&pho_HLT_bit12);
+        	chain->SetBranchAddress("pho_HLT_bit13",&pho_HLT_bit13);
+        	chain->SetBranchAddress("pho_HLT_bit14",&pho_HLT_bit14);
+        	chain->SetBranchAddress("pho_HLT_bit15",&pho_HLT_bit15);
+        	chain->SetBranchAddress("pho_HLT_bit16",&pho_HLT_bit16);
+        	chain->SetBranchAddress("pho_HLT_bit17",&pho_HLT_bit17);
+        	chain->SetBranchAddress("pho_HLT_bit18",&pho_HLT_bit18);
+        	chain->SetBranchAddress("pho_HLT_bit19",&pho_HLT_bit19);
+        	chain->SetBranchAddress("pho_HLT_bit20",&pho_HLT_bit20);
+        	chain->SetBranchAddress("pho_HLT_bit21",&pho_HLT_bit21);
+        	chain->SetBranchAddress("pho_HLT_bit22",&pho_HLT_bit22);
+        	chain->SetBranchAddress("pho_HLT_bit23",&pho_HLT_bit23);
+        	chain->SetBranchAddress("pho_HLT_bit24",&pho_HLT_bit24);
+        	chain->SetBranchAddress("pho_HLT_bit25",&pho_HLT_bit25);
+        	chain->SetBranchAddress("pho_HLT_bit26",&pho_HLT_bit26);
+        	chain->SetBranchAddress("pho_HLT_bit27",&pho_HLT_bit27);
+        	chain->SetBranchAddress("pho_HLT_bit28",&pho_HLT_bit28);
+        	chain->SetBranchAddress("pho_HLT_bit29",&pho_HLT_bit29);
+        	chain->SetBranchAddress("pho_HLT_bit30",&pho_HLT_bit30);
+        	chain->SetBranchAddress("pho_HLT_bit31",&pho_HLT_bit31);
+        	chain->SetBranchAddress("pho_HLT_bit32",&pho_HLT_bit32);
+        	chain->SetBranchAddress("pho_HLT_bit33",&pho_HLT_bit33);
+        	chain->SetBranchAddress("pho_HLT_bit34",&pho_HLT_bit34);
+        	chain->SetBranchAddress("pho_HLT_bit35",&pho_HLT_bit35);
+        	chain->SetBranchAddress("pho_HLT_bit36",&pho_HLT_bit36);
+        	chain->SetBranchAddress("pho_HLT_bit37",&pho_HLT_bit37);
+        	chain->SetBranchAddress("pho_HLT_bit38",&pho_HLT_bit38);
+        	chain->SetBranchAddress("pho_HLT_bit39",&pho_HLT_bit39);
+        	chain->SetBranchAddress("pho_HLT_bit40",&pho_HLT_bit40);
+        	chain->SetBranchAddress("pho_HLT_bit41",&pho_HLT_bit41);
+        	chain->SetBranchAddress("pho_HLT_bit42",&pho_HLT_bit42);
+        	chain->SetBranchAddress("pho_HLT_bit43",&pho_HLT_bit43);
+        	chain->SetBranchAddress("pho_HLT_bit44",&pho_HLT_bit44);
+        	chain->SetBranchAddress("pho_HLT_bit45",&pho_HLT_bit45);
 	chain->SetBranchAddress("pho_SCeta",&pho_SCeta);
 	chain->SetBranchAddress("pho_SCphi",&pho_SCphi);
 	chain->SetBranchAddress("pho_SCEtraw",&pho_SCEtraw);
@@ -124,10 +161,18 @@ int beforeMacro(){
 	chain->SetBranchAddress("pho_SCnbBC",&pho_SCnbBC);
 	chain->SetBranchAddress("pho_SCnXtal",&pho_SCnXtal);
 	chain->SetBranchAddress("isAspike",&isAspike);
+	chain->SetBranchAddress("pho_SCEraw",&pho_SCEraw);
+	chain->SetBranchAddress("pho_e2x2",&pho_e2x2);
+	chain->SetBranchAddress("pho_e5x5",&pho_e5x5);
+	chain->SetBranchAddress("pho_secondMomentMaj",&pho_secondMomentMaj);
+	chain->SetBranchAddress("pho_secondMomentMin",&pho_secondMomentMin);
+	chain->SetBranchAddress("pho_secondMomentAlpha",&pho_secondMomentAlpha);
+	chain->SetBranchAddress("pho_isMatchWithMuon",&pho_isMatchWithMuon);
+	chain->SetBranchAddress("pho_isConverted",&pho_isConverted);
 	if (doNN) {
 		chain->SetBranchAddress("pho_NNshapeOutput",&pho_NNshapeOutput);
-		chain->SetBranchAddress("pho_NNenvOutput",&pho_NNenvOutput);
-		chain->SetBranchAddress("pho_NNcombOutput",&pho_NNcombOutput);
+	//	chain->SetBranchAddress("pho_NNenvOutput",&pho_NNenvOutput);
+	//	chain->SetBranchAddress("pho_NNcombOutput",&pho_NNcombOutput);
 	}
         if (doHLTobject) {
 		chain->SetBranchAddress("pho_isMatchingWithHLTObject",&pho_isMatchingWithHLTObject);
@@ -141,6 +186,8 @@ int beforeMacro(){
 		myTree_->Branch("event_eventPtHat",&event_eventPtHat, "event_eventPtHat/F");
 		myTree_->Branch("event_processId",&event_processId, "event_processId/I");
 		myTree_->Branch("event_nVertex",&event_nVertex,"event_nVertex/I");
+		myTree_->Branch("event_nGenVertex",&event_nGenVertex,"event_nGenVertex/I");
+		myTree_->Branch("event_nGenOOTVertex",&event_nGenOOTVertex,"event_nGenOOTVertex/I");
                 myTree_->Branch("event_weightLO",&event_weightLO,"event_weightLO/I");
                 myTree_->Branch("event_weightNLO",&event_weightNLO,"event_weightNLO/I");
                 myTree_->Branch("dipho_cat4",&dipho_cat4,"dipho_cat4/I");               
@@ -165,6 +212,12 @@ int beforeMacro(){
 		myTree_->Branch("dipho_minNNshape",&dipho_minNNshape,"dipho_minNNshape/F");
 		myTree_->Branch("dipho_minNNcomb",&dipho_minNNcomb,"dipho_minNNcomb/F");
 		myTree_->Branch("dipho_minNNenv",&dipho_minNNenv,"dipho_minNNenv/F");
+		myTree_->Branch("dipho_placeCats",&dipho_placeCats,"dipho_placeCats/I");
+		myTree_->Branch("dipho_maxHoE",&dipho_maxHoE,"dipho_maxHoE/F");
+		myTree_->Branch("dipho_maxIsoEcal",&dipho_maxIsoEcal,"dipho_maxIsoEcal/F");
+		myTree_->Branch("dipho_maxIsoHcal",&dipho_maxIsoHcal,"dipho_maxIsoHcal/F");
+		myTree_->Branch("dipho_maxIsoTracks",&dipho_maxIsoTracks,"dipho_maxIsoTracks/F");
+		myTree_->Branch("dipho_maxSigIeta",&dipho_maxSigIeta,"dipho_maxSigIeta/F");
 		myTree_->Branch("dipho_minIsoTrack",&dipho_minIsoTrack,"dipho_minIsoTrack/F"); 
 		myTree_->Branch("dipho_maxIsoTrack",&dipho_maxIsoTrack,"dipho_maxIsoTrack/F"); 
                 myTree_->Branch("pholead_pt",&pholead_pt,"pholead_pt/F");                                             
@@ -177,6 +230,8 @@ int beforeMacro(){
                 myTree_->Branch("photrail_r9",&photrail_r9,"photrail_r9/F");                                          
                 myTree_->Branch("pholead_cPP",&pholead_cPP,"pholead_cPP/F");                                          
                 myTree_->Branch("photrail_cPP",&photrail_cPP,"photrail_cPP/F");                                       
+                myTree_->Branch("pholead_cEE",&pholead_cEE,"pholead_cEE/F");                                          
+                myTree_->Branch("photrail_cEE",&photrail_cEE,"photrail_cEE/F");                                       
                 myTree_->Branch("pholead_sigmaphi",&pholead_sigmaphi,"pholead_sigmaphi/F");                           
                 myTree_->Branch("photrail_sigmaphi",&photrail_sigmaphi,"photrail_sigmaphi/F");                        
                 myTree_->Branch("pholead_S9overS9minusS1S2",&pholead_S9overS9minusS1S2,"pholead_S9overS9minusS1S2/F");
@@ -229,6 +284,10 @@ int beforeMacro(){
                 myTree_->Branch("photrail_EcalIsoPerso",&photrail_EcalIsoPerso,"photrail_EcalIsoPerso/F");
                 myTree_->Branch("pholead_TrackerIsoPerso",&pholead_TrackerIsoPerso,"pholead_TrackerIsoPerso/F");
                 myTree_->Branch("photrail_TrackerIsoPerso",&photrail_TrackerIsoPerso,"photrail_TrackerIsoPerso/F");
+		myTree_->Branch("pholead_TrackerIsoN",&pholead_TrackerIsoN,"pholead_TrackerIsoN/I");
+		myTree_->Branch("photrail_TrackerIsoN",&photrail_TrackerIsoN,"photrail_TrackerIsoN/I");
+		myTree_->Branch("pholead_TrackerIsoNsolid",&pholead_TrackerIsoNsolid,"pholead_TrackerIsoNsolid/I");
+		myTree_->Branch("photrail_TrackerIsoNsolid",&photrail_TrackerIsoNsolid,"photrail_TrackerIsoNsolid/I");
                 myTree_->Branch("pholead_hoe",&pholead_hoe,"pholead_hoe/F");
                 myTree_->Branch("photrail_hoe",&photrail_hoe,"photrail_hoe/F");
                 myTree_->Branch("pholead_DrJetClosest",&pholead_DrJetClosest,"pholead_DrJetClosest/F");
@@ -273,6 +332,40 @@ int beforeMacro(){
 				myTree_->Branch("dipho_HLT_bit9",&dipho_HLT_bit9, "dipho_HLT_bit9/I");
 				myTree_->Branch("dipho_HLT_bit10",&dipho_HLT_bit10, "dipho_HLT_bit10/I");
 				myTree_->Branch("dipho_HLT_bit11",&dipho_HLT_bit11, "dipho_HLT_bit11/I");
+				myTree_->Branch("dipho_HLT_bit12",&dipho_HLT_bit12, "dipho_HLT_bit12/I");
+				myTree_->Branch("dipho_HLT_bit13",&dipho_HLT_bit13, "dipho_HLT_bit13/I");
+				myTree_->Branch("dipho_HLT_bit14",&dipho_HLT_bit14, "dipho_HLT_bit14/I");
+				myTree_->Branch("dipho_HLT_bit15",&dipho_HLT_bit15, "dipho_HLT_bit15/I");
+				myTree_->Branch("dipho_HLT_bit16",&dipho_HLT_bit16, "dipho_HLT_bit16/I");
+				myTree_->Branch("dipho_HLT_bit17",&dipho_HLT_bit17, "dipho_HLT_bit17/I");
+				myTree_->Branch("dipho_HLT_bit18",&dipho_HLT_bit18, "dipho_HLT_bit18/I");
+				myTree_->Branch("dipho_HLT_bit19",&dipho_HLT_bit19, "dipho_HLT_bit19/I");
+				myTree_->Branch("dipho_HLT_bit20",&dipho_HLT_bit20, "dipho_HLT_bit20/I");
+				myTree_->Branch("dipho_HLT_bit21",&dipho_HLT_bit21, "dipho_HLT_bit21/I");
+				myTree_->Branch("dipho_HLT_bit22",&dipho_HLT_bit22, "dipho_HLT_bit22/I");
+				myTree_->Branch("dipho_HLT_bit23",&dipho_HLT_bit23, "dipho_HLT_bit23/I");
+				myTree_->Branch("dipho_HLT_bit24",&dipho_HLT_bit24, "dipho_HLT_bit24/I");
+				myTree_->Branch("dipho_HLT_bit25",&dipho_HLT_bit25, "dipho_HLT_bit25/I");
+				myTree_->Branch("dipho_HLT_bit26",&dipho_HLT_bit26, "dipho_HLT_bit26/I");
+				myTree_->Branch("dipho_HLT_bit27",&dipho_HLT_bit27, "dipho_HLT_bit27/I");
+				myTree_->Branch("dipho_HLT_bit28",&dipho_HLT_bit28, "dipho_HLT_bit28/I");
+				myTree_->Branch("dipho_HLT_bit29",&dipho_HLT_bit29, "dipho_HLT_bit29/I");
+				myTree_->Branch("dipho_HLT_bit30",&dipho_HLT_bit30, "dipho_HLT_bit30/I");
+				myTree_->Branch("dipho_HLT_bit31",&dipho_HLT_bit31, "dipho_HLT_bit31/I");
+				myTree_->Branch("dipho_HLT_bit32",&dipho_HLT_bit32, "dipho_HLT_bit32/I");
+				myTree_->Branch("dipho_HLT_bit33",&dipho_HLT_bit33, "dipho_HLT_bit33/I");
+				myTree_->Branch("dipho_HLT_bit34",&dipho_HLT_bit34, "dipho_HLT_bit34/I");
+				myTree_->Branch("dipho_HLT_bit35",&dipho_HLT_bit35, "dipho_HLT_bit35/I");
+				myTree_->Branch("dipho_HLT_bit36",&dipho_HLT_bit36, "dipho_HLT_bit36/I");
+				myTree_->Branch("dipho_HLT_bit37",&dipho_HLT_bit37, "dipho_HLT_bit37/I");
+				myTree_->Branch("dipho_HLT_bit38",&dipho_HLT_bit38, "dipho_HLT_bit38/I");
+				myTree_->Branch("dipho_HLT_bit39",&dipho_HLT_bit39, "dipho_HLT_bit39/I");
+				myTree_->Branch("dipho_HLT_bit40",&dipho_HLT_bit40, "dipho_HLT_bit40/I");
+				myTree_->Branch("dipho_HLT_bit41",&dipho_HLT_bit41, "dipho_HLT_bit41/I");
+				myTree_->Branch("dipho_HLT_bit42",&dipho_HLT_bit42, "dipho_HLT_bit42/I");
+				myTree_->Branch("dipho_HLT_bit43",&dipho_HLT_bit43, "dipho_HLT_bit43/I");
+				myTree_->Branch("dipho_HLT_bit44",&dipho_HLT_bit44, "dipho_HLT_bit44/I");
+				myTree_->Branch("dipho_HLT_bit45",&dipho_HLT_bit45, "dipho_HLT_bit45/I");
 				myTree_->Branch("dipho_Kfactor",&dipho_Kfactor,"dipho_Kfactor/F");
 				myTree_->Branch("pholead_trueE",&pholead_trueE,"pholead_trueE/F");
 				myTree_->Branch("pholead_truePx",&pholead_truePx,"pholead_truePx/F");
@@ -289,6 +382,53 @@ int beforeMacro(){
 				myTree_->Branch("pholead_isMatchingWithHLTObject",&pholead_isMatchingWithHLTObject,"pholead_isMatchingWithHLTObject/I");
 				myTree_->Branch("photrail_isMatchingWithHLTObject",&photrail_isMatchingWithHLTObject,"photrail_isMatchingWithHLTObject/I");
 				myTree_->Branch("event_nPhotons",&event_nPhotons,"event_nPhotons/I");
+				myTree_->Branch("event_rho",&event_rho,"event_rho/F");
+				myTree_->Branch("pholead_cEP",&pholead_cEP,"pholead_cEP/F");
+				myTree_->Branch("photrail_cEP",&photrail_cEP,"photrail_cEP/F");
+				myTree_->Branch("pholead_r19",&pholead_r19,"pholead_r19/F");
+				myTree_->Branch("photrail_r19",&photrail_r19,"photrail_r19/F");
+				myTree_->Branch("pholead_ratioSeed",&pholead_ratioSeed,"pholead_ratioSeed/F");
+				myTree_->Branch("photrail_ratioSeed",&photrail_ratioSeed,"photrail_ratioSeed/F");
+				myTree_->Branch("pholead_ratioS4",&pholead_ratioS4,"pholead_ratioS4/F");
+				myTree_->Branch("photrail_ratioS4",&photrail_ratioS4,"photrail_ratioS4/F");
+				myTree_->Branch("pholead_lambdaRatio",&pholead_lambdaRatio,"pholead_lambdaRatio/F");
+				myTree_->Branch("photrail_lambdaRatio",&photrail_lambdaRatio,"photrail_lambdaRatio/F");
+				myTree_->Branch("pholead_lamdbaDivCov",&pholead_lamdbaDivCov,"pholead_lamdbaDivCov/F");
+				myTree_->Branch("photrail_lamdbaDivCov",&photrail_lamdbaDivCov,"photrail_lamdbaDivCov/F");
+				myTree_->Branch("dipho_minR9",&dipho_minR9,"dipho_minR9/F");
+				myTree_->Branch("dipho_maxR9",&dipho_maxR9,"dipho_maxR9/F");
+				myTree_->Branch("dipho_R9bestNN",&dipho_R9bestNN,"dipho_R9bestNN/F");
+				myTree_->Branch("dipho_R9worstNN",&dipho_R9worstNN,"dipho_R9worstNN/F");
+				myTree_->Branch("pholead_secondMomentMaj",&pholead_secondMomentMaj,"pholead_secondMomentMaj/F");
+				myTree_->Branch("photrail_secondMomentMaj",&photrail_secondMomentMaj,"photrail_secondMomentMaj/F");
+				myTree_->Branch("pholead_secondMomentMin",&pholead_secondMomentMin,"pholead_secondMomentMin/F");
+				myTree_->Branch("photrail_secondMomentMin",&photrail_secondMomentMin,"photrail_secondMomentMin/F");
+				myTree_->Branch("pholead_secondMomentAlpha",&pholead_secondMomentAlpha,"pholead_secondMomentAlpha/F");
+				myTree_->Branch("photrail_secondMomentAlpha",&photrail_secondMomentAlpha,"photrail_secondMomentAlpha/F");
+				myTree_->Branch("pholead_covAngle",&pholead_covAngle,"pholead_covAngle/F");
+				myTree_->Branch("photrail_covAngle",&photrail_covAngle,"photrail_covAngle/F");
+				myTree_->Branch("pholead_covAngle2",&pholead_covAngle2,"pholead_covAngle2/F");
+				myTree_->Branch("photrail_covAngle2",&photrail_covAngle2,"photrail_covAngle2/F");
+				myTree_->Branch("pholead_s4",&pholead_s4,"pholead_s4/F");
+				myTree_->Branch("pholead_s9",&pholead_s9,"pholead_s9/F");
+				myTree_->Branch("pholead_e2x2",&pholead_e2x2,"pholead_e2x2/F");
+				myTree_->Branch("pholead_e5x5",&pholead_e5x5,"pholead_e5x5/F");
+				myTree_->Branch("pholead_SCEraw",&pholead_SCEraw,"pholead_SCEraw/F");
+				myTree_->Branch("photrail_s4",&photrail_s4,"photrail_s4/F");
+				myTree_->Branch("photrail_s9",&photrail_s9,"photrail_s9/F");
+				myTree_->Branch("photrail_e2x2",&photrail_e2x2,"photrail_e2x2/F");
+				myTree_->Branch("photrail_e5x5",&photrail_e5x5,"photrail_e5x5/F");
+				myTree_->Branch("photrail_SCEraw",&photrail_SCEraw,"photrail_SCEraw/F");
+				myTree_->Branch("pholead_eMax",&pholead_eMax,"pholead_eMax/F");
+				myTree_->Branch("photrail_eMax",&photrail_eMax,"photrail_eMax/F");
+				myTree_->Branch("pholead_isMatchWithMuon",&pholead_isMatchWithMuon,"pholead_isMatchWithMuon/I");
+				myTree_->Branch("photrail_isMatchWithMuon",&photrail_isMatchWithMuon,"photrail_isMatchWithMuon/I");
+				myTree_->Branch("pholead_SCnbBC",&pholead_SCnbBC,"pholead_SCnbBC/I");
+				myTree_->Branch("photrail_SCnbBC",&photrail_SCnbBC,"photrail_SCnbBC/I");
+				myTree_->Branch("pholead_SCnXtal",&pholead_SCnXtal,"pholead_SCnXtal/I");
+				myTree_->Branch("photrail_SCnXtal",&photrail_SCnXtal,"photrail_SCnXtal/I");
+				myTree_->Branch("pholead_isConverted",&pholead_isConverted,"pholead_isConverted/I");
+				myTree_->Branch("photrail_isConverted",&photrail_isConverted,"photrail_isConverted/I");
 }
 
 int afterMacro(){
@@ -303,6 +443,7 @@ int fillThisEvent(int iteLead, int iteTrail){
 	pholead_eta = Eta_loc[iteLead];
 	pholead_r9 = R9_loc[iteLead];
 	pholead_cPP = cPP_loc[iteLead];
+	pholead_cEE = cEE_loc[iteLead];
 	pholead_sigmaphi = sigmaphi_loc[iteLead];
 	pholead_etawidth = EtaWidth_loc[iteLead];
 	pholead_sigieta = pho_sigmaIetaIeta_loc[iteLead];
@@ -329,10 +470,33 @@ int fillThisEvent(int iteLead, int iteTrail){
 	pholead_truePz = pho_truePz_loc[iteLead];
 	pholead_trueEta = pho_trueEta_loc[iteLead];
 	pholead_truePhi = pho_truePhi_loc[iteLead];
+	pholead_TrackerIsoNsolid = pho_IsoSolidNtrackCone_loc[iteLead];
+	pholead_TrackerIsoN = pho_IsoHollowNtrackCone_loc[iteLead];
+	pholead_cEP = pho_cEP_loc[iteLead];
+	pholead_r19 = pho_r19_loc[iteLead];
+	pholead_ratioSeed = pho_ratioSeed_loc[iteLead];
+	pholead_ratioS4  = pho_ratioS4_loc[iteLead];
+	pholead_lambdaRatio = pho_lambdaRatio_loc[iteLead];
+	pholead_lamdbaDivCov = pho_lamdbaDivCov_loc[iteLead];
+	pholead_secondMomentMaj = pho_secondMomentMaj_loc[iteLead];
+	pholead_secondMomentMin = pho_secondMomentMin_loc[iteLead];
+	pholead_secondMomentAlpha = pho_secondMomentAlpha_loc[iteLead];
+	pholead_covAngle = pho_CovAngle_loc[iteLead];
+	pholead_covAngle2 = pho_CovAngle2_loc[iteLead];
+	pholead_s4= pho_s4_loc[iteLead];
+	pholead_s9 = pho_s9_loc[iteLead];
+	pholead_e2x2 = pho_e2x2_loc[iteLead];
+	pholead_e5x5 = pho_e5x5_loc[iteLead];
+	pholead_SCEraw = pho_SCEraw_loc[iteLead];
+	pholead_eMax = pho_eMax_loc[iteLead];
+        pholead_isMatchWithMuon = pho_isMatchWithMuon_loc[iteLead];
+	pholead_SCnbBC = pho_SCnbBC_loc[iteLead];
+        pholead_SCnXtal = pho_SCnXtal_loc[iteLead];
+	pholead_isConverted = pho_isConverted_loc[iteLead];
 	if (doNN) {
 		pholead_NNshapeOutput = NNshapeOutput_loc[iteLead];
-		pholead_NNenvOutput = NNenvOutput_loc[iteLead];
-		pholead_NNcombOutput = NNcombOutput_loc[iteLead];
+	//	pholead_NNenvOutput = NNenvOutput_loc[iteLead];
+	//	pholead_NNcombOutput = NNcombOutput_loc[iteLead];
 	}
 	if (doHLTobject){
 		pholead_isMatchingWithHLTObject = pho_isMatchingWithHLTObject_loc[iteLead];
@@ -341,6 +505,7 @@ int fillThisEvent(int iteLead, int iteTrail){
 	photrail_eta = Eta_loc[iteTrail];
 	photrail_r9 = R9_loc[iteTrail];
 	photrail_cPP = cPP_loc[iteTrail];
+	photrail_cEE = cEE_loc[iteTrail];
 	photrail_sigmaphi = sigmaphi_loc[iteTrail];
 	photrail_etawidth = EtaWidth_loc[iteTrail];
 	photrail_sigieta = pho_sigmaIetaIeta_loc[iteTrail];
@@ -367,10 +532,33 @@ int fillThisEvent(int iteLead, int iteTrail){
 	photrail_truePz = pho_truePz_loc[iteTrail];
 	photrail_trueEta = pho_trueEta_loc[iteTrail];
 	photrail_truePhi = pho_truePhi_loc[iteTrail];
+	photrail_TrackerIsoNsolid = pho_IsoSolidNtrackCone_loc[iteTrail];
+	photrail_TrackerIsoN = pho_IsoHollowNtrackCone_loc[iteTrail];
+	photrail_cEP = pho_cEP_loc[iteTrail];
+	photrail_r19 = pho_r19_loc[iteTrail];
+	photrail_ratioSeed = pho_ratioSeed_loc[iteTrail];
+	photrail_ratioS4  = pho_ratioS4_loc[iteTrail];
+	photrail_lambdaRatio = pho_lambdaRatio_loc[iteTrail];
+	photrail_lamdbaDivCov = pho_lamdbaDivCov_loc[iteTrail];
+	photrail_secondMomentMaj = pho_secondMomentMaj_loc[iteTrail];
+	photrail_secondMomentMin = pho_secondMomentMin_loc[iteTrail];
+	photrail_secondMomentAlpha = pho_secondMomentAlpha_loc[iteTrail];
+	photrail_covAngle = pho_CovAngle_loc[iteTrail];
+	photrail_covAngle2 = pho_CovAngle2_loc[iteTrail];
+	photrail_s4 = pho_s4_loc[iteTrail];
+	photrail_s9 = pho_s9_loc[iteTrail];
+	photrail_e2x2 = pho_e2x2_loc[iteTrail];
+	photrail_e5x5 = pho_e5x5_loc[iteTrail];
+	photrail_SCEraw = pho_SCEraw_loc[iteTrail];
+	photrail_eMax = pho_eMax_loc[iteTrail];
+        photrail_isMatchWithMuon = pho_isMatchWithMuon_loc[iteTrail];
+	photrail_SCnbBC = pho_SCnbBC_loc[iteTrail];
+        photrail_SCnXtal = pho_SCnXtal_loc[iteTrail];
+	photrail_isConverted = pho_isConverted_loc[iteTrail];
 	if (doNN) {
 		photrail_NNshapeOutput = NNshapeOutput_loc[iteTrail];
-		photrail_NNenvOutput = NNenvOutput_loc[iteTrail];
-		photrail_NNcombOutput = NNcombOutput_loc[iteTrail];
+	//	photrail_NNenvOutput = NNenvOutput_loc[iteTrail];
+	//	photrail_NNcombOutput = NNcombOutput_loc[iteTrail];
 	}
 	if (doHLTobject){
 		photrail_isMatchingWithHLTObject = pho_isMatchingWithHLTObject_loc[iteTrail];
@@ -397,16 +585,36 @@ int fillThisEvent(int iteLead, int iteTrail){
 	else {
 		pholead_isMin = 0;
 		photrail_isMin = 1;
-	}		
+	}
+	dipho_minR9 = findTheMini(pholead_r9, photrail_r9);	
+	dipho_maxR9 = findTheMaxi(pholead_r9, photrail_r9);
+
+	dipho_maxHoE = findTheMaxi(pholead_hoe, photrail_hoe);
+	dipho_maxIsoEcal = findTheMaxi(pholead_EcalIso, photrail_EcalIso);
+	dipho_maxIsoHcal = findTheMaxi(pholead_HcalIso, photrail_HcalIso);
+	dipho_maxIsoTracks = findTheMaxi(pholead_TrackerIso, photrail_TrackerIso);
+	dipho_maxSigIeta = findTheMaxi(pholead_sigieta, photrail_sigieta);
+        if ((pholead_isEB==1)&&(photrail_isEB==1)) dipho_placeCats = 0;
+	else dipho_placeCats=1;	
 	if (doNN){
 		dipho_minNNshape = findTheMini(photrail_NNshapeOutput,pholead_NNshapeOutput);
 		dipho_minNNcomb = findTheMini(photrail_NNcombOutput,pholead_NNcombOutput);
 		dipho_minNNenv = findTheMini(photrail_NNenvOutput,pholead_NNenvOutput);
+		if (photrail_NNshapeOutput == findTheMini(photrail_NNshapeOutput,pholead_NNshapeOutput)){
+			dipho_R9worstNN = photrail_r9;
+			dipho_R9bestNN = pholead_r9;
+		}
+		else {
+			dipho_R9worstNN = pholead_r9;
+			dipho_R9bestNN = photrail_r9;
+		}
 	}
-        if ((photrail_pt>15)&&(pholead_pt>15)&&(pholead_etaSC<2.5)&&(photrail_etaSC<2.5)&&(pholead_hoe<0.1)&&(photrail_hoe<0.1)&&(pholead_TrackerIsodR03<(7+0.002*pholead_pt))&&(photrail_TrackerIsodR03<(7+0.002*photrail_pt))&&(pholead_EcalIsodR03<(8.4+0.012*pholead_pt))&&(photrail_EcalIsodR03<(8.4+0.012*photrail_pt)&&(pholead_HcalIsodR03<(4.4+0.005*pholead_pt))&&(photrail_HcalIsodR03<(4.4+0.005*photrail_pt)))){
+//        if ((photrail_pt>20)&&(pholead_pt>30)&&(pholead_etaSC<2.5)&&(photrail_etaSC<2.5)&&(pholead_hoe<0.1)&&(photrail_hoe<0.1)&&(pholead_TrackerIsodR03<(7+0.002*pholead_pt))&&(photrail_TrackerIsodR03<(7+0.002*photrail_pt))&&(pholead_EcalIsodR03<(8.4+0.012*pholead_pt))&&(photrail_EcalIsodR03<(8.4+0.012*photrail_pt)&&(pholead_HcalIsodR03<(4.4+0.005*pholead_pt))&&(photrail_HcalIsodR03<(4.4+0.005*photrail_pt)))){
+        if ((photrail_pt>30)&&(pholead_pt>30)&&(pholead_etaSC<2.5)&&(photrail_etaSC<2.5)&&(pholead_hoe<0.1)&&(photrail_hoe<0.1)&&(pholead_TrackerIsodR03<(4.5+0.002*pholead_pt))&&(photrail_TrackerIsodR03<(4.5+0.002*photrail_pt))&&(pholead_EcalIsodR03<(5.0+0.012*pholead_pt))&&(photrail_EcalIsodR03<(5.0+0.012*photrail_pt)&&(pholead_HcalIsodR03<(3.5+0.005*pholead_pt))&&(photrail_HcalIsodR03<(3.5+0.005*photrail_pt)))){
+        //if ((photrail_pt>20)&&(pholead_pt>30)&&(pholead_etaSC<2.5)&&(photrail_etaSC<2.5)&&(pholead_hoe<0.1)&&(photrail_hoe<0.1)&&(pholead_TrackerIsodR03<(6.0+0.002*pholead_pt))&&(photrail_TrackerIsodR03<(6.0+0.002*photrail_pt))&&(pholead_EcalIsodR03<(6.0+0.012*pholead_pt))&&(photrail_EcalIsodR03<(6.0+0.012*photrail_pt)&&(pholead_HcalIsodR03<(5.0+0.005*pholead_pt))&&(photrail_HcalIsodR03<(5.0+0.005*photrail_pt)))){
           NbEntries++;
-         myTree_->Fill();
-          }
+        myTree_->Fill();
+         }
 
 }
 
@@ -414,16 +622,29 @@ int fillThisEvent(int iteLead, int iteTrail){
 
 //makeDiphotonTree(){
 	int main(){
-	doMC = false;
+using namespace TMVA;
+	doMC = true;
 	doAllHlt = true;
-	doHLTobject = true;
-	doNN = false; 
+	doHLTobject = false;
+	doNN = true; 
 	NbEntries = 0;
 	myFile = new TFile("diphoton_part1.root","RECREATE");
-	float MggMin = 0;
+	float MggMin = 80;
 	beforeMacro();
-	chain->Add("/sps/cms/hbrun/miniTree39X/run149291/output_*.root");
+	chain->Add("/sps/cms/hbrun/miniTree41XMC/diPhoBox25to250/output_1.root");
 	int Nevents = chain->GetEntries();
+	TMVA::Reader* reader = new TMVA::Reader( "!Color:!Silent" );
+	if (doNN) {
+		reader->AddVariable("pho_cEP",&pho_cEP);
+		reader->AddVariable("pho_SCbr",&pho_SCbr);
+		reader->AddVariable("(pho_cEE+pho_cPP-sqrt((pho_cEE-pho_cPP)**2+4*pho_cEP**2))/(pho_cEE+pho_cPP+sqrt((pho_cEE-pho_cPP)**2+4*pho_cEP**2))",&pho_lambdaRatio);
+		reader->AddVariable("pho_eMax/pho_SCEraw",&pho_ratioSeed);
+		reader->AddVariable("pho_etawidth",&pho_etawidth);
+		reader->AddVariable("pho_e2x2/pho_e5x5",&pho_ratioS4);
+		reader->AddVariable("(pho_cEE+pho_cPP-sqrt((pho_cEE-pho_cPP)**2+4*pho_cEP**2))/pho_cEE",&pho_lamdbaDivCov);
+		reader->AddVariable("pho_r19",&pho_r19);
+		reader->BookMVA("MLP method","/sps/cms/hbrun/DiPhotons42X/diPhotonMC/weights/TMVAClassification_MLP.weights.xml");
+	}
 //	Nevents = 10;
 	std::cout << "Nevents = " << Nevents << std::endl;
 	int ite = 0;
@@ -437,6 +658,9 @@ int fillThisEvent(int iteLead, int iteTrail){
 			event_realNumber = pho_EventNumber;
 			event_LumiSection = pho_lumiSection;
 			event_nVertex = pho_nVertex;
+			event_nGenVertex = pho_nGenVertex;
+			event_nGenOOTVertex = pho_nGenOOTVertex;
+			event_rho = pho_rho;
 			dipho_HLT_bit0 = pho_HLT_bit0;
 			dipho_HLT_bit1 = pho_HLT_bit1;
 			dipho_HLT_bit2 = pho_HLT_bit2;
@@ -449,6 +673,40 @@ int fillThisEvent(int iteLead, int iteTrail){
 			dipho_HLT_bit9 = pho_HLT_bit9;
 			dipho_HLT_bit10 = pho_HLT_bit10;
 			dipho_HLT_bit11 = pho_HLT_bit11;
+			dipho_HLT_bit12 = pho_HLT_bit12;
+			dipho_HLT_bit13 = pho_HLT_bit13;
+			dipho_HLT_bit14 = pho_HLT_bit14;
+			dipho_HLT_bit15 = pho_HLT_bit15;
+			dipho_HLT_bit16 = pho_HLT_bit16;
+			dipho_HLT_bit17 = pho_HLT_bit17;
+			dipho_HLT_bit18 = pho_HLT_bit18;
+			dipho_HLT_bit19 = pho_HLT_bit19;
+			dipho_HLT_bit20 = pho_HLT_bit20;
+			dipho_HLT_bit21 = pho_HLT_bit21;
+			dipho_HLT_bit22 = pho_HLT_bit22;
+			dipho_HLT_bit23 = pho_HLT_bit23;
+			dipho_HLT_bit24 = pho_HLT_bit24;
+			dipho_HLT_bit25 = pho_HLT_bit25;
+			dipho_HLT_bit26 = pho_HLT_bit26;
+			dipho_HLT_bit27 = pho_HLT_bit27;
+			dipho_HLT_bit28 = pho_HLT_bit28;
+			dipho_HLT_bit29 = pho_HLT_bit29;
+			dipho_HLT_bit30 = pho_HLT_bit30;
+			dipho_HLT_bit31 = pho_HLT_bit31;
+			dipho_HLT_bit32 = pho_HLT_bit32;
+			dipho_HLT_bit33 = pho_HLT_bit33;
+			dipho_HLT_bit34 = pho_HLT_bit34;
+			dipho_HLT_bit35 = pho_HLT_bit35;
+			dipho_HLT_bit36 = pho_HLT_bit36;
+			dipho_HLT_bit37 = pho_HLT_bit37;
+			dipho_HLT_bit38 = pho_HLT_bit38;
+			dipho_HLT_bit39 = pho_HLT_bit39;
+			dipho_HLT_bit40 = pho_HLT_bit39;
+			dipho_HLT_bit41 = pho_HLT_bit39;
+			dipho_HLT_bit42 = pho_HLT_bit39;
+			dipho_HLT_bit43 = pho_HLT_bit39;
+			dipho_HLT_bit44 = pho_HLT_bit44;
+			dipho_HLT_bit45 = pho_HLT_bit45;
 			if (doMC){ 
 				event_eventPtHat = pho_eventPtHat;
 				event_processId = pho_eventProcessId;
@@ -474,13 +732,29 @@ int fillThisEvent(int iteLead, int iteTrail){
 
 		}
 		//if (!((pho_HLT_bit1==1))) continue;
-		if (isAspike == 1) continue;
+	//	if (isAspike == 1) continue;
+	//	if (!(pho_HLT_bit6 == 1)) continue;
+		if ((pho_cEE+pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))!=0) pho_lambdaRatio = (pho_cEE+pho_cPP-sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))/(pho_cEE+pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP));
+		else pho_lambdaRatio = 0;
+		pho_cEP_loc[ite] = pho_cEP;
+		pho_r19_loc[ite] = pho_r19;
+		if (pho_SCEraw != 0) pho_ratioSeed = pho_eMax/pho_SCEraw;
+		else pho_ratioSeed = 0;
+		float kcoeff = 1;//0.9946;
+//		if (pho_isEE ==1) kcoeff = 0.993;
+		if (pho_e5x5 != 0) pho_ratioS4 = pho_e2x2/pho_e5x5/kcoeff;
+		else pho_ratioS4 = 0;
+		pho_r9old = pho_r9;
+		pho_r9 = pho_r9old/kcoeff;
+		if (pho_cEE != 0) pho_lamdbaDivCov  = (pho_cEE+pho_cPP-sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))/pho_cEE;
+		else pho_lamdbaDivCov = 0;
 		P_loc[ite].SetPxPyPzE(pho_px,pho_py,pho_pz,pho_energy);
 		Ptrue_loc[ite].SetPxPyPzE(pho_truePx,pho_truePy,pho_truePz,sqrt(pho_truePx*pho_truePx+pho_truePy*pho_truePy+pho_truePz*pho_truePz));
 //		std::cout << "P_loc = " << P_loc[ite].Et() << std::endl;
 		Eta_loc[ite] = pho_eta;
 		R9_loc[ite] = pho_r9;  
 		cPP_loc[ite] = pho_cPP;
+		cEE_loc[ite] = pho_cEE;
 		EtaWidth_loc[ite] = pho_etawidth;
 		ptoverjetpt_loc[ite] = pho_ptoverjetpt;
 		dR_SCtrkclosest_loc[ite] = pho_DrTrkclosest_pt2;
@@ -499,9 +773,12 @@ int fillThisEvent(int iteLead, int iteTrail){
 		pho_sigmaIetaIeta_loc[ite] = pho_sigmaIetaIeta;
 		pho_isEB_loc[ite] = pho_isEB;
 		pho_isEE_loc[ite] = pho_isEE;
-		NNshapeOutput_loc[ite] = pho_NNshapeOutput;
-		NNenvOutput_loc[ite] = pho_NNenvOutput;
-		NNcombOutput_loc[ite] = pho_NNcombOutput;
+		if (doNN) NNshapeOutput_loc[ite] = reader->EvaluateMVA("MLP method");;
+//		NNenvOutput_loc[ite] = pho_NNenvOutput;
+//		NNcombOutput_loc[ite] = pho_NNcombOutput;
+		pho_SCnbBC_loc[ite] = pho_SCnbBC;
+    		pho_SCnXtal_loc[ite] = pho_SCnXtal;
+		pho_SCEraw_loc[ite] = pho_SCEraw;
 		etaSC_loc[ite] = pho_SCeta;
 		SCbr_loc[ite] = pho_SCbr;
 		pho_trueE_loc[ite] = pho_trueE;
@@ -511,6 +788,30 @@ int fillThisEvent(int iteLead, int iteTrail){
 		pho_truePhi_loc[ite] = pho_truePhi;
 		pho_trueEta_loc[ite] = pho_trueEta;
 		pho_isMatchingWithHLTObject_loc[ite] = pho_isMatchingWithHLTObject;
+		pho_IsoSolidNtrackCone_loc[ite] = pho_IsoSolidNtrackCone;
+		pho_IsoHollowNtrackCone_loc[ite] = pho_IsoHollowNtrackCone;
+		pho_cEP_loc[ite] = pho_cEP;
+		pho_r19_loc[ite] = pho_r19;
+		pho_lambdaRatio_loc[ite] = pho_lambdaRatio;
+		pho_ratioSeed_loc[ite] = pho_ratioSeed;
+		pho_ratioS4_loc[ite] = pho_ratioS4;
+		pho_lamdbaDivCov_loc[ite] = pho_lamdbaDivCov;
+		pho_secondMomentMaj_loc[ite] = pho_secondMomentMaj;
+		pho_secondMomentMin_loc[ite] = pho_secondMomentMin;
+		pho_secondMomentAlpha_loc[ite] = pho_secondMomentAlpha;
+		pho_s4_loc[ite] = pho_s4;
+		pho_s9_loc[ite] = pho_s9;
+		pho_e2x2_loc[ite] = pho_e2x2;
+		pho_e5x5_loc[ite] = pho_e5x5;
+		pho_SCEraw_loc[ite] = pho_SCEraw;
+		pho_eMax_loc[ite] = pho_eMax;
+		pho_isMatchWithMuon_loc[ite] = pho_isMatchWithMuon;
+		pho_isConverted_loc[ite] = pho_isConverted;
+
+		if ((0.25*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))+pho_cEP*pho_cEP)!=0) pho_CovAngle_loc[ite] = 0.5*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))/sqrt(0.25*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))+pho_cEP*pho_cEP);
+		else pho_CovAngle_loc[ite] = 0;	
+		if ((0.25*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))+pho_cEP*pho_cEP)!=0) pho_CovAngle2_loc[ite] = pho_cEP/sqrt(0.25*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))*(pho_cEE-pho_cPP+sqrt((pho_cEE-pho_cPP)*(pho_cEE-pho_cPP)+4*pho_cEP*pho_cEP))+pho_cEP*pho_cEP);
+		else pho_CovAngle2_loc[ite] = 0;	
 		ite++;
 
 		numEventBefore = pho_iEvent;
