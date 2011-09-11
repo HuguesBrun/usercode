@@ -217,11 +217,14 @@ void beginMacro(){
 		myTree_->Branch("pholead_cEP",&pholead_cEP,"pholead_cEP/F");
 		myTree_->Branch("pholead_cEE",&pholead_cEE,"pholead_cEE/F");
 		myTree_->Branch("pholead_r19",&pholead_r19,"pholead_r19/F");                                             
+		myTree_->Branch("pholead_SCEraw",&pholead_SCEraw,"pholead_SCEraw/F");                                             
+		myTree_->Branch("pholead_eMax",&pholead_eMax,"pholead_eMax/F");                                             
+		myTree_->Branch("pholead_e2x2",&pholead_e2x2,"pholead_e2x2/F");                                             
+		myTree_->Branch("pholead_e5x5",&pholead_e5x5,"pholead_e5x5/F");                                             
 		myTree_->Branch("pholead_ratioSeed",&pholead_ratioSeed,"pholead_ratioSeed/F");
 		myTree_->Branch("pholead_ratioS4",&pholead_ratioS4,"pholead_ratioS4/F");
 		myTree_->Branch("pholead_lambdaRatio",&pholead_lambdaRatio,"pholead_lambdaRatio/F");
 		myTree_->Branch("pholead_lamdbaDivCov",&pholead_lamdbaDivCov,"pholead_lamdbaDivCov/F");
-		myTree_->Branch("pholead_sigmaphi",&pholead_sigmaphi,"pholead_sigmaphi/F");          
 		myTree_->Branch("pholead_secondMomentMaj",&pholead_secondMomentMaj,"pholead_secondMomentMaj/F");
 		myTree_->Branch("pholead_secondMomentMin",&pholead_secondMomentMin,"pholead_secondMomentMin/F");
 		myTree_->Branch("pholead_secondMomentAlpha",&pholead_secondMomentAlpha,"pholead_secondMomentAlpha/F");
@@ -229,6 +232,7 @@ void beginMacro(){
 		myTree_->Branch("pholead_covAngle2",&pholead_covAngle2,"pholead_covAngle2/F");
 		myTree_->Branch("pholead_S9overS9minusS1S2",&pholead_S9overS9minusS1S2,"pholead_S9overS9minusS1S2/F");
 		myTree_->Branch("pholead_etawidth",&pholead_etawidth,"pholead_etawidth/F");                              
+		myTree_->Branch("pholead_phiwidth",&pholead_phiwidth,"pholead_phiwidth/F");                              
 		myTree_->Branch("pholead_sigieta",&pholead_sigieta,"pholead_sigieta/F");                                 
 		myTree_->Branch("pholead_SCbr",&pholead_SCbr,"pholead_SCbr/F");
 		myTree_->Branch("pholead_HcalIso",&pholead_HcalIso,"pholead_HcalIso/F");                                     
@@ -246,6 +250,47 @@ void beginMacro(){
 		myTree_->Branch("pholead_isEE",&pholead_isEE,"pholead_isEE/I");
 		myTree_->Branch("pholead_NNshapeOutput",&pholead_NNshapeOutput, "pholead_NNshapeOutput/F");
 
+		myTree_->Branch("photrail_pt",&photrail_pt,"photrail_pt/F"); 
+		myTree_->Branch("photrail_eta",&photrail_eta,"photrail_eta/F");   
+		myTree_->Branch("photrail_etaSC",&photrail_etaSC,"photrail_etaSC/F");
+
+		myTree_->Branch("photrail_r9",&photrail_r9,"photrail_r9/F");                                             
+		myTree_->Branch("photrail_cPP",&photrail_cPP,"photrail_cPP/F");
+		myTree_->Branch("photrail_cEP",&photrail_cEP,"photrail_cEP/F");
+		myTree_->Branch("photrail_cEE",&photrail_cEE,"photrail_cEE/F");
+		myTree_->Branch("photrail_r19",&photrail_r19,"photrail_r19/F");                                             
+		myTree_->Branch("photrail_SCEraw",&photrail_SCEraw,"photrail_SCEraw/F");                                             
+		myTree_->Branch("photrail_eMax",&photrail_eMax,"photrail_eMax/F");                                             
+		myTree_->Branch("photrail_e2x2",&photrail_e2x2,"photrail_e2x2/F");                                             
+		myTree_->Branch("photrail_e5x5",&photrail_e5x5,"photrail_e5x5/F");                                             
+		myTree_->Branch("photrail_ratioSeed",&photrail_ratioSeed,"photrail_ratioSeed/F");
+		myTree_->Branch("photrail_ratioS4",&photrail_ratioS4,"photrail_ratioS4/F");
+		myTree_->Branch("photrail_lambdaRatio",&photrail_lambdaRatio,"photrail_lambdaRatio/F");
+		myTree_->Branch("photrail_lamdbaDivCov",&photrail_lamdbaDivCov,"photrail_lamdbaDivCov/F");
+		myTree_->Branch("photrail_secondMomentMaj",&photrail_secondMomentMaj,"photrail_secondMomentMaj/F");
+		myTree_->Branch("photrail_secondMomentMin",&photrail_secondMomentMin,"photrail_secondMomentMin/F");
+		myTree_->Branch("photrail_secondMomentAlpha",&photrail_secondMomentAlpha,"photrail_secondMomentAlpha/F");
+		myTree_->Branch("photrail_covAngle",&photrail_covAngle,"photrail_covAngle/F");
+		myTree_->Branch("photrail_covAngle2",&photrail_covAngle2,"photrail_covAngle2/F");
+		myTree_->Branch("photrail_S9overS9minusS1S2",&photrail_S9overS9minusS1S2,"photrail_S9overS9minusS1S2/F");
+		myTree_->Branch("photrail_etawidth",&photrail_etawidth,"photrail_etawidth/F");                              
+		myTree_->Branch("photrail_phiwidth",&photrail_phiwidth,"photrail_phiwidth/F");                              
+		myTree_->Branch("photrail_sigieta",&photrail_sigieta,"photrail_sigieta/F");                                 
+		myTree_->Branch("photrail_SCbr",&photrail_SCbr,"photrail_SCbr/F");
+		myTree_->Branch("photrail_HcalIso",&photrail_HcalIso,"photrail_HcalIso/F");                                     
+		myTree_->Branch("photrail_EcalIso",&photrail_EcalIso,"photrail_EcalIso/F");
+		myTree_->Branch("photrail_TrackerIso",&photrail_TrackerIso,"photrail_TrackerIso/F");
+		myTree_->Branch("photrail_HcalIsodR03",&photrail_HcalIsodR03,"photrail_HcalIsodR03/F");             
+		myTree_->Branch("photrail_EcalIsodR03",&photrail_EcalIsodR03,"photrail_EcalIsodR03/F");
+		myTree_->Branch("photrail_TrackerIsodR03",&photrail_TrackerIsodR03,"photrail_TrackerIsodR03/F");
+		myTree_->Branch("photrail_hoe",&photrail_hoe,"photrail_hoe/F");
+
+                myTree_->Branch("photrail_HasPixSeed",&photrail_HasPixSeed,"photrail_HasPixSeed/I");
+                myTree_->Branch("photrail_seedSeverity",&photrail_seedSeverity,"photrail_seedSeverity/I");
+                myTree_->Branch("photrail_recoFlag",&photrail_recoFlag,"photrail_recoFlag/I");
+		myTree_->Branch("photrail_isEB",&photrail_isEB,"photrail_isEB/I");
+		myTree_->Branch("photrail_isEE",&photrail_isEE,"photrail_isEE/I");
+		myTree_->Branch("photrail_NNshapeOutput",&photrail_NNshapeOutput, "photrail_NNshapeOutput/F");
 
 
 }
@@ -273,6 +318,7 @@ void saveThisEvent(TRootEvent *theEvent, pair <TRootPhoton*, TRootPhoton*> theDi
 		dipho_costhetastar = fabs(CosThetaStar(Plead,Ptrail));
 		dipho_eta = Psum.Eta();
 		dipho_etastar = 1.0*(Plead.Eta()-Ptrail.Eta())/2;
+		cout << "Passing Event number =  " << event_number << ", Mgg = " << dipho_mgg << ", Pt = " << dipho_qt << endl;  
 		TRootMCParticle theLeadMC, theTrailMC;
 		TLorentzVector PleadMC, PtrailMC, PsumMC;		
 		if (findGenParticle(theDiphotonPair.first, mcParticles, &theLeadMC)) pholead_isMatchingWithMC =1;
@@ -296,6 +342,79 @@ void saveThisEvent(TRootEvent *theEvent, pair <TRootPhoton*, TRootPhoton*> theDi
 
 		
 		pholead_r9 = (theDiphotonPair.first)->r9();
+		pholead_cPP = (theDiphotonPair.first)->covPhiPhi();
+		pholead_cEE = (theDiphotonPair.first)->covEtaEta();
+		pholead_cEP = (theDiphotonPair.first)->covEtaPhi();
+
+		pholead_r19 = (theDiphotonPair.first)->r19();
+		pholead_SCEraw = (theDiphotonPair.first)->superCluster()->rawEnergy();
+		pholead_eMax = (theDiphotonPair.first)->eMax();
+		pholead_e2x2 = (theDiphotonPair.first)->e2x2();
+		pholead_e5x5 = (theDiphotonPair.first)->e5x5();
+		if (pholead_SCEraw!=0) pholead_ratioSeed = pholead_eMax/pholead_SCEraw; else pholead_ratioSeed = 0;
+		if (pholead_e5x5!=0) pholead_ratioS4 = pholead_e2x2 / pholead_e5x5; else pholead_ratioS4 = 0;
+		if ( (pholead_cEE+pholead_cPP+sqrt((pholead_cEE-pholead_cPP)*(pholead_cEE-pholead_cPP)+4*pholead_cEP*pholead_cEP))!=0) pholead_lambdaRatio = (pholead_cEE+pholead_cPP-sqrt((pholead_cEE-pholead_cPP)*(pholead_cEE-pholead_cPP)+4*pholead_cEP*pholead_cEP))/(pholead_cEE+pholead_cPP+sqrt((pholead_cEE-pholead_cPP)*(pholead_cEE-pholead_cPP)+4*pholead_cEP*pholead_cEP)); else pholead_lambdaRatio = 0;
+		if (pholead_cEE != 0) pholead_lamdbaDivCov = (pholead_cEE+pholead_cPP-sqrt((pholead_cEE-pholead_cPP)*(pholead_cEE-pholead_cPP)+4*pholead_cEP*pholead_cEP))/pholead_cEE; else pholead_lamdbaDivCov = 0;
+	
+		pholead_secondMomentMaj = (theDiphotonPair.first)->secondMomentMaj();
+		pholead_secondMomentMin = (theDiphotonPair.first)->secondMomentMin();
+		pholead_secondMomentAlpha = (theDiphotonPair.first)->secondMomentAlpha();
+		pholead_etawidth = (theDiphotonPair.first)->superCluster()->etaWidth();
+		pholead_sigieta = (theDiphotonPair.first)->superCluster()->phiWidth();
+		pholead_SCbr = (theDiphotonPair.first)->superCluster()->phiWidth()/(theDiphotonPair.first)->superCluster()->etaWidth();
+
+		pholead_HcalIso = (theDiphotonPair.first)->dR04IsolationHcalRecHit();
+		pholead_EcalIso = (theDiphotonPair.first)->dR04IsolationEcalRecHit();
+		pholead_TrackerIso = (theDiphotonPair.first)->dR04IsolationHollowTrkCone();
+		pholead_HcalIsodR03 = (theDiphotonPair.first)->dR03IsolationHcalRecHit();
+		pholead_EcalIsodR03 = (theDiphotonPair.first)->dR03IsolationEcalRecHit();
+		pholead_TrackerIsodR03 = (theDiphotonPair.first)->dR03IsolationHollowTrkCone();
+		pholead_hoe = (theDiphotonPair.first)->hoe();
+
+		pholead_HasPixSeed = (theDiphotonPair.first)->hasPixelSeed();
+		pholead_seedSeverity = (theDiphotonPair.first)->superCluster()->seedSeverity(); 
+		pholead_recoFlag = (theDiphotonPair.first)->superCluster()->seedRecoFlag();
+		pholead_isEB = (theDiphotonPair.first)->isEBPho();
+		pholead_isEE = (theDiphotonPair.first)->isEEPho();
+	//	pholead_NNshapeOutput = (theDiphotonPair.first)
+
+		photrail_r9 = (theDiphotonPair.second)->r9();
+		photrail_cPP = (theDiphotonPair.second)->covPhiPhi();
+		photrail_cEE = (theDiphotonPair.second)->covEtaEta();
+		photrail_cEP = (theDiphotonPair.second)->covEtaPhi();
+
+		photrail_r19 = (theDiphotonPair.second)->r19();
+		photrail_SCEraw = (theDiphotonPair.second)->superCluster()->rawEnergy();
+		photrail_eMax = (theDiphotonPair.second)->eMax();
+		photrail_e2x2 = (theDiphotonPair.second)->e2x2();
+		photrail_e5x5 = (theDiphotonPair.second)->e5x5();
+		if (photrail_SCEraw!=0) photrail_ratioSeed = photrail_eMax/photrail_SCEraw; else photrail_ratioSeed = 0;
+		if (photrail_e5x5!=0) photrail_ratioS4 = photrail_e2x2 / photrail_e5x5; else photrail_ratioS4 = 0;
+		if ( (photrail_cEE+photrail_cPP+sqrt((photrail_cEE-photrail_cPP)*(photrail_cEE-photrail_cPP)+4*photrail_cEP*photrail_cEP))!=0) photrail_lambdaRatio = (photrail_cEE+photrail_cPP-sqrt((photrail_cEE-photrail_cPP)*(photrail_cEE-photrail_cPP)+4*photrail_cEP*photrail_cEP))/(photrail_cEE+photrail_cPP+sqrt((photrail_cEE-photrail_cPP)*(photrail_cEE-photrail_cPP)+4*photrail_cEP*photrail_cEP)); else photrail_lambdaRatio = 0;
+		if (photrail_cEE != 0) photrail_lamdbaDivCov = (photrail_cEE+photrail_cPP-sqrt((photrail_cEE-photrail_cPP)*(photrail_cEE-photrail_cPP)+4*photrail_cEP*photrail_cEP))/photrail_cEE; else photrail_lamdbaDivCov = 0;
+	
+		photrail_secondMomentMaj = (theDiphotonPair.second)->secondMomentMaj();
+		photrail_secondMomentMin = (theDiphotonPair.second)->secondMomentMin();
+		photrail_secondMomentAlpha = (theDiphotonPair.second)->secondMomentAlpha();
+		photrail_etawidth = (theDiphotonPair.second)->superCluster()->etaWidth();
+		photrail_sigieta = (theDiphotonPair.second)->superCluster()->phiWidth();
+		photrail_SCbr = (theDiphotonPair.second)->superCluster()->phiWidth()/(theDiphotonPair.second)->superCluster()->etaWidth();
+
+		photrail_HcalIso = (theDiphotonPair.second)->dR04IsolationHcalRecHit();
+		photrail_EcalIso = (theDiphotonPair.second)->dR04IsolationEcalRecHit();
+		photrail_TrackerIso = (theDiphotonPair.second)->dR04IsolationHollowTrkCone();
+		photrail_HcalIsodR03 = (theDiphotonPair.second)->dR03IsolationHcalRecHit();
+		photrail_EcalIsodR03 = (theDiphotonPair.second)->dR03IsolationEcalRecHit();
+		photrail_TrackerIsodR03 = (theDiphotonPair.second)->dR03IsolationHollowTrkCone();
+		photrail_hoe = (theDiphotonPair.second)->hoe();
+
+		photrail_HasPixSeed = (theDiphotonPair.second)->hasPixelSeed();
+		photrail_seedSeverity = (theDiphotonPair.second)->superCluster()->seedSeverity(); 
+		photrail_recoFlag = (theDiphotonPair.second)->superCluster()->seedRecoFlag();
+		photrail_isEB = (theDiphotonPair.second)->isEBPho();
+		photrail_isEE = (theDiphotonPair.second)->isEEPho();
+	//	photrail_NNshapeOutput = (theDiphotonPair.second)
+
 
 		myTree_->Fill();
     }
@@ -311,9 +430,16 @@ void endMacro(){
 //miniTreeMaker(){
 int main(){
 	cout << "coucou" << endl;
-	gSystem->Load("/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/src/libToto.so");
-        
-	inputEventTree->Add("/sps/cms/hbrun/dataset42X/theHiggsFile.root");
+	gSystem->Load("/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/src/libToto.so");
+      // inputEventTree->Add("../test/MC_EG_goodVtx_noscrapping.root"); 
+	//inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data/store/user/obondu/GluGlu_120_PU_S4_v2/GluGlu_120_5_1_e5Q.root");
+	//inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data/store/user/obondu/GluGlu_120_PU_S4_v1/GluGlu_120_3_1_Gwj.root");
+	//inputEventTree->Add("/sps/cms/hbrun/dataset42X/theHiggsFile.root");
+	inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data/store/user/obondu/GluGlu_120_v2//GluGlu_120_3_1_8BK.root");
+	inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data/store/user/obondu/GluGlu_120_v2/GluGlu_120_2_1_aHq.root");
+	inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data/store/user/obondu/GluGlu_120_v2/GluGlu_120_1_1_K6q.root");
+	inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data/store/user/obondu/GluGlu_120_v2/GluGlu_120_4_1_jnV.root");
+	inputEventTree->Add("root://ccxroot.in2p3.fr:1094//pnfs/in2p3.fr/data/cms/t2data/store/user/obondu/GluGlu_120_v2/GluGlu_120_5_1_lfA.root");
 //	inputEventTree->Add("../test/MC_EG_goodVtx_noscrapping_good.root");
 
 
@@ -322,14 +448,33 @@ int main(){
 	beginMacro();
 
 	int NbEvents = inputEventTree->GetEntries();	cout << "NbEvents = " << NbEvents << endl;
-	NbEvents = 10;
+	//NbEvents = 100;
 	int NbHLT20 = 0;
 	int NbPhotons = 0;
 	int NbPhotonsCleaned = 0;
 	int NbPhotonsAccept = 0;
 	int NbPhotonsCutEt = 0;
 	int NbPhotonsPb = 0;
-	
+
+	int phoPair = 0;
+	int phoPairLeadCiC0 = 0;	
+	int phoPairLeadCiC1 = 0;	
+	int phoPairLeadCiC2 = 0;	
+	int phoPairLeadCiC3 = 0;	
+	int phoPairLeadCiC4 = 0;	
+	int phoPairLeadCiC5 = 0;	
+	int phoPairLeadCiC6 = 0;	
+	int phoPairLeadCiC7 = 0;	
+	int phoPairTrailCiC0 = 0;	
+	int phoPairTrailCiC1 = 0;	
+	int phoPairTrailCiC2 = 0;	
+	int phoPairTrailCiC3 = 0;	
+	int phoPairTrailCiC4 = 0;	
+	int phoPairTrailCiC5 = 0;	
+	int phoPairTrailCiC6 = 0;	
+	int phoPairTrailCiC7 = 0;
+	int phoAfterCutEt = 0;
+	int phoGoodPair = 0;	
 
 	cout << "nomFichier=" << inputEventTree->GetFile()->GetName() << " nbEntries=" << NbEvents << endl;
 	for (int ievt  = 0 ; ievt < NbEvents ; ievt++){
@@ -391,12 +536,12 @@ int main(){
 		vector<pair <TRootPhoton*, TRootPhoton*> > theDiphotonPairs; //lead, trail
 
 		int NbPhoton = photons->GetEntriesFast();
-		cout << "nb of photon " << NbPhoton << endl;
+//		cout << "nb of photon " << NbPhoton << endl;
 		for (int iphoton=0; iphoton< NbPhoton ; iphoton++){
 			NbPhotons++;
 			TRootPhoton *myphoton = (TRootPhoton*) photons->At(iphoton);
 			if (!(photonPassingPreselection(myphoton))) continue;
-			for (int iphoton2=iphoton ; iphoton2 < NbPhoton ; iphoton2++){
+			for (int iphoton2=(iphoton+1) ; iphoton2 < NbPhoton ; iphoton2++){
 				TRootPhoton *myphoton2 = (TRootPhoton*) photons->At(iphoton2);
 				if (!(photonPassingPreselection(myphoton2))) continue;
 				pair <TRootPhoton*, TRootPhoton*> theDiphotonPair;
@@ -408,25 +553,74 @@ int main(){
 		}
 		// now run over diphoton to see if pass CiC	
 		float theMaxSumEt = 0; int  theMaxSumEtInd = -10; int nbOfGood = 0;
-		cout << "on a trouvé " << theDiphotonPairs.size() << " pair de photons " << endl;
 		for (int i = 0 ; i < theDiphotonPairs.size() ; i++){
-			if (!(photonIsPassingCIC(*(theDiphotonPairs[i].first), vertices, tracks, *beamSpot, electrons))) continue;//test if lead pass CiC
-			cout << " le premier passe " << endl;	
-			if (!(photonIsPassingCIC(*(theDiphotonPairs[i].second), vertices, tracks, *beamSpot, electrons))) continue; // tets if trail pass CiC
-			cout << "le second passe " << endl;
+			int leadCiCStop, trailCiCStop;
+			phoPair++;
+		TLorentzVector Plead, Ptrail, Psum;
+		Plead.SetPxPyPzE((theDiphotonPairs[i].first)->Px(),(theDiphotonPairs[i].first)->Py(),(theDiphotonPairs[i].first)->Pz(),(theDiphotonPairs[i].first)->Energy());
+		Ptrail.SetPxPyPzE((theDiphotonPairs[i].second)->Px(),(theDiphotonPairs[i].second)->Py(),(theDiphotonPairs[i].second)->Pz(),(theDiphotonPairs[i].second)->Energy());
+		Psum = Plead + Ptrail;
+			int theDiphoCat = findTheDiphoCat(*(theDiphotonPairs[i].first), *(theDiphotonPairs[i].second)); 
+			bool leadPassingCiC = photonIsPassingCIC(*(theDiphotonPairs[i].first), vertices, tracks, *beamSpot, electrons, &leadCiCStop, theDiphoCat);
+		//	cout << leadCiCStop << endl;
+			switch (leadCiCStop){
+				case 7 : phoPairLeadCiC7++; 
+				case 6 : phoPairLeadCiC6++; 
+				case 5 : phoPairLeadCiC5++;
+				case 4 : phoPairLeadCiC4++;
+				case 3 : phoPairLeadCiC3++;
+				case 2 : phoPairLeadCiC2++;
+				case 1 : phoPairLeadCiC1++;
+				case 0 : phoPairLeadCiC0++;
+			}
+			if (!(leadPassingCiC&&((theDiphotonPairs[i].first)->Et()>40))) continue;//test if lead pass CiC
+			bool trailPassingCiC = photonIsPassingCIC(*(theDiphotonPairs[i].second), vertices, tracks, *beamSpot, electrons, &trailCiCStop, theDiphoCat);	
+			switch (trailCiCStop){
+				case 7 : phoPairTrailCiC7++;
+				case 6 : phoPairTrailCiC6++;
+				case 5 : phoPairTrailCiC5++;
+				case 4 : phoPairTrailCiC4++;
+				case 3 : phoPairTrailCiC3++;
+				case 2 : phoPairTrailCiC2++;
+				case 1 : phoPairTrailCiC1++;
+				case 0 : phoPairTrailCiC0++; 
+			}
+			if (!(trailPassingCiC&&((theDiphotonPairs[i].second)->Et()>30))) continue; // tets if trail pass CiC
+			phoAfterCutEt++;
+	//		cout << "le second passe " << endl;
 			nbOfGood++;
 			float sumEt = (theDiphotonPairs[i].first)->Et() + (theDiphotonPairs[i].second)->Et();
 			if (sumEt > theMaxSumEt) {
+			//	cout << "Et lead " << (theDiphotonPairs[i].first)->Et() << " photon trail " << (theDiphotonPairs[i].second)->Et() << endl;
 				theMaxSumEt = sumEt;
 				theMaxSumEtInd = i;
 			}
+			//cout << "good pair in the event  " << nbOfGood << endl;
 		}
 		if ( theMaxSumEtInd >= 0 ) {
-			cout << "Hi If found a pair :)  "  << "nbBon " << nbOfGood << endl;
+			phoGoodPair++;
 			saveThisEvent(event, theDiphotonPairs[theMaxSumEtInd], photons, vertices);
 		}
 	}
-
+	cout << "phopair " << phoPair << endl;
+	cout << "phoPairLeadCiC0 = " << phoPairLeadCiC0 << endl;
+	cout << "phoPairLeadCiC1 = " << phoPairLeadCiC1 << endl;
+	cout << "phoPairLeadCiC2 = " << phoPairLeadCiC2 << endl;
+	cout << "phoPairLeadCiC3 = " << phoPairLeadCiC3 << endl;
+	cout << "phoPairLeadCiC4 = " << phoPairLeadCiC4 << endl;
+	cout << "phoPairLeadCiC5 = " << phoPairLeadCiC5 << endl;
+	cout << "phoPairLeadCiC6 = " << phoPairLeadCiC6 << endl;
+	cout << "phoPairLeadCiC7 = " << phoPairLeadCiC7 << endl;
+	cout << "phoPairTrailCiC0 = " << phoPairTrailCiC0 << endl;
+	cout << "phoPairTrailCiC1 = " << phoPairTrailCiC1 << endl;
+	cout << "phoPairTrailCiC2 = " << phoPairTrailCiC2 << endl;
+	cout << "phoPairTrailCiC3 = " << phoPairTrailCiC3 << endl;
+	cout << "phoPairTrailCiC4 = " << phoPairTrailCiC4 << endl;
+	cout << "phoPairTrailCiC5 = " << phoPairTrailCiC5 << endl;
+	cout << "phoPairTrailCiC6 = " << phoPairTrailCiC6 << endl;
+	cout << "phoPairTrailCiC7 = " << phoPairTrailCiC7 << endl;
+	cout << "phoAfterCutEt = " << phoAfterCutEt << endl;
+	cout << "phoGoodPair = " << phoGoodPair << endl;
 
 
 	endMacro();

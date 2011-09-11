@@ -19,28 +19,28 @@
 #include "TSystem.h"
 #include <utility>
 
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
-#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootHLTObject.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootBardak.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootBeamStatus.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootCluster.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootDummyEvent.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootEcalRecHit.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootElectron.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootEvent.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootJet.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootMCParticle.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootMET.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootMuon.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootParticle.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootPhoton.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootRun.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootSignalEvent.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootSuperCluster.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootTopTop.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3_testElectron/src/Morgan/IpnTreeProducer/interface/TRootHLTObject.h"
 
 
 TFile *myFile;// = new TFile("theMiniTree.root","RECREATE");
@@ -372,9 +372,6 @@ float pholead_ratioSeed;
 float pholead_ratioS4;
 float pholead_lambdaRatio;
 float pholead_lamdbaDivCov;
-float pholead_lambdaRatioRand;
-float pholead_lamdbaDivCovRand;
-float pholead_sigmaphi;
 float pholead_secondMomentMaj;
 float pholead_secondMomentMin;
 float pholead_secondMomentAlpha;
@@ -382,6 +379,7 @@ float pholead_covAngle;
 float pholead_covAngle2;
 float pholead_S9overS9minusS1S2;
 float pholead_etawidth;
+float pholead_phiwidth;
 float pholead_sigieta;
 float pholead_SCbr;
 
@@ -412,6 +410,55 @@ float pholead_NNshapeOutput;
 //phoTrail
 //relatedMC
 int photrail_isMatchingWithMC;
+// kinevars
+float photrail_pt;
+float photrail_eta;
+float photrail_etaSC;
+// cluster shape vars
+float photrail_r9;
+float photrail_cPP;
+float photrail_cEP;
+float photrail_cEE;
+float photrail_r19;
+float photrail_SCEraw;
+float photrail_eMax;
+float photrail_e2x2;
+float photrail_e5x5;
+float photrail_ratioSeed;
+float photrail_ratioS4;
+float photrail_lambdaRatio;
+float photrail_lamdbaDivCov;
+float photrail_secondMomentMaj;
+float photrail_secondMomentMin;
+float photrail_secondMomentAlpha;
+float photrail_covAngle;
+float photrail_covAngle2;
+float photrail_S9overS9minusS1S2;
+float photrail_etawidth;
+float photrail_phiwidth;
+float photrail_sigieta;
+float photrail_SCbr;
+
+//isolation variables
+float photrail_HcalIso;
+float photrail_EcalIso;
+float photrail_TrackerIso;
+float photrail_HcalIsodR03;
+float photrail_EcalIsodR03;
+float photrail_TrackerIsodR03;
+float photrail_HcalIsoPerso;
+float photrail_EcalIsoPerso;
+float photrail_hoe;
+
+//other variables
+int photrail_HasPixSeed;
+int photrail_isPromptGenPho;
+int photrail_isFromQuarkGen;
+int photrail_seedSeverity;
+int photrail_recoFlag;
+int photrail_isEB;
+int photrail_isEE;
+float photrail_NNshapeOutput;
 
 
 TBranch* event_br = 0;
