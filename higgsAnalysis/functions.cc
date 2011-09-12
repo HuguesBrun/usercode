@@ -83,9 +83,10 @@ double dRtoTrack(TRootPhoton thePhoton, TClonesArray* electrons){
 	for (int iTrack = 0 ; iTrack < electrons->GetEntriesFast() ; iTrack++){
 		TRootElectron *theLocalElectron = (TRootElectron*) electrons->At(iTrack);
 		if (theLocalElectron->trackMissedInnerLayers() > 0 ) continue;
-		if (fabs(thePhoton.superCluster()->Phi() - theLocalElectron->theSCphi())>0.01) continue;
-		if (fabs(thePhoton.superCluster()->Eta() - theLocalElectron->theSCeta())>0.01) continue;
-
+		//if (fabs(thePhoton.superCluster()->Phi() - theLocalElectron->theSCphi())>0.01) continue;
+		//if (fabs(thePhoton.superCluster()->Eta() - theLocalElectron->theSCeta())>0.01) continue;
+		float deltaCalo = sqrt((thePhoton.caloPosition().X()-theLocalElectron->caloPosition().X())*(thePhoton.caloPosition().X()-theLocalElectron->caloPosition().X())+(thePhoton.caloPosition().Y()-theLocalElectron->caloPosition().Y())*(thePhoton.caloPosition().Y()-theLocalElectron->caloPosition().Y())+(thePhoton.caloPosition().Z()-theLocalElectron->caloPosition().Z())*(thePhoton.caloPosition().Z()-theLocalElectron->caloPosition().Z()));
+		if (deltaCalo > 0.0001 ) continue; //no matching between the electrons and the photon :( 
 
 		theDr = sqrt(theLocalElectron->deltaEtaIn()*theLocalElectron->deltaEtaIn()+theLocalElectron->deltaPhiIn()*theLocalElectron->deltaPhiIn());
 		if (theDr < theMinDr) theMinDr = theDr;
@@ -127,9 +128,9 @@ bool photonIsPassingCIC(TRootPhoton thePhoton, TClonesArray* theVertices, TClone
 	varToCut[6] = dRtoTrack(thePhoton, electrons); // calc the dR
 
 /*	for (int i = 0 ; i < 7 ; i++){
-		cout << " the var " << i << " = " << varToCut[i];
+		cout << " var" << i << "= " << varToCut[i];
 	}
-	cout << endl;*/
+	cout << endl;**/
 
  	for (int i = 0 ; i < 7 ; i++){  // test if pass the CiC cuts
 		//cout << "i " << varToCut[i] << " " << vcicST[i][cat-1] << endl;
