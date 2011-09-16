@@ -318,7 +318,8 @@ void saveThisEvent(TRootEvent *theEvent, pair <TRootPhoton*, TRootPhoton*> theDi
 		dipho_costhetastar = fabs(CosThetaStar(Plead,Ptrail));
 		dipho_eta = Psum.Eta();
 		dipho_etastar = 1.0*(Plead.Eta()-Ptrail.Eta())/2;
-		cout << "Passing Event number =  " << event_number << ", Mgg = " << dipho_mgg << ", Pt = " << dipho_qt << endl;  
+		int catDipho = findTheDiphoCat(*(theDiphotonPair.first), *(theDiphotonPair.second));
+		cout << "passing pair : Run = " << event_runNumber << " LS = " << event_LumiSection << " Event = " << event_number << " SelVtx = 0  CAT4 = " << catDipho << " ggM = " << dipho_mgg << " gg_Pt =  " << dipho_qt << endl;
 		TRootMCParticle theLeadMC, theTrailMC;
 		TLorentzVector PleadMC, PtrailMC, PsumMC;		
 		if (findGenParticle(theDiphotonPair.first, mcParticles, &theLeadMC)) pholead_isMatchingWithMC =1;
@@ -448,7 +449,7 @@ int main(){
 	beginMacro();
 
 	int NbEvents = inputEventTree->GetEntries();	cout << "NbEvents = " << NbEvents << endl;
-	//NbEvents = 100;
+	//NbEvents = 10000;
 	int NbHLT20 = 0;
 	int NbPhotons = 0;
 	int NbPhotonsCleaned = 0;
@@ -560,8 +561,11 @@ int main(){
 		Plead.SetPxPyPzE((theDiphotonPairs[i].first)->Px(),(theDiphotonPairs[i].first)->Py(),(theDiphotonPairs[i].first)->Pz(),(theDiphotonPairs[i].first)->Energy());
 		Ptrail.SetPxPyPzE((theDiphotonPairs[i].second)->Px(),(theDiphotonPairs[i].second)->Py(),(theDiphotonPairs[i].second)->Pz(),(theDiphotonPairs[i].second)->Energy());
 		Psum = Plead + Ptrail;
-			int theDiphoCat = findTheDiphoCat(*(theDiphotonPairs[i].first), *(theDiphotonPairs[i].second)); 
-			bool leadPassingCiC = photonIsPassingCIC(*(theDiphotonPairs[i].first), vertices, tracks, *beamSpot, electrons, &leadCiCStop, theDiphoCat);
+			int theDiphoCat = findTheDiphoCat(*(theDiphotonPairs[i].first), *(theDiphotonPairs[i].second));
+			int phoLeadCat = findThePhoCat(*(theDiphotonPairs[i].first)); 
+			cout << "///////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
+			cout << "Pair event Number=" << event->eventId() << "   runNumber=" << event->runId() << "   LS=" << event->luminosityBlock() <<"    cat of the pair=" << theDiphoCat << "   selectedVertex=0 "<< endl;
+			bool leadPassingCiC = photonIsPassingCIC(*(theDiphotonPairs[i].first), vertices, tracks, *beamSpot, electrons, &leadCiCStop, phoLeadCat);
 		//	cout << leadCiCStop << endl;
 			switch (leadCiCStop){
 				case 7 : phoPairLeadCiC7++; 
@@ -573,8 +577,8 @@ int main(){
 				case 1 : phoPairLeadCiC1++;
 				case 0 : phoPairLeadCiC0++;
 			}
-			if (!(leadPassingCiC&&((theDiphotonPairs[i].first)->Et()>40))) continue;//test if lead pass CiC
-			bool trailPassingCiC = photonIsPassingCIC(*(theDiphotonPairs[i].second), vertices, tracks, *beamSpot, electrons, &trailCiCStop, theDiphoCat);	
+			int phoTrailCat = findThePhoCat(*(theDiphotonPairs[i].second)); 
+			bool trailPassingCiC = photonIsPassingCIC(*(theDiphotonPairs[i].second), vertices, tracks, *beamSpot, electrons, &trailCiCStop, phoTrailCat);	
 			switch (trailCiCStop){
 				case 7 : phoPairTrailCiC7++;
 				case 6 : phoPairTrailCiC6++;
@@ -585,6 +589,7 @@ int main(){
 				case 1 : phoPairTrailCiC1++;
 				case 0 : phoPairTrailCiC0++; 
 			}
+			if (!(leadPassingCiC&&((theDiphotonPairs[i].first)->Et()>40))) continue;//test if lead pass CiC
 			if (!(trailPassingCiC&&((theDiphotonPairs[i].second)->Et()>30))) continue; // tets if trail pass CiC
 			phoAfterCutEt++;
 	//		cout << "le second passe " << endl;

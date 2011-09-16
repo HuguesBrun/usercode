@@ -108,6 +108,19 @@ int cat = -1;
 return cat;
 }
 
+int findThePhoCat(TRootPhoton photon1){
+int cat = -1; 
+        if (photon1.isEBPho()==1){
+                if (photon1.r9()>0.94) cat = 0; 
+                else cat = 1;
+        }   
+        else {
+                if (photon1.r9()>0.94) cat = 2;    
+                else cat = 3;
+        }   
+return cat;
+}
+
 bool photonIsPassingCIC(TRootPhoton thePhoton, TClonesArray* theVertices, TClonesArray* theTracks, TRootBeamSpot theBeamSpot, TClonesArray* electrons, int *theCutStop, int cat){
 	bool isCIC = true;
 	(*theCutStop) = 0;
@@ -127,10 +140,13 @@ bool photonIsPassingCIC(TRootPhoton thePhoton, TClonesArray* theVertices, TClone
 	varToCut[5] = thePhoton.r9(); // R9
 	varToCut[6] = dRtoTrack(thePhoton, electrons); // calc the dR
 
+	//cout << "photon Et = " << thePhoton.Et();
 /*	for (int i = 0 ; i < 7 ; i++){
 		cout << " var" << i << "= " << varToCut[i];
 	}
-	cout << endl;**/
+	cout << endl;*/
+	//cout << " combIso(default vtx)*50/Et=" << varToCut[0] << " 		worst comb Iso *50 /Etworst vtx=" << varToCut[1] << " 		iso tracker(default vtx)*50/Et=" <<  varToCut[2] << "  		sig Ieta Ieta=" << varToCut[3] << " 		HoE=" << varToCut[4] << " 		R9=" << varToCut[5] << " 		dR to Track=" << varToCut[6] << endl;
+	//cout << "isoHcal = " << thePhoton.dR04IsolationHcalRecHit()  << " isoEcal = " << thePhoton.dR03IsolationEcalRecHit() << " isoTracker =  " << localtrackIsolation(*theBestVertex, theTracks, thePhoton, theBeamSpot, 0.3) << "the worst iso = " << calcWorstTrackIsolation(theVertices, theTracks, thePhoton, theBeamSpot, &theWorstVertex) << "Et worst =" << thePhotonWithWorstVertex.Et() << endl;
 
  	for (int i = 0 ; i < 7 ; i++){  // test if pass the CiC cuts
 		//cout << "i " << varToCut[i] << " " << vcicST[i][cat-1] << endl;
