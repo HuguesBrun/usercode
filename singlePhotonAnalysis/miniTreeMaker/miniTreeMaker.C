@@ -4,14 +4,14 @@ void beginMacro(){
 
 	doHLT                    = true;
 	doHLTobject		 = true;
-  	doMC                     = false;
+  	doMC                     = true;
   	doJetMC                  = false;
   	doMETMC                  = false;
   	doPDFInfo                = true;
   	doSignalMuMuGamma        = false;
 	doLeadingPhoton		 = true;
   	doSignalTopTop           = false;
-  	doPhotonConversionMC     = false;
+  	doPhotonConversionMC     = true;
   	doElectronConversionMC   = false;
   	doBeamSpot               = true;
   	doPrimaryVertex          = true;
@@ -224,6 +224,7 @@ void beginMacro(){
                 myTree_->Branch("pho_IsoEcalRechit",&pho_IsoEcalRechit,"pho_IsoEcalRechit/F");
                 myTree_->Branch("pho_IsoHcalRechit",&pho_IsoHcalRechit,"pho_IsoHcalRechit/F");
                 myTree_->Branch("pho_IsoSolidTrkCone",&pho_IsoSolidTrkCone,"pho_IsoSolidTrkCone/F");
+		myTree_->Branch("pho_IsoSolidTrkConeWorst",&pho_IsoSolidTrkConeWorst,"pho_IsoSolidTrkConeWorst/F");
                 myTree_->Branch("pho_IsoHollowTrkCone",&pho_IsoHollowTrkCone,"pho_IsoHollowTrkCone/F");
 		myTree_->Branch("pho_IsoSolidNtrackCone",&pho_IsoSolidNtrackCone,"pho_IsoSolidNtrackCone/I");
 		myTree_->Branch("pho_IsoHollowNtrackCone",&pho_IsoHollowNtrackCone,"pho_IsoHollowNtrackCone/I");
@@ -302,6 +303,7 @@ void beginMacro(){
                 myTree_->Branch("pho_eventPtHat",&pho_eventPtHat,"pho_eventPtHat/F");
                 myTree_->Branch("pho_nVertex",&pho_nVertex,"pho_nVertex/I");
                 myTree_->Branch("pho_nGenVertex",&pho_nGenVertex,"pho_nGenVertex/I");
+                myTree_->Branch("pho_nGenOOTVertex",&pho_nGenOOTVertex,"pho_nGenOOTVertex/I");
                 myTree_->Branch("pho_PromptGenIsoEnergyStatus1_cone02",&pho_PromptGenIsoEnergyStatus1_cone02,"pho_PromptGenIsoEnergyStatus1_cone02/F");
                 myTree_->Branch("pho_PromptGenIsoEnergyStatus2_cone02",&pho_PromptGenIsoEnergyStatus2_cone02,"pho_PromptGenIsoEnergyStatus2_cone02/F");
                 myTree_->Branch("pho_PromptGenIsoEnergyStatus1_cone03",&pho_PromptGenIsoEnergyStatus1_cone03,"pho_PromptGenIsoEnergyStatus1_cone03/F");
@@ -354,12 +356,6 @@ void beginMacro(){
                 myTree_->Branch("pho_HLT_bit37",&pho_HLT_bit37,"pho_HLT_bit37/I");
                 myTree_->Branch("pho_HLT_bit38",&pho_HLT_bit38,"pho_HLT_bit38/I");
                 myTree_->Branch("pho_HLT_bit39",&pho_HLT_bit39,"pho_HLT_bit39/I");
-                myTree_->Branch("pho_HLT_bit40",&pho_HLT_bit40,"pho_HLT_bit40/I");
-                myTree_->Branch("pho_HLT_bit41",&pho_HLT_bit41,"pho_HLT_bit41/I");
-                myTree_->Branch("pho_HLT_bit42",&pho_HLT_bit42,"pho_HLT_bit42/I");
-                myTree_->Branch("pho_HLT_bit43",&pho_HLT_bit43,"pho_HLT_bit43/I");
-                myTree_->Branch("pho_HLT_bit44",&pho_HLT_bit44,"pho_HLT_bit44/I");
-                myTree_->Branch("pho_HLT_bit45",&pho_HLT_bit45,"pho_HLT_bit45/I");
                 myTree_->Branch("pho_SCeta",&pho_SCeta,"pho_SCeta/F");
                 myTree_->Branch("pho_SCphi",&pho_SCphi,"pho_SCphi/F");
                 myTree_->Branch("pho_SCEtraw",&pho_SCEtraw,"pho_SCEtraw/F");
@@ -407,7 +403,14 @@ void beginMacro(){
 		myTree_->Branch("pho_eleMCtruthBrem",&pho_eleMCtruthBrem,"pho_eleMCtruthBrem/F");
 		myTree_->Branch("pho_eleMCtruthNBrem",&pho_eleMCtruthNBrem,"pho_eleMCtruthNBrem/I");
 		myTree_->Branch("pho_isLeadingPhoton",&pho_isLeadingPhoton,"pho_isLeadingPhoton/I");
-		myTree_->Branch("pho_isMatchWithMuon",&pho_isMatchWithMuon,"pho_isMatchWithMuon/I");
+		myTree_->Branch("pho_isPassingCIC",&pho_isPassingCIC,"pho_isPassingCIC/I");
+		myTree_->Branch("pho_Cat",&pho_Cat,"pho_Cat/I");
+		myTree_->Branch("pho_CICcombIso",&pho_CICcombIso,"pho_CICcombIso/F");
+		myTree_->Branch("pho_CICtrackIso",&pho_CICtrackIso,"pho_CICtrackIso/F");
+		myTree_->Branch("pho_CICworstComb",&pho_CICworstComb,"pho_CICworstComb/F");
+		myTree_->Branch("pho_CICdR",&pho_CICdR,"pho_CICdR/F");
+
+
 }
 
 void endMacro(){
@@ -486,12 +489,6 @@ int main(){
 			if (nbHlt > 37) {if (event->hltAccept(ListWantedHLTnames[37])) pho_HLT_bit37 = 1; else pho_HLT_bit37 = 0;}
 			if (nbHlt > 38) {if (event->hltAccept(ListWantedHLTnames[38])) pho_HLT_bit38 = 1; else pho_HLT_bit38 = 0;}
 			if (nbHlt > 39) {if (event->hltAccept(ListWantedHLTnames[39])) pho_HLT_bit39 = 1; else pho_HLT_bit39 = 0;}
-			if (nbHlt > 40) {if (event->hltAccept(ListWantedHLTnames[40])) pho_HLT_bit40 = 1; else pho_HLT_bit40 = 0;}
-			if (nbHlt > 41) {if (event->hltAccept(ListWantedHLTnames[41])) pho_HLT_bit41 = 1; else pho_HLT_bit41 = 0;}
-			if (nbHlt > 42) {if (event->hltAccept(ListWantedHLTnames[42])) pho_HLT_bit42 = 1; else pho_HLT_bit42 = 0;}
-			if (nbHlt > 43) {if (event->hltAccept(ListWantedHLTnames[43])) pho_HLT_bit43 = 1; else pho_HLT_bit43 = 0;}
-			if (nbHlt > 44) {if (event->hltAccept(ListWantedHLTnames[44])) pho_HLT_bit44 = 1; else pho_HLT_bit44 = 0;}
-			if (nbHlt > 45) {if (event->hltAccept(ListWantedHLTnames[45])) pho_HLT_bit45 = 1; else pho_HLT_bit45 = 0;}
 		}
 	    	NbHLT20++;
 		pho_nVertex = vertices->GetEntriesFast();	
@@ -523,6 +520,9 @@ int main(){
 				doGenInfo(myphoton, mcParticles, &(pho_GenId), &(pho_MotherId), &(pho_isGenElectron), &(pho_isPromptGenPho), &(pho_isFromQuarkGen), &(pho_isPi0Gen), &(pho_isEtaGen), &(pho_isRhoGen), &(pho_isOmegaGen), &(pho_PromptGenIsoEnergyStatus1_cone04), &(pho_PromptGenIsoEnergyStatus2_cone04), &(pho_trueE),&(pho_truePx),&(pho_truePy),&(pho_truePz),&(pho_trueEta),&(pho_truePhi),0.4);
 				pho_eventProcessId = event->processID();
 				pho_eventPtHat = event->ptHat();
+				if ( event->nInTimePUVertices()>0) pho_nGenVertex = event->nInTimePUVertices();
+				else pho_nGenVertex = 1;
+				pho_nGenOOTVertex = event->nOOTPUVertices();
 			}
 			float abs_eta = fabs(myphoton->superCluster()->Eta());
 			float scRawEt = myphoton->superCluster()->rawEnergy() * sin(myphoton->superCluster()->Theta());
@@ -637,6 +637,8 @@ int main(){
 		      pho_IsoSolidTrkCone03 = myphoton->dR03IsolationSolidTrkCone();
 		      pho_IsoHollowTrkCone03 = myphoton->dR03IsolationHollowTrkCone();
 		      pho_esRatio = myphoton->superCluster()->esRatio();
+		      TRootVertex *theVtx = new TRootVertex(0,0,0);
+		      pho_IsoSolidTrkConeWorst = calcWorstTrackIsolation(vertices, tracks, *myphoton, *beamSpot, theVtx);
 	
 		      if (pho_isAlsoElectron==true){
 			pho_ElectronClassification = -1;
@@ -677,7 +679,9 @@ int main(){
 		      pho_transverseMomentumToJetDirection_pt5 = GetTransverseMomentumToJetDirection(myphoton, jets,5);
 		      pho_transverseMomentumToJetDirection_pt10 = GetTransverseMomentumToJetDirection(myphoton, jets,10);
 		      pho_transverseMomentumToJetDirection_pt20 = GetTransverseMomentumToJetDirection(myphoton, jets,20);
-	
+		       int thePhotonCat = findThePhoCat(*myphoton);
+			int CICstop;
+	   	      pho_isPassingCIC = photonIsPassingCIC(*myphoton, vertices, tracks, *beamSpot, electrons, &CICstop, thePhotonCat); 	
 		      pho_transverseToJetRatio = pho_transverseMomentumToJetDirection/pho_et;
 		      pho_transverseToJetRatio_pt2 = pho_transverseMomentumToJetDirection_pt2/pho_et;
 		      pho_transverseToJetRatio_pt5 = pho_transverseMomentumToJetDirection_pt5/pho_et;
@@ -771,8 +775,21 @@ int main(){
 			pho_yVertex = myphoton->vy();
 			pho_zVertex = myphoton->vz();
 
-			pho_isMatchWithMuon = isMatchingWithAMuon(myphoton, muons);
+			bool isAMuon = isMatchingWithAMuon(myphoton, muons);
 
+
+			//CIC value
+			TRootVertex* theBestVertex= (TRootVertex*) vertices->At(0); 
+			pho_Cat = findThePhoCat(*myphoton);
+			pho_CICcombIso = (myphoton->dR03IsolationEcalRecHit() + myphoton->dR04IsolationHcalRecHit() +  localtrackIsolationCIC(*theBestVertex, tracks, *myphoton, *beamSpot, 0.3))*50.0/myphoton->Et();
+		        TRootVertex theWorstVertex;
+       			 TRootPhoton thePhotonWithWorstVertex = *myphoton;
+			pho_CICworstComb = (myphoton->dR04IsolationEcalRecHit() + myphoton->dR04IsolationHcalRecHit() + calcWorstTrackIsolationCIC(vertices, tracks, *myphoton, *beamSpot, &theWorstVertex))*50;
+			TVector3 theWorstCoords(theWorstVertex.x(), theWorstVertex.y(), theWorstVertex.z());
+        		thePhotonWithWorstVertex.setVertex(theWorstCoords);
+			pho_CICworstComb = pho_CICworstComb / thePhotonWithWorstVertex.Et();
+			pho_CICtrackIso = (localtrackIsolation(*theBestVertex, tracks, *myphoton, *beamSpot,0.3))*50.0/myphoton->Et();// iso track calc with the selected vertex
+			pho_CICdR = dRtoTrack(*myphoton, electrons);
 			myTree_->Fill();
 
 		}

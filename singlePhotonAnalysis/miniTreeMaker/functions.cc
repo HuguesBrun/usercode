@@ -10,40 +10,55 @@ double DeltaR(double phi1, double phi2, double eta1, double eta2){
   return dR;
 }
 
-///   Deprecated since the last version of TotoAna
-/*int* InitializeHLTinfo(TRootRun* runInfos, string* ListWantedHLTnames, int nPathWanted){
+double localtrackIsolation(TRootVertex theVertice, TClonesArray* theTracks, TRootPhoton thePhoton, TRootBeamSpot theBeamSpot,float dRoutCone ){
 
-  cout << "Initializing HLT info"<<endl;
-  unsigned int nPaths = runInfos->nHLTPaths();
-  cout << "nPaths="<< nPaths <<endl;
-  cout << "nPathWanted="<<nPathWanted<<endl;
-  if (nPathWanted==0) return NULL;
+        float dZcut = 0.2; //LIP
+        float dxyCut   = 0.1; //TIP
+        float dRinCone = 0.04;
+        float etaStrip = 0.015;
+        float theIsoEnergy = 0;
+        for (int iTrack = 0 ;  iTrack < theTracks->GetEntriesFast() ; iTrack++){
+                TRootTrack *localTrack  = (TRootTrack*) theTracks->At(iTrack);
+                float dZ = fabs((localTrack->vz()-theVertice.z()) - (((localTrack->vx()-theVertice.x())*localTrack->Px() + (localTrack->vy()-theVertice.y())*localTrack->Py())) / localTrack->Pt()*localTrack->Pz()/localTrack->Pt());
+                if (dZ > dZcut ) continue;
+                double thePtTrack = localTrack->Pt();
+                if (thePtTrack < 0 ) continue;
+                //float dxy = sqrt((localTrack->vx()-theBeamSpot.x())*(localTrack->vx()-theBeamSpot.x())+(localTrack->vy()-theBeamSpot.y())*(localTrack->vy()-theBeamSpot.y()));
+                //float dxy = sqrt((localTrack->vx()-theVertice.x())*(localTrack->vx()-theVertice.x())+(localTrack->vy()-theVertice.y())*(localTrack->vy()-theVertice.y()));
+                //float dxy = fabs(-(localTrack->vx()-theVertice.x())*localTrack->Py()+(localTrack->vy()-theVertice.y())*localTrack->Px())/localTrack->Pt();
+                float dxy = fabs(-(localTrack->vx()-theBeamSpot.x())*localTrack->Py()+(localTrack->vy()-theBeamSpot.y())*localTrack->Px())/localTrack->Pt();
+                if (dxy > dxyCut) continue;
+                double dR = DeltaR(localTrack->Vect().Phi(), thePhoton.Phi(), localTrack->Vect().Eta(), thePhoton.Eta());
+                double dEta = fabs(localTrack->Vect().Eta()-thePhoton.Eta());
+                if ((dR < dRoutCone)&&(dR > dRinCone)&&(dEta>etaStrip)) {
+                        theIsoEnergy += thePtTrack;
+                }
+        }   
+        return theIsoEnergy;
+}
 
-  int* ListHLT = new int[nPathWanted];
 
-  //runInfos->printHLTSummary();
+double  calcWorstTrackIsolation(TClonesArray* theVertices, TClonesArray* theTracks, TRootPhoton thePhoton, TRootBeamSpot theBeamSpot, TRootVertex *theWorst){
+        double theWorstIso = 0;
+        int theWorstIte = 0;
+        double theLocalIso;    
+        TRootPhoton theLocalPhoton = thePhoton;
+        for (int iVertex = 0 ; iVertex < theVertices->GetEntriesFast() ; iVertex++){
+                TRootVertex *theLocalVertex = (TRootVertex*) theVertices->At(iVertex);
+                TVector3 theVertex(theLocalVertex->x(),theLocalVertex->y(),theLocalVertex->z());
+                theLocalPhoton.setVertex(theVertex);
+                theLocalIso = localtrackIsolation(*theLocalVertex, theTracks, theLocalPhoton, theBeamSpot, 0.4);
+                //cout << "local iso " << theLocalIso << endl;
+                if (theLocalIso > theWorstIso) {
+                        theWorstIso = theLocalIso;
+                        theWorstIte = iVertex;
+                }   
+        }   
+        TRootVertex *theLocalWorst = (TRootVertex*) theVertices->At(theWorstIte);
 
-  cout << "Boucle"<<endl;
-  for (int i = 0; i < nPathWanted ; i++){
-	ListHLT[i]=-1;
-  }
-
-
-  for (int ipath=0; ipath<nPaths; ipath++){
-//cout << runInfos->hltNames(ipath)<<" num="<<ipath<<endl;
-    for (int iwanted=0; iwanted<nPathWanted; iwanted++){
-      if (ListWantedHLTnames[iwanted]==runInfos->hltNames(ipath)) ListHLT[iwanted]=ipath;
-
-    }
-  }
-
-  cout<< "Wanted HLT :"<<endl;
-  for (int iwanted=0; iwanted<nPathWanted; iwanted++){
-    cout << ListWantedHLTnames[iwanted]<< " num="<< ListHLT[iwanted]<<endl;
-  }
-
-  return ListHLT;
-}*/
+        *theWorst = *theLocalWorst;
+        return theWorstIso;
+}
 
 double GetClosestJetEMFraction(TRootPhoton* myphoton, TClonesArray* jets, double JetPt){
            double EMFraction = -1;
@@ -353,5 +368,127 @@ bool caMatch = false;
 	}
 
 return caMatch;
+}
+
+double localtrackIsolationCIC(TRootVertex theVertice, TClonesArray* theTracks, TRootPhoton thePhoton, TRootBeamSpot theBeamSpot,float dRoutCone ){
+	
+	float dZcut = 1.0; //LIP
+	float dxyCut   = 0.1; //TIP
+	float dRinCone = 0.02;
+	float etaStrip = 0.0;
+	float theIsoEnergy = 0;
+	for (int iTrack = 0 ;  iTrack < theTracks->GetEntriesFast() ; iTrack++){
+		TRootTrack *localTrack  = (TRootTrack*) theTracks->At(iTrack);
+		float dZ = fabs((localTrack->vz()-theVertice.z()) - (((localTrack->vx()-theVertice.x())*localTrack->Px() + (localTrack->vy()-theVertice.y())*localTrack->Py())) / localTrack->Pt()*localTrack->Pz()/localTrack->Pt());
+		if (dZ > dZcut ) continue;
+		double thePtTrack = localTrack->Pt();
+		if (thePtTrack < 0 ) continue;
+		//float dxy = sqrt((localTrack->vx()-theBeamSpot.x())*(localTrack->vx()-theBeamSpot.x())+(localTrack->vy()-theBeamSpot.y())*(localTrack->vy()-theBeamSpot.y()));
+		//float dxy = sqrt((localTrack->vx()-theVertice.x())*(localTrack->vx()-theVertice.x())+(localTrack->vy()-theVertice.y())*(localTrack->vy()-theVertice.y()));
+		float dxy = fabs(-(localTrack->vx()-theVertice.x())*localTrack->Py()+(localTrack->vy()-theVertice.y())*localTrack->Px())/localTrack->Pt();
+		if (dxy > dxyCut) continue;
+	  	double dR = DeltaR(localTrack->Vect().Phi(), thePhoton.Phi(), localTrack->Vect().Eta(), thePhoton.Eta());
+		double dEta = fabs(localTrack->Vect().Eta()-thePhoton.Eta());
+	 	if ((dR < dRoutCone)&&(dR > dRinCone)&&(dEta>etaStrip)) {
+			theIsoEnergy += thePtTrack;
+		}
+	}
+	return theIsoEnergy;
+}
+
+
+double  calcWorstTrackIsolationCIC(TClonesArray* theVertices, TClonesArray* theTracks, TRootPhoton thePhoton, TRootBeamSpot theBeamSpot, TRootVertex *theWorst){
+	double theWorstIso = 0;
+	int theWorstIte = 0;
+	double theLocalIso;	
+	TRootPhoton theLocalPhoton = thePhoton;
+	for (int iVertex = 0 ; iVertex < theVertices->GetEntriesFast() ; iVertex++){
+		TRootVertex *theLocalVertex = (TRootVertex*) theVertices->At(iVertex);
+		TVector3 theVertex(theLocalVertex->x(),theLocalVertex->y(),theLocalVertex->z());
+		theLocalPhoton.setVertex(theVertex);
+		theLocalIso = localtrackIsolationCIC(*theLocalVertex, theTracks, theLocalPhoton, theBeamSpot, 0.4);
+		//cout << "local iso " << theLocalIso << endl;
+		if (theLocalIso > theWorstIso) {
+			theWorstIso = theLocalIso;
+			theWorstIte = iVertex;
+		}
+	} 
+	TRootVertex *theLocalWorst = (TRootVertex*) theVertices->At(theWorstIte);
+
+	*theWorst = *theLocalWorst;
+	return theWorstIso;
+}
+int findThePhoCat(TRootPhoton photon1){
+int cat = -1; 
+        if (photon1.isEBPho()==1){
+                if (photon1.r9()>0.94) cat = 0; 
+                else cat = 1;
+        }   
+        else {
+                if (photon1.r9()>0.94) cat = 2;    
+                else cat = 3;
+        }   
+return cat;
+}
+double dRtoTrack(TRootPhoton thePhoton, TClonesArray* electrons){
+	float theMinDr = 99;
+	float theDr;
+	for (int iTrack = 0 ; iTrack < electrons->GetEntriesFast() ; iTrack++){
+		TRootElectron *theLocalElectron = (TRootElectron*) electrons->At(iTrack);
+		if (theLocalElectron->trackMissedInnerLayers() > 0 ) continue;
+		//if (fabs(thePhoton.superCluster()->Phi() - theLocalElectron->theSCphi())>0.01) continue;
+		//if (fabs(thePhoton.superCluster()->Eta() - theLocalElectron->theSCeta())>0.01) continue;
+		float deltaCalo = sqrt((thePhoton.caloPosition().X()-theLocalElectron->caloPosition().X())*(thePhoton.caloPosition().X()-theLocalElectron->caloPosition().X())+(thePhoton.caloPosition().Y()-theLocalElectron->caloPosition().Y())*(thePhoton.caloPosition().Y()-theLocalElectron->caloPosition().Y())+(thePhoton.caloPosition().Z()-theLocalElectron->caloPosition().Z())*(thePhoton.caloPosition().Z()-theLocalElectron->caloPosition().Z()));
+		if (deltaCalo > 0.0001 ) continue; //no matching between the electrons and the photon :( 
+
+		theDr = sqrt(theLocalElectron->deltaEtaIn()*theLocalElectron->deltaEtaIn()+theLocalElectron->deltaPhiIn()*theLocalElectron->deltaPhiIn());
+		if (theDr < theMinDr) theMinDr = theDr;
+	}
+//	cout << "theDr = " << theMinDr << endl;
+	return theMinDr;
+}
+bool photonIsPassingCIC(TRootPhoton thePhoton, TClonesArray* theVertices, TClonesArray* theTracks, TRootBeamSpot theBeamSpot, TClonesArray* electrons, int *theCutStop, int cat){
+float vcicST[7][4] = { 
+  {3.8,     2.2,     1.77,   1.29},    // rel combIso (good vtx)                                
+  {11.7,    3.4,     3.9,    1.84},    // rel combIso (bad vtx)                                                   
+  {3.5,     2.2,     2.3,    1.45},    // trkIso (good vtx)                                                           
+  {0.0105,  0.0097,  0.028,  0.027},  // sigma_ie_ie                                                                  
+  {0.082,   0.062,   0.065,  0.048},  // H/E       
+  {0.94,    0.36,    0.94,   0.32},   // R9
+  {1.,      0.062,   0.97,   0.97},    // dR to trk
+};
+
+	bool isCIC = true;
+	(*theCutStop) = 0;
+	double varToCut[7]; // now calc the CiC variables
+	TRootVertex* theBestVertex= (TRootVertex*) theVertices->At(0); // take the default vertex 
+	varToCut[0] = (thePhoton.dR03IsolationEcalRecHit() + thePhoton.dR04IsolationHcalRecHit() + localtrackIsolationCIC(*theBestVertex, theTracks, thePhoton, theBeamSpot, 0.3))*50.0/thePhoton.Et(); // comb iso respect to the selected vertex
+	TRootVertex theWorstVertex;
+	TRootPhoton thePhotonWithWorstVertex = thePhoton;
+	varToCut[1] = (thePhoton.dR04IsolationEcalRecHit() + thePhoton.dR04IsolationHcalRecHit() + calcWorstTrackIsolationCIC(theVertices, theTracks, thePhoton, theBeamSpot, &theWorstVertex))*50; // worst comb iso 
+	TVector3 theWorstCoords(theWorstVertex.x(), theWorstVertex.y(), theWorstVertex.z());
+	thePhotonWithWorstVertex.setVertex(theWorstCoords);
+	varToCut[1] = varToCut[1]/thePhotonWithWorstVertex.Et();
+	varToCut[2] = (localtrackIsolation(*theBestVertex, theTracks, thePhoton, theBeamSpot,0.3))*50.0/thePhoton.Et();// iso track calc with the selected vertex
+	//varToCut[2] = varToCut[2]*50.0/thePhoton.Et();// iso track calc with the selected vertex
+	varToCut[3] = thePhoton.sigmaIetaIeta(); // sigma ieta 
+	varToCut[4] = thePhoton.hoe(); // HoE
+	varToCut[5] = thePhoton.r9(); // R9
+	varToCut[6] = dRtoTrack(thePhoton, electrons); // calc the dR
+
+	//cout << "photon Et = " << thePhoton.Et();
+/*	for (int i = 0 ; i < 7 ; i++){
+		cout << " var" << i << "= " << varToCut[i];
+	}
+	cout << endl;*/
+	//cout << " combIso(default vtx)*50/Et=" << varToCut[0] << " 		worst comb Iso *50 /Etworst vtx=" << varToCut[1] << " iso tracker(default vtx)*50/Et=" <<  varToCut[2] << "  		sig Ieta Ieta=" << varToCut[3] << " 		HoE=" << varToCut[4] << " 		R9=" << varToCut[5] << " 		dR to Track=" << varToCut[6] << endl;
+	//cout << "isoHcal = " << thePhoton.dR04IsolationHcalRecHit()  << " isoEcal = " << thePhoton.dR03IsolationEcalRecHit() << " isoTracker =  " << localtrackIsolation(*theBestVertex, theTracks, thePhoton, theBeamSpot, 0.3) << "the worst iso = " << calcWorstTrackIsolation(theVertices, theTracks, thePhoton, theBeamSpot, &theWorstVertex) << "Et worst =" << thePhotonWithWorstVertex.Et() << endl;
+
+ 	for (int i = 0 ; i < 7 ; i++){  // test if pass the CiC cuts
+		//cout << "i " << varToCut[i] << " " << vcicST[i][cat-1] << endl;
+		if (i < 5) {if (varToCut[i] > vcicST[i][cat]) isCIC = false; else (*theCutStop)++;}
+		else {if (varToCut[i] < vcicST[i][cat]) isCIC = false; else (*theCutStop)++;} 
+	}
+	return isCIC;
 }
 

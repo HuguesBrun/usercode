@@ -11,15 +11,22 @@
 #include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMCPhoton.h"
 #include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootMCElectron.h"
 #include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootHLTObject.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootVertex.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootTrack.h"
+#include "/sps/cms/hbrun/CMSSW_4_2_3/src/Morgan/IpnTreeProducer/interface/TRootBeamSpot.h"
+
 
 
 double DeltaR(double , double , double , double );
 
-//int* InitializeHLTinfo(TRootRun* runInfos, string* ListWantedHLTnames, int nPathWanted);
-
+double localtrackIsolation(TRootVertex theVertice, TClonesArray* theTracks, TRootPhoton thePhoton, TRootBeamSpot theBeamSpot,float dRoutCone );
+double  calcWorstTrackIsolation(TClonesArray* theVertices, TClonesArray* theTracks, TRootPhoton thePhoton, TRootBeamSpot theBeamSpot, TRootVertex *theWorst);
 double GetClosestJetEMFraction(TRootPhoton* myphoton, TClonesArray* jets, double JetPt);
 
 double GetDeltaRClosestJet(TRootPhoton* myphoton, TClonesArray* jets, double JetPt);
+
+
+
 
 double GetPtOverJetPt(TRootPhoton* myphoton, TClonesArray* jets, double JetPt);
 
