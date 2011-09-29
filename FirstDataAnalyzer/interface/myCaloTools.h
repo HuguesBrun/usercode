@@ -22,6 +22,10 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 
+// Photons Collection
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 
 namespace myCaloTools{
   inline int deltaIphi(int iphi0, int iphi){
@@ -169,6 +173,14 @@ namespace myCaloTools{
       }
      return it->flags();
   }
+
+  inline int isLeadingPhoton(float myPhotonEt, const reco::PhotonCollection* photons) {
+      for(reco::PhotonCollection::const_iterator aPho = photons->begin(); aPho != photons->end(); aPho++){
+	//std::cout << "Et = " << myPhotonEt << " " << (aPho->energy() * sin(aPho->theta())) << std::endl; 
+	if ((aPho->energy() * sin(aPho->theta())) > (myPhotonEt+0.0001) ) return 0; //{ std::cout << "c pas bon " << std::endl;} 
+      } 
+      return 1;	  		
+  }	
 
 
 }

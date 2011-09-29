@@ -13,7 +13,7 @@
 //
 // Original Author:  Hugues Louis Brun
 //         Created:  Mon Dec 21 16:16:59 CET 2009
-// $Id: FirstDataAnalyzer.cc,v 1.3 2010/04/28 09:13:17 hbrun Exp $
+// $Id: FirstDataAnalyzer.cc,v 1.2 2010/03/29 14:47:50 hbrun Exp $
 //
 //
 
@@ -42,7 +42,6 @@ FirstDataAnalyzer::FirstDataAnalyzer(const edm::ParameterSet& iConfig)
 	isPhotonMCTruth_ = iConfig.getParameter<bool>("readPhotonMCTruth");
 	deltaRMax_ = iConfig.getParameter<double>("deltaRMax");
 	triggerL1Tag_ = iConfig.getParameter<edm::InputTag>("L1triggerResults");
-	triggerHLTTag_ = iConfig.getParameter<edm::InputTag>("HTLtriggerResults");
         HFrecHitsCollection_ = iConfig.getParameter<edm::InputTag>("HFrecHitsCollection");
 	barrelEcalHits_ = iConfig.getParameter<edm::InputTag>("barrelEcalHits");
 	endcapEcalHits_ = iConfig.getParameter<edm::InputTag>("endcapEcalHits");
@@ -94,6 +93,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 //getting the cms geometry and the topology of CMS and the intercalib constant
   const CaloGeometry* caloGeom;
   iSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
+  const CaloSubdetectorGeometry* geom=theCaloGeom_->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
   caloGeom = theCaloGeom_.product();
 
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology_);
@@ -101,6 +101,17 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 
   edm::ESHandle<EcalIntercalibConstants> ic;
   iSetup.get<EcalIntercalibConstantsRcd>().get(ic);
+
+  edm::ESHandle<EcalClusterLocalContCorrParameters> theParams;
+  iSetup.get<EcalClusterLocalContCorrParametersRcd>().get(theParams);
+  const EcalClusterLocalContCorrParameters *myParams = theParams.product();
+
+  
+  edm::ESHandle<EcalClusterCrackCorrParameters> theParamsCrack;
+  iSetup.get<EcalClusterCrackCorrParametersRcd>().get(theParamsCrack);
+  const EcalClusterCrackCorrParameters *myParamsCrack = theParamsCrack.product();
+
+//  std::vector<float> myParams = theParams->params();
 
 // Getting the RecHits collection
    edm::Handle<EcalRecHitCollection> rhcHandle_;
@@ -113,7 +124,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 
 
 // Getting the SRP flags collection
-   edm::Handle<EBSrFlagCollection> flagHandleEB_;
+/*   edm::Handle<EBSrFlagCollection> flagHandleEB_;
    edm::Handle<EESrFlagCollection> flagHandleEE_;
    if (isBarrel) {
 	iEvent.getByType(flagHandleEB_);
@@ -129,7 +140,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
    if (!(hTriggerTowerMap.isValid())) {
      edm::LogInfo("EnergyScaleAnalyzer") << "could not get a handle on the Trigger Tower Map collection";
    }
-   const EcalTrigTowerConstituentsMap* triggerTowerMap = hTriggerTowerMap.product();
+   const EcalTrigTowerConstituentsMap* triggerTowerMap = hTriggerTowerMap.product();*/
 
    
 
@@ -184,34 +195,31 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
        LogInfo("RecoPhotonEnergyScaleAnalyzer") << "Could not get MC Product!";
        return;
      }
-}
+   }
+// info on the MC event
+   std::vector< Handle< HepMCProduct > > evtHandles ;
+     iEvent.getManyByType( evtHandles ) ;
+     for ( unsigned int i=0; i<evtHandles.size(); ++i) {
+     if ( evtHandles[i].isValid() ) {
+        const HepMC::GenEvent* evt = evtHandles[i]->GetEvent() ;
+      
+      // take only 1st vertex for now - it's been tested only of PGuns...
+      //
+        HepMC::GenEvent::vertex_const_iterator vtx = evt->vertices_begin() ;
+        if ( evtHandles[i].provenance()->moduleLabel() == MCParticlesCollection_ ) {
+          //Corrdinates of Vertex w.r.o. the point (0,0,0)
+          tree_.mc_vtxX = 0.1*(*vtx)->position().x();      
+          tree_.mc_vtxY = 0.1*(*vtx)->position().y();
+          tree_.mc_vtxZ = 0.1*(*vtx)->position().z();  
+        }
+      }
+     }
+   //std::cout << "primary vertex x = " << tree_.mc_vtxX << " y = " << tree_.mc_vtxY << " z = " << tree_.mc_vtxZ << std::endl; 
+   math::XYZVector vtxPosition(tree_.mc_vtxX, tree_.mc_vtxY, tree_.mc_vtxZ);
 // L1 technical trigger
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
   iEvent.getByLabel(triggerL1Tag_, gtReadoutRecord);
   const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
-
-// HTL trigger
-  edm::Handle<edm::TriggerResults> trigResults; 	
-  iEvent.getByLabel(triggerHLTTag_,trigResults);
-  edm::TriggerNames triggerNames;
-  triggerNames.init(*trigResults);
-  std::vector<std::string>  hltNames = triggerNames.triggerNames();
-  TString nomTrigger[21] = {"HLT_Photon10_L1R","HLT_Photon15_L1R","HLT_Photon15_LooseEcalIso_L1R","HLT_Photon20_L1R","HLT_Photon30_L1R_8E29","HLT_DoublePhoton4_Jpsi_L1R","HLT_DoublePhoton4_Upsilon_L1R","HLT_DoublePhoton4_eeRes_L1R","HLT_DoublePhoton5_eeRes_L1R","HLT_DoublePhoton5_Jpsi_L1R","HLT_DoublePhoton5_Upsilon_L1R","HLT_DoublePhoton5_L1R","HLT_DoublePhoton10_L1R","HLT_DoubleEle5_SW_L1R","HLT_Ele20_LW_L1R","HLT_Ele15_SiStrip_L1R","HLT_Ele15_SC10_LW_L1R","HLT_Ele15_LW_L1R","HLT_Ele10_LW_EleId_L1R","HLT_Ele10_LW_L1R","HLT_Photon15_TrackIso_L1R"};
-  int laRef[21];
-  for (int j = 0 ; j < 21 ; j++) laRef[j]=-1;
-
-  for (unsigned int i = 0 ; i < hltNames.size() ; i++){
-//	std::cout << i << " " << hltNames[i] << std::endl;
-	for (int j = 0 ; j < 21 ; j++){
-		if (hltNames[i]==nomTrigger[j]) laRef[j]=i;
-        }
-
-  } 
-
-   
-
-
-//  triggerHLTTag_
 
 
 // HF collection 
@@ -316,133 +324,6 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
       if (technicalTriggerWordBeforeMask.at(39)) tree_.techTrigger39 = 1;
         else tree_.techTrigger39 = 0;
 
-	// recup the HTL paths !!!
-
-	if (laRef[0]<0) tree_.HLT_Photon10_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[0]))) tree_.HLT_Photon10_L1R = -1;
-	else if (trigResults->error(laRef[0])) tree_.HLT_Photon10_L1R = -2;
-	else if (trigResults->accept(laRef[0])) tree_.HLT_Photon10_L1R = 1;
-	else tree_.HLT_Photon10_L1R = 0;
-
-	if (laRef[1]<0) tree_.HLT_Photon15_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[1]))) tree_.HLT_Photon15_L1R = -1;
-	else if (trigResults->error(laRef[1])) tree_.HLT_Photon15_L1R = -2;
-	else if (trigResults->accept(laRef[1])) tree_.HLT_Photon15_L1R = 1;
-	else tree_.HLT_Photon15_L1R = 0;
-	if (laRef[2]<0) tree_.HLT_Photon15_LooseEcalIso_L1R = -3;
-	else if (!(trigResults->wasrun(laRef[2]))) tree_.HLT_Photon15_LooseEcalIso_L1R = -1;
-	else if (trigResults->error(laRef[2])) tree_.HLT_Photon15_LooseEcalIso_L1R = -2;
-	else if (trigResults->accept(laRef[2])) tree_.HLT_Photon15_LooseEcalIso_L1R = 1;
-	else tree_.HLT_Photon15_LooseEcalIso_L1R = 0;
-
-	if (laRef[3]<0) tree_.HLT_Photon20_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[3]))) tree_.HLT_Photon20_L1R = -1;
-	else if (trigResults->error(laRef[3])) tree_.HLT_Photon20_L1R = -2;
-	else if (trigResults->accept(laRef[3])) tree_.HLT_Photon20_L1R = 1;
-	else tree_.HLT_Photon20_L1R = 0;
-
-	if (laRef[4]<0) tree_.HLT_Photon30_L1R_8E29 = -3;
-        else if (!(trigResults->wasrun(laRef[4]))) tree_.HLT_Photon30_L1R_8E29 = -1;
-	else if (trigResults->error(laRef[4])) tree_.HLT_Photon30_L1R_8E29 = -2;
-	else if (trigResults->accept(laRef[4])) tree_.HLT_Photon30_L1R_8E29 = 1;
-	else tree_.HLT_Photon30_L1R_8E29 = 0;
-
-	if (laRef[5]<0) tree_.HLT_DoublePhoton4_Jpsi_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[5]))) tree_.HLT_DoublePhoton4_Jpsi_L1R = -1;
-        else if (trigResults->error(laRef[5])) tree_.HLT_DoublePhoton4_Jpsi_L1R = -2;
-        else if (trigResults->accept(laRef[5])) tree_.HLT_DoublePhoton4_Jpsi_L1R = 1;
-        else tree_.HLT_DoublePhoton4_Jpsi_L1R = 0;
-
-	if (laRef[6]<0) tree_.HLT_DoublePhoton4_Upsilon_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[6]))) tree_.HLT_DoublePhoton4_Upsilon_L1R = -1;
-        else if (trigResults->error(laRef[6])) tree_.HLT_DoublePhoton4_Upsilon_L1R = -2;
-        else if (trigResults->accept(laRef[6])) tree_.HLT_DoublePhoton4_Upsilon_L1R = 1;
-        else tree_.HLT_DoublePhoton4_Upsilon_L1R = 0;
-
-	if (laRef[7]<0) tree_.HLT_DoublePhoton4_eeRes_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[7]))) tree_.HLT_DoublePhoton4_eeRes_L1R = -1;
-        else if (trigResults->error(laRef[7])) tree_.HLT_DoublePhoton4_eeRes_L1R = -2;
-        else if (trigResults->accept(laRef[7])) tree_.HLT_DoublePhoton4_eeRes_L1R = 1;
-        else tree_.HLT_DoublePhoton4_eeRes_L1R = 0;
-
-	if (laRef[8]<0) tree_.HLT_DoublePhoton5_eeRes_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[8]))) tree_.HLT_DoublePhoton5_eeRes_L1R = -1;
-        else if (trigResults->error(laRef[8])) tree_.HLT_DoublePhoton5_eeRes_L1R = -2;
-        else if (trigResults->accept(laRef[8])) tree_.HLT_DoublePhoton5_eeRes_L1R = 1;
-        else tree_.HLT_DoublePhoton5_eeRes_L1R = 0;
-
-	if (laRef[9]<0) tree_.HLT_DoublePhoton5_Jpsi_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[9]))) tree_.HLT_DoublePhoton5_Jpsi_L1R = -1;
-        else if (trigResults->error(laRef[9])) tree_.HLT_DoublePhoton5_Jpsi_L1R = -2;
-        else if (trigResults->accept(laRef[9])) tree_.HLT_DoublePhoton5_Jpsi_L1R = 1;
-        else tree_.HLT_DoublePhoton5_Jpsi_L1R = 0;
-
-	if (laRef[10]<0) tree_.HLT_DoublePhoton5_Upsilon_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[10]))) tree_.HLT_DoublePhoton5_Upsilon_L1R = -1;
-        else if (trigResults->error(laRef[10])) tree_.HLT_DoublePhoton5_Upsilon_L1R = -2;
-        else if (trigResults->accept(laRef[10])) tree_.HLT_DoublePhoton5_Upsilon_L1R = 1;
-        else tree_.HLT_DoublePhoton5_Upsilon_L1R = 0;
-
-	if (laRef[11]<0) tree_.HLT_DoublePhoton5_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[11]))) tree_.HLT_DoublePhoton5_L1R = -1;
-        else if (trigResults->error(laRef[11])) tree_.HLT_DoublePhoton5_L1R = -2;
-        else if (trigResults->accept(laRef[11])) tree_.HLT_DoublePhoton5_L1R = 1;
-        else tree_.HLT_DoublePhoton5_L1R = 0;
-
-	if (laRef[12]<0) tree_.HLT_DoublePhoton10_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[12]))) tree_.HLT_DoublePhoton10_L1R = -1;
-        else if (trigResults->error(laRef[12])) tree_.HLT_DoublePhoton10_L1R = -2;
-        else if (trigResults->accept(laRef[12])) tree_.HLT_DoublePhoton10_L1R = 1;
-        else tree_.HLT_DoublePhoton10_L1R = 0;
-
-	if (laRef[13]<0) tree_.HLT_DoubleEle5_SW_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[13]))) tree_.HLT_DoubleEle5_SW_L1R = -1;
-        else if (trigResults->error(laRef[13])) tree_.HLT_DoubleEle5_SW_L1R = -2;
-        else if (trigResults->accept(laRef[13])) tree_.HLT_DoubleEle5_SW_L1R = 1;
-        else tree_.HLT_DoubleEle5_SW_L1R = 0;
-
-	if (laRef[14]<0) tree_.HLT_Ele20_LW_L1R =-3;
-        else if (!(trigResults->wasrun(laRef[14]))) tree_.HLT_Ele20_LW_L1R = -1;
-        else if (trigResults->error(laRef[14])) tree_.HLT_Ele20_LW_L1R = -2;
-        else if (trigResults->accept(laRef[14])) tree_.HLT_Ele20_LW_L1R = 1;
-        else tree_.HLT_Ele20_LW_L1R = 0;
-
-	if (laRef[15]<0) tree_.HLT_Ele15_SiStrip_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[15]))) tree_.HLT_Ele15_SiStrip_L1R = -1;
-        else if (trigResults->error(laRef[15])) tree_.HLT_Ele15_SiStrip_L1R = -2;
-        else if (trigResults->accept(laRef[15])) tree_.HLT_Ele15_SiStrip_L1R = 1;
-        else tree_.HLT_Ele15_SiStrip_L1R = 0;
-
-	if (laRef[16]<0) tree_.HLT_Ele15_SC10_LW_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[16]))) tree_.HLT_Ele15_SC10_LW_L1R = -1;
-        else if (trigResults->error(laRef[16])) tree_.HLT_Ele15_SC10_LW_L1R = -2;
-        else if (trigResults->accept(laRef[16])) tree_.HLT_Ele15_SC10_LW_L1R = 1;
-        else tree_.HLT_Ele15_SC10_LW_L1R = 0;
-
-	if (laRef[17]<0) tree_.HLT_Ele15_LW_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[17]))) tree_.HLT_Ele15_LW_L1R = -1;
-        else if (trigResults->error(laRef[17])) tree_.HLT_Ele15_LW_L1R = -2;
-        else if (trigResults->accept(laRef[17])) tree_.HLT_Ele15_LW_L1R = 1;
-        else tree_.HLT_Ele15_LW_L1R = 0;
-
-	if (laRef[18]<0) tree_.HLT_Ele10_LW_EleId_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[18]))) tree_.HLT_Ele10_LW_EleId_L1R = -1;
-        else if (trigResults->error(laRef[18])) tree_.HLT_Ele10_LW_EleId_L1R = -2;
-        else if (trigResults->accept(laRef[18])) tree_.HLT_Ele10_LW_EleId_L1R = 1;
-        else tree_.HLT_Ele10_LW_EleId_L1R = 0;
-
-	if (laRef[19]<0) tree_.HLT_Ele10_LW_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[19]))) tree_.HLT_Ele10_LW_L1R = -1;
-        else if (trigResults->error(laRef[19])) tree_.HLT_Ele10_LW_L1R = -2;
-        else if (trigResults->accept(laRef[19])) tree_.HLT_Ele10_LW_L1R = 1;
-        else tree_.HLT_Ele10_LW_L1R = 0;
-
-	if (laRef[20]<0) tree_.HLT_Photon15_TrackIso_L1R = -3;
-        else if (!(trigResults->wasrun(laRef[20]))) tree_.HLT_Photon15_TrackIso_L1R = -1;
-        else if (trigResults->error(laRef[20])) tree_.HLT_Photon15_TrackIso_L1R = -2;
-        else if (trigResults->accept(laRef[20])) tree_.HLT_Photon15_TrackIso_L1R = 1;
-        else tree_.HLT_Photon15_TrackIso_L1R = 0;
-
       // event caracteristics
       tree_.eventRef = iEvent.id().event();
       tree_.runNum = iEvent.id().run();
@@ -489,6 +370,9 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
       tree_.em_r9 = r9;
       const std::pair<DetId, float> seedRecHits = EcalClusterTools::getMaximum( (*(em->seed())).hitsAndFractions(), hit_collection);
       float eSeed = EcalClusterTools::recHitEnergy( seedRecHits.first, hit_collection);
+      tree_.em_seedBCPhi = em->seed()->phi();
+      tree_.em_seedBCEta = em->seed()->eta();
+     // std::cout << "BC phi = " << em->seed()->phi() << " eta = " << em->seed()->eta() << std::endl;
       tree_.em_seedEnergy = eSeed;		
       float r19 = -10;
       if (!(e3x3==0)) r19=eSeed/e3x3;
@@ -497,21 +381,29 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
       tree_.em_seedTime = myCaloTools::recupTime(hit_collection, seedRecHits.first);
       tree_.em_seedFlag = myCaloTools::recupFlag(hit_collection, seedRecHits.first);
       tree_.em_hasBadSrpFlag = 0;
+      const CaloCellGeometry *this_cell = caloGeom->getGeometry(seedRecHits.first);
+      GlobalPoint position = this_cell->getPosition();
+      tree_.em_seedPhi = position.phi();
+      tree_.em_seedEta = position.eta();
+      //std::cout << "la position du Xtal = Phi = " << position.phi() << " eta = " << position.eta() << std::endl;
+      //std::cout << "la position du xtal = x  = " << position.x() << " y= " << position.y() << " z = " << position.z() << " r= " << sqrt(position.x()*position.x()+position.y()*position.y()) << std::endl;	
+	math::XYZPoint coucou(1,2,3);
       if (isBarrel) {
-      const EBSrFlagCollection *flagEB_collection = flagHandleEB_.product();
+//      const EBSrFlagCollection *flagEB_collection = flagHandleEB_.product();
       EBDetId *test = new EBDetId((seedRecHits.first));
       tree_.em_seedIphi = test->iphi();
       tree_.em_seedIeta = test->ieta();
-      EBSrFlagCollection::const_iterator leFlag = flagEB_collection->find(triggerTowerMap->towerOf(*test));
-      tree_.em_seedSrpFlag = leFlag->value();
-      for (unsigned int iteScRh = 0 ; iteScRh < em->hitsAndFractions().size() ; iteScRh++){
+//      std::cout << tree_.em_seedIphi << " ieta = " << tree_.em_seedIeta << std::endl;
+  //    EBSrFlagCollection::const_iterator leFlag = flagEB_collection->find(triggerTowerMap->towerOf(*test));
+    //  tree_.em_seedSrpFlag = leFlag->value();
+ /*     for (unsigned int iteScRh = 0 ; iteScRh < em->hitsAndFractions().size() ; iteScRh++){
         EBDetId *leId = new EBDetId((em->hitsAndFractions()[iteScRh]).first);
         EBSrFlagCollection::const_iterator leFlag = flagEB_collection->find(triggerTowerMap->towerOf(*leId));
         if ((leFlag->value()==5)||(leFlag->value()==7)) {
  	   tree_.em_hasBadSrpFlag = 1;
            break;
         }
-      }
+      }*/
 
       } 
       else {
@@ -521,19 +413,17 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
         if ((leId->ix()>40)&&(leId->iy()>40)&&(leId->ix()<61)&&(leId->iy()<61)) isEndcapBadSC = true;
       } 
       if (isEndcapBadSC) continue;
-      const EESrFlagCollection *flagEE_collection = flagHandleEE_.product();
+//      const EESrFlagCollection *flagEE_collection = flagHandleEE_.product();
       EEDetId *test = new EEDetId((seedRecHits.first));     
       tree_.em_seedIx = test->ix();
       tree_.em_seedIy = test->iy();
       tree_.em_seedZside = test->zside();
       const int scEdge = 5;
-      EcalScDetId id = EcalScDetId(((*test).ix()-1)/scEdge+1, ((*test).iy()-1)/scEdge+1, (*test).zside()); 
+  /*    EcalScDetId id = EcalScDetId(((*test).ix()-1)/scEdge+1, ((*test).iy()-1)/scEdge+1, (*test).zside()); 
       EESrFlagCollection::const_iterator leFlag = flagEE_collection->find(id);
-      tree_.em_seedSrpFlag = leFlag->value();
+      tree_.em_seedSrpFlag = leFlag->value();*/
       }
       if (!(eSeed==0)) tree_.em_fracRook = tree_.em_rookEnergy/eSeed;
-      tree_.em_swissCross = EcalClusterTools::eLeft(*(em->seed()),hit_collection,&(*topology)) + EcalClusterTools::eRight(*(em->seed()),hit_collection,&(*topology)) + EcalClusterTools::eTop(*(em->seed()),hit_collection,&(*topology)) + EcalClusterTools::eBottom(*(em->seed()),hit_collection,&(*topology));
-      if (!(eSeed==0)) tree_.em_scRatio = tree_.em_swissCross/eSeed; else tree_.em_scRatio=-1;		
       tree_.em_r19 = r19;
       tree_.em_br1 = tree_.em_pw1/tree_.em_ew1;
       tree_.em_nBC   = em->clustersSize();
@@ -560,16 +450,51 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
       float pTWithEtaCorrection     = energyWithEtaCorrection * sin(tree_.em_theta);
       tree_.emCorrEta_e = energyWithEtaCorrection;
       tree_.emCorrEta_et = pTWithEtaCorrection;
+      if (isBarrel) tree_.em_e5x5corrEta = tree_.em_e5x5/fcorr::f5x5((TMath::Abs(em->eta()*(5/0.087))));
+	else tree_.em_e5x5corrEta = tree_.em_e5x5;
       if (isBarrel) tree_.emCorrBR1_e  = fcorr::electron_br1(tree_.em_br1, tree_.emCorrEta_e);
       else tree_.emCorrBR1_e  = fcorr_ee::electron_br1(tree_.em_br1, tree_.emCorrEta_e);
       tree_.emCorrBR1_et = tree_.emCorrBR1_e * sin(em->position().theta());
       if (isBarrel) tree_.emCorrBR1Full_et = fcorr::electron_br1_complete(tree_.emCorrBR1_et, emAbsEta);
       else tree_.emCorrBR1Full_et = fcorr_ee::electron_br1_complete(tree_.emCorrBR1_et, emAbsEta);
       tree_.emCorrBR1Full_e  = tree_.emCorrBR1Full_et/sin(em->position().theta());
+    // apply the Locci Local Cont corrections
+      if (isBarrel) {
+	 tree_.em_isEtaInner = fLocalCorr::leftOrRightEta(seedRecHits.first, hit_collection);
+         tree_.em_isPhiInner = fLocalCorr::leftOrRightPhi(seedRecHits.first, hit_collection);
+         tree_.em_logERatioEta = fLocalCorr::logRatioEta(seedRecHits.first, hit_collection, tree_.em_isEtaInner, &(*topology));
+         tree_.em_logERatioPhi = fLocalCorr::logRatioPhi(seedRecHits.first, hit_collection, tree_.em_isPhiInner, &(*topology));
+//f (tree_.em_r9>0.93) std::cout << "ieta = " << tree_.em_seedIeta << std::endl;
+	 int umbParam = 84 - fabs(tree_.em_seedIeta);
+	 float corrUmb = 0.992911+0.00017885*umbParam-1.04615e-06*umbParam*umbParam;
+	 if (corrUmb>1) corrUmb=1;
+//if (tree_.em_r9>0.93)  std::cout << "corrUmb = " << corrUmb << std::endl;
+	 tree_.em_e5x5Umbrella = tree_.em_e5x5/corrUmb;
+	 tree_.em_corrLocci = fLocalCorr::SLocciLocalEtaCrackCorrections(tree_.em_seedIphi, tree_.em_seedIeta, tree_.em_logERatioEta, tree_.em_isEtaInner);
+
+	 tree_.em_corrLocalTFactorEta = fLocalCorr::theTourneurLocalCorrection( (*em), &(*geom) , myParams,1 );
+	 tree_.em_corrLocalTFactorPhi = fLocalCorr::theTourneurLocalCorrection( (*em), &(*geom) , myParams,0 );
+         tree_.em_corrCrackTFactorEta = fLocalCorr::theTourneurCrackCorrection( (*em), &(*geom) , myParamsCrack, 1);
+         tree_.em_corrCrackTFactorPhi = fLocalCorr::theTourneurCrackCorrection( (*em), &(*geom) , myParamsCrack, 0 );
+
+	 tree_.em_e5x5corrLocalT = tree_.em_corrLocalTFactorEta* tree_.em_corrLocalTFactorPhi * tree_.em_e5x5corrEta;
+         tree_.em_e5x5corrCrackT = tree_.em_e5x5corrLocalT * tree_.em_corrCrackTFactorEta * tree_.em_corrCrackTFactorPhi;  
+
+//	 std::cout << "log Ratio Eta = " << tree_.em_logERatioEta << " log ratio phi = " << tree_.em_logERatioPhi << std::endl;
+	// test on S Touneur Corrections : 
+	//EcalClusterCrackCorrection *myClass = new EcalClusterCrackCorrection(iSetup);
+	//alClusterLocalContCorrection *localContCorrection = new EcalClusterLocalContCorrection(iSetup);
+       //localContCorrection->EcalClusterLocalContCorrection(iSetup);        
+//	std::cout << "localCorrection factor" << localContCorrection->getValue((*em), 1) << std::endl;
+//        std::cout << fLocalCorr::theTourneurLocalCorrection( (*em), &(*geom) , myParams ) << std::endl;
+//	std::cout << fLocalCorr::theTourneurCrackCorrection( (*em), &(*geom) , myParamsCrack ) << std::endl;
+      }		 	
+
       // now check if the SC became a photon
       reco::PhotonCollection::const_iterator myphoton;
       int nbphoton = 0;
       for(reco::PhotonCollection::const_iterator aPho = photons->begin(); aPho != photons->end(); aPho++){
+//	std::cout << "coucou" << aPho->eta() << " " << aPho->phi() << " " << aPho->energy() * sin(aPho->theta()) << std::endl;
       const reco::SuperCluster *theSC = aPho->superCluster().get();
          if ((theSC->position().eta() == em->position().eta())||(theSC->position().phi() == em->position().phi())){
               myphoton = aPho;
@@ -584,7 +509,11 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          tree_.pho_phi = myphoton->phi();
          tree_.pho_theta = myphoton->theta();
          tree_.pho_r9 = myphoton->r9();
-	 tree_.pho_HoE = myphoton->hadronicOverEm();
+	 tree_.pho_isLeading = myCaloTools::isLeadingPhoton(tree_.pho_et, photons);
+      	 //std::cout << tree_.pho_et << " " << tree_.pho_r9 <<" " << tree_.pho_eta << std::endl;
+//²	if (isBarrel&&(tree_.pho_isLeading)&&(tree_.pho_r9>0.93)) std::cout << "coucou ya un photon !! iphi  = " << tree_.em_seedIphi << " ieta = " << tree_.em_seedIeta << "energie tranverse = " << tree_.pho_et << " " << tree_.eventRef << std::endl;
+
+      
       }
       else if (nbphoton==0){ // no photon from that SC
          tree_.em_isPhoton=0;
@@ -661,13 +590,27 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 	     tree_.mc_e = mcParticles[0]->momentum().e();
 	     tree_.mc_et = mcParticles[0]->momentum().perp();
 	     tree_.mc_eta = mcParticles[0]->momentum().eta();
+	//std::cout << "the eta of the MC = " << tree_.mc_eta << " le phi = " << tree_.mc_phi << std::endl;
+	//std::cout << "x = " << mcParticles[0]->momentum().x() << " y = " << mcParticles[0]->momentum().y() << " z= " << mcParticles[0]->momentum().z()<< std::endl;
+//     float dist = 129.0 - sqrt(vtxPosition.x()*vtxPosition.x()+vtxPosition.y()*vtxPosition.y());
+//		std::cout << "la distance = " << dist << std::endl;
+//		if ((tree_.em_r9>0.93)&&(tree_.em_isPhoton==1)&&(fabs(tree_.em_eta)<1.45)) std::cout << "local = " <<  tree_.em_e5x5corrEta << " " << tree_.em_corrLocalTFactor << " crack = " << tree_.em_corrCrackTFactor << "e mc = " << tree_.mc_e << "ratio = " << tree_.em_e5x5corrCrackT/tree_.mc_e << std::endl;
+	     float normTransverse = sqrt(mcParticles[0]->momentum().x()*mcParticles[0]->momentum().x()+mcParticles[0]->momentum().y()*mcParticles[0]->momentum().y());
+             float coeffNorm = 129.0/normTransverse;
+	     math::XYZVector MCdirection(coeffNorm*mcParticles[0]->momentum().x(),coeffNorm*mcParticles[0]->momentum().y(),coeffNorm*mcParticles[0]->momentum().z());
+//		std::cout << "verif normalisation = " << sqrt(MCdirection.x()*MCdirection.x()+MCdirection.y()*MCdirection.y()) << std::endl;
+	     math::XYZVector dirPhotonNominal = vtxPosition + MCdirection;
+//	     std::cout << "long transverse = " << sqrt(dirPhotonNominal.x()*dirPhotonNominal.x()+dirPhotonNominal.y()*dirPhotonNominal.y()) << std::endl;
+  // 	     std::cout << "le nouvel eta " << dirPhotonNominal.eta() << std::endl;
+	     tree_.mc_etaCorrVtx = dirPhotonNominal.eta();
 	     tree_.mc_phi = mcParticles[0]->momentum().phi();
 	     tree_.mc_theta = mcParticles[0]->momentum().theta();
+             mc1 = mcParticles[0]; 
 	 }
 	 else {
 		tree_.mc_nbMatch = mcParticles.size();
 		tree_.em_isMatchWithMC = 1;
-		HepMC::GenParticle* mc1 = mcParticles[0];
+//		HepMC::GenParticle* mc1 = mcParticles[0];
 		float theDeltaRmin  = 1;
 		for (unsigned int j = 1 ; j < mcParticles.size() ; j++){
 			float theDeltaR = kinem::delta_R(mcParticles[j]->momentum().eta(), mcParticles[j]->momentum().phi(), em->position().eta(), em->position().phi());
@@ -704,7 +647,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 				double eta = (*mcPho).fourMomentum().eta();
 				double phi = (*mcPho).fourMomentum().phi();
   				double dR = kinem::delta_R(eta, phi, mc1->momentum().eta(), mc1->momentum().phi());
-	//			std::cout << "dR = " << dR << std::endl;
+		        	//std::cout << "dR = " << dR << std::endl;
 				if ( dR < 1e-6 ) {
 					tree_.mc_isConverted = (*mcPho).isAConversion();
 					tree_.mc_convEt = (*mcPho).fourMomentum().et();
@@ -712,6 +655,8 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 					tree_.mc_convZ = (*mcPho).vertex().mag() * (*mcPho).vertex().cosTheta();
 					tree_.mc_convX = (*mcPho).vertex().x();
 					tree_.mc_convY = (*mcPho).vertex().y();
+		/*			std::cout << "primary vertex  x = " << (*mcPho).primaryVertex().x() << " y = " << (*mcPho).primaryVertex().y() << " z = " << (*mcPho).primaryVertex().mag()*(*mcPho).primaryVertex().cosTheta() << std::endl;
+					std::cout << "mother vertex  x = " << (*mcPho).motherVtx().x() << " y = " << (*mcPho).motherVtx().y() << " z = " << (*mcPho).motherVtx().mag()*(*mcPho).motherVtx().cosTheta() << std::endl;*/
 				}
 			        if ( dR < 0.1 ) n_conv += 1;
 
@@ -843,9 +788,9 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          treeRecHits_.rh_iY = 0;
          itIC = ic->find((*theID));
          treeRecHits_.rh_uncalibEnergy = it->energy()/(*itIC);
-         const EBSrFlagCollection *flagEB_collection = flagHandleEB_.product();
-         EBSrFlagCollection::const_iterator leFlag = flagEB_collection->find(triggerTowerMap->towerOf(*theID));
-         treeRecHits_.rh_srpFlag = leFlag->value();
+//         const EBSrFlagCollection *flagEB_collection = flagHandleEB_.product();
+ //        EBSrFlagCollection::const_iterator leFlag = flagEB_collection->find(triggerTowerMap->towerOf(*theID));
+ //        treeRecHits_.rh_srpFlag = leFlag->value();
          }
          else {
          treeRecHits_.rh_barrelOrEndcap = 0; nbRH_EE_++;
@@ -857,11 +802,11 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
          treeRecHits_.rh_zSide = theID->zside();
          itIC = ic->find((*theID));
          treeRecHits_.rh_uncalibEnergy = it->energy()/(*itIC);
-         const EESrFlagCollection *flagEE_collection = flagHandleEE_.product();
-         const int scEdge = 5;
-         EcalScDetId id = EcalScDetId(((*theID).ix()-1)/scEdge+1, ((*theID).iy()-1)/scEdge+1, (*theID).zside());
-         EESrFlagCollection::const_iterator leFlag = flagEE_collection->find(id);
-         treeRecHits_.rh_srpFlag = leFlag->value();
+//         const EESrFlagCollection *flagEE_collection = flagHandleEE_.product();
+  //       const int scEdge = 5;
+//         EcalScDetId id = EcalScDetId(((*theID).ix()-1)/scEdge+1, ((*theID).iy()-1)/scEdge+1, (*theID).zside());
+//         EESrFlagCollection::const_iterator leFlag = flagEE_collection->find(id);
+//         treeRecHits_.rh_srpFlag = leFlag->value();
          }
          treeRecHits_.rh_energy = it->energy();
          treeRecHits_.rh_chi2 = it->chi2();
@@ -890,9 +835,9 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 	 myRecHitsTree_->Fill();
       } 
     }
-   if (isBarrel){
+/*   if (isBarrel){
      const EBSrFlagCollection *flagEB_collection = flagHandleEB_.product();
-     EBSrFlagCollection::const_iterator leFlag;
+    EBSrFlagCollection::const_iterator leFlag;
       for ( leFlag = flagEB_collection->begin() ; leFlag != flagEB_collection->end() ; leFlag++){
 	if ( fabs(leFlag->id().ieta()) < 18 ){
              if (isDoTTflag_){
@@ -1005,7 +950,7 @@ FirstDataAnalyzer::mySuperClusterAnalyzer(const edm::Event& iEvent, const edm::E
 
      }
 
-   }
+   }*/
 }
 
 // ------------ method called to for each event  ------------
@@ -1126,19 +1071,19 @@ FirstDataAnalyzer::beginJob()
 {
   myTree_ = new TTree("energyScale","");
   TString treeVariables = "eventRef/I:runNum/I:bx/I:orbite/I:triggerType/I:lumiBlock/I:"; //event references
-  treeVariables += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; // technical trigger
-  treeVariables  += "HLT_Photon10_L1R/I:HLT_Photon15_L1R/I:HLT_Photon15_LooseEcalIso_L1R/I:HLT_Photon20_L1R/I:HLT_Photon30_L1R_8E29/I:HLT_DoublePhoton4_Jpsi_L1R/I:HLT_DoublePhoton4_Upsilon_L1R/I:HLT_DoublePhoton4_eeRes_L1R/I:HLT_DoublePhoton5_eeRes_L1R/I:HLT_DoublePhoton5_Jpsi_L1R/I:HLT_DoublePhoton5_Upsilon_L1R/I:HLT_DoublePhoton5_L1R/I:HLT_DoublePhoton10_L1R/I:HLT_DoubleEle5_SW_L1R/I:HLT_Ele20_LW_L1R/I:HLT_Ele15_SiStrip_L1R/I:HLT_Ele15_SC10_LW_L1R/I:HLT_Ele15_LW_L1R/I:HLT_Ele10_LW_EleId_L1R/I:HLT_Ele10_LW_L1R/I:HLT_Photon15_TrackIso_L1R/I:"; // HLT trigger ! 
+  treeVariables += "techTrigger0/I:techTrigger40/I:techTrigger41/I:techTrigger36/I:techTrigger37/I:techTrigger38/I:techTrigger39/I:"; // technical trigger 
   treeVariables += "em_isInCrack/I:em_barrelOrEndcap/I:em_e/F:em_eRAW/F:em_et/F:em_etRAW/F:em_phi/F:em_eta/F:em_theta/F:em_e5x5/F:em_e2x2/F:"; // SC infos
-  treeVariables += "em_pw1/F:em_ew1/F:em_sigmaetaeta/F:em_sigmaietaieta/F:em_sigmaphiphi/F:em_sigmaiphiiphi/F:em_BCsigmaetaeta/F:em_BCsigmaietaieta/F:em_BCsigmaphiphi/F:em_BCsigmaiphiiphi/F:em_r9/F:em_r19/F:em_br1/F:em_nBC/I:em_nbcrystal/I:em_nbcrystalSEED/I:em_isholeinfirst/I:em_isholeinsecond/I:em_rookEnergy/F:em_fracRook/F:em_swissCross/F:em_scRatio/F:em_hasBadSrpFlag/I:em_seedEnergy/F:em_seedChi2/F:em_seedTime/F:em_seedFlag/I:em_seedSrpFlag/I:em_seedIphi/I:em_seedIeta/I:em_seedIx/I:em_seedIy/I:em_seedZside/I:"; // SC shape
-  treeVariables += "emCorrEta_e/F:emCorrEta_et/F:emCorrBR1_e/F:emCorrBR1_et/F:emCorrBR1Full_e/F:emCorrBR1Full_et/F:"; // SC corrections
-  treeVariables += "em_isPhoton/I:pho_e/F:pho_et/F:pho_phi/F:pho_eta/F:pho_theta/F:pho_r9/F:pho_HoE/F:pho_isConverted/I:"; // photon information
+  treeVariables += "em_pw1/F:em_ew1/F:em_sigmaetaeta/F:em_sigmaietaieta/F:em_sigmaphiphi/F:em_sigmaiphiiphi/F:em_BCsigmaetaeta/F:em_BCsigmaietaieta/F:em_BCsigmaphiphi/F:em_BCsigmaiphiiphi/F:em_r9/F:em_r19/F:em_br1/F:em_nBC/I:em_nbcrystal/I:em_nbcrystalSEED/I:em_isholeinfirst/I:em_isholeinsecond/I:em_rookEnergy/F:em_fracRook/F:em_hasBadSrpFlag/I:em_seedBCPhi/F:em_seedBCEta/F:em_seedEnergy/F:em_seedChi2/F:em_seedTime/F:em_seedFlag/I:em_seedSrpFlag/I:em_seedPhi/F:em_seedEta/F:em_seedIphi/I:em_seedIeta/I:em_seedIx/I:em_seedIy/I:em_seedZside/I:"; // SC shape
+  treeVariables += "emCorrEta_e/F:emCorrEta_et/F:em_e5x5corrEta/F:emCorrBR1_e/F:emCorrBR1_et/F:emCorrBR1Full_e/F:emCorrBR1Full_et/F:"; // SC corrections
+  treeVariables += "em_isEtaInner/I:em_isPhiInner/I:em_logERatioEta/F:em_logERatioPhi/F:em_e5x5Umbrella/F:em_corrLocci/F:"; //E locci corrections
+  treeVariables += "em_corrLocalTFactorEta/F:em_corrLocalTFactorPhi/F:em_corrCrackTFactorEta/F:em_corrCrackTFactorPhi/F:em_e5x5corrLocalT/F:em_e5x5corrCrackT/F:"; //S tourneur corrections	
+  treeVariables += "em_isPhoton/I:pho_e/F:pho_et/F:pho_phi/F:pho_eta/F:pho_theta/F:pho_r9/F:pho_isLeading/I:pho_isConverted/I:"; // photon information
   treeVariables += "pho_nTracks/I:pho_EoverP/F:pho_Rconv/F:pho_Zconv/F:pho_Xconv/F:pho_Yconv/F:"; // converted photon
   treeVariables += "em_isElectron/I:ele_e/F:ele_et/F:ele_phi/F:ele_eta/F:ele_theta/F:ele_charge/F:ele_mass/F:ele_EoverP/F:"; //electron information
-  treeVariables += "em_isMatchWithMC/I:mc_PDGType/I:mc_e/F:mc_et/F:mc_eta/F:mc_phi/F:mc_theta/F:mc_nbMatch/I:";//general MC infos
+  treeVariables += "mc_vtxX/F:mc_vtxY/F:mc_vtxZ/F:em_isMatchWithMC/I:mc_PDGType/I:mc_e/F:mc_et/F:mc_eta/F:mc_phi/F:mc_theta/F:mc_nbMatch/I:mc_etaCorrVtx/F:";//general MC infos
   treeVariables += "mc_isPhoton/I:mc_isConverted/I:mc_convEt/F:mc_convR/F:mc_convR/F:mc_convX/F:mc_convY/F:mc_convZ/F:mc_Nconv/I";// MC infos for MC photons
   myTree_->Branch("energyScale",&(tree_.eventRef),treeVariables);
   
-std::cout << treeVariables << std::endl;
 
   myBCTree_ = new TTree("basicClusterTree","");
   TString treeVariables2 = "eventRef/I:runNum/I:bx/I:orbite/I:triggerType/I:lumiBlock/I:"; //event references

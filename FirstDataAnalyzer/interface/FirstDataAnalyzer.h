@@ -13,7 +13,7 @@
 //
 // Original Author:  Hugues Louis Brun
 //         Created:  Mon Dec 21 16:16:59 CET 2009
-// $Id: FirstDataAnalyzer.h,v 1.3 2010/04/28 09:12:52 hbrun Exp $
+// $Id: FirstDataAnalyzer.h,v 1.2 2010/03/29 14:47:49 hbrun Exp $
 //
 //
 
@@ -31,7 +31,8 @@
 
 #include "TString.h"
 #include "TFile.h"
-#include "TTree.h" 
+#include "TTree.h"
+#include "TMath.h" 
 
 // user include files
 #include "myCaloTools.h"
@@ -39,6 +40,7 @@
 #include "fCorr.h"
 #include "fCorr_EE.h"
 #include "AnglesUtil.h"
+#include "fLocalCorr.h"
 
 // FrameWork include files ..........................................................
 
@@ -57,6 +59,8 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
@@ -64,10 +68,6 @@
 // L1 trigger 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-
-// HLT trigger
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Framework/interface/TriggerNames.h"
 
 // HF rechits
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -116,7 +116,13 @@
 // The SC Tools
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
+// the Local Containement Corrections
+#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 
+// the Crack corrections
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
 
 
 // class decleration
@@ -201,8 +207,6 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
       double deltaRMax_;	
 //		Trigger L1 technical bytes
       edm::InputTag triggerL1Tag_;
-//		HTL trigger byte
-      edm::InputTag triggerHLTTag_;		
 // 		Forward Hadronique Calorimeter recHits
       edm::InputTag HFrecHitsCollection_;
 //              Electromagnetic Calo Rec hits collections
@@ -264,29 +268,6 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 	        int techTrigger37;
 	        int techTrigger38;
 	        int techTrigger39;
-		// HTL trigger
-		int HLT_Photon10_L1R;
-		int HLT_Photon15_L1R;
-		int HLT_Photon15_LooseEcalIso_L1R;
-		int HLT_Photon20_L1R;
-		int HLT_Photon30_L1R_8E29;
-		int HLT_DoublePhoton4_Jpsi_L1R;
-		int HLT_DoublePhoton4_Upsilon_L1R;
-		int HLT_DoublePhoton4_eeRes_L1R;
-		int HLT_DoublePhoton5_eeRes_L1R;
-		int HLT_DoublePhoton5_Jpsi_L1R;
-		int HLT_DoublePhoton5_Upsilon_L1R;
-		int HLT_DoublePhoton5_L1R;
-		int HLT_DoublePhoton10_L1R;
-		int HLT_DoubleEle5_SW_L1R;
-		int HLT_Ele20_LW_L1R;
-		int HLT_Ele15_SiStrip_L1R;
-		int HLT_Ele15_SC10_LW_L1R;
-		int HLT_Ele15_LW_L1R;
-		int HLT_Ele10_LW_EleId_L1R;
-		int HLT_Ele10_LW_L1R;
-		int HLT_Photon15_TrackIso_L1R;
-
 		// info about the Super-Cluster
 	        int   em_isInCrack;
 		int   em_barrelOrEndcap;
@@ -320,14 +301,16 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 	        int   em_isholeinsecond;
                 float em_rookEnergy;
 		float em_fracRook;
-		float em_swissCross;
-		float em_scRatio;
-                int   em_hasBadSrpFlag; 
+                int   em_hasBadSrpFlag;
+		float em_seedBCPhi;
+		float em_seedBCEta; 
 		float em_seedEnergy;
 		float em_seedChi2;
 		float em_seedTime;
                 int   em_seedFlag;
-                int   em_seedSrpFlag; 
+                int   em_seedSrpFlag;
+		float em_seedPhi;
+		float em_seedEta;
 		int   em_seedIphi;
 		int   em_seedIeta;
 		int   em_seedIx;
@@ -336,10 +319,27 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 		// energy after each energy corrections 
 	        float emCorrEta_e;
                 float emCorrEta_et;
+		float em_e5x5corrEta;
 	        float emCorrBR1_e;
 	        float emCorrBR1_et;
 	        float emCorrBR1Full_e;
 	        float emCorrBR1Full_et;
+		// parameters for E Locci Corrections
+		int   em_isEtaInner;
+		int   em_isPhiInner; 
+		float em_logERatioEta;
+		float em_logERatioPhi;
+		float em_e5x5Umbrella;
+		float em_corrLocci;
+
+		//S Tourneur corrections
+		float em_corrLocalTFactorEta;
+		float em_corrLocalTFactorPhi;
+		float em_corrCrackTFactorEta;
+		float em_corrCrackTFactorPhi;
+		float em_e5x5corrLocalT;
+		float em_e5x5corrCrackT;
+	
 		//photon informations
 		int   em_isPhoton;
 	        float pho_e;
@@ -348,7 +348,7 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
         	float pho_eta;
 	        float pho_theta;
 	        float pho_r9;
-		float pho_HoE;
+		int   pho_isLeading;
 		// converted photons informations 
                 int   pho_isConverted;
                 int   pho_nTracks;
@@ -368,6 +368,10 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
                 float ele_mass;
 		float ele_EoverP;
 		// the Monte Carlo truth 
+		float mc_vtxX;
+		float mc_vtxY;
+		float mc_vtxZ;
+		// em truth
 		int   em_isMatchWithMC;
 		int   mc_PDGType;
 		float mc_e;
@@ -376,6 +380,7 @@ class FirstDataAnalyzer : public edm::EDAnalyzer {
 		float mc_phi;
 		float mc_theta;
 		int   mc_nbMatch;
+		float mc_etaCorrVtx;
 		// the MC truth for photon
 		int   mc_isPhoton;
 		int   mc_isConverted;
