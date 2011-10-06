@@ -13,7 +13,7 @@
 //
 // Original Author:  Hugues Louis Brun
 //         Created:  Wed Dec 16 11:42:26 CET 2009
-// $Id$
+// $Id: HughFilter.cc,v 1.1 2010/05/25 11:45:13 hbrun Exp $
 //
 //
 
@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -95,7 +95,7 @@ class HughFilter : public edm::EDFilter {
       float etmin_;
       unsigned int Xtalmin_;
       int nEvent_;	
-      int runNumber_;
+      unsigned int runNumber_;
       bool keepOnly20_;	
       std::vector<int> eventNumbers_;
 };
