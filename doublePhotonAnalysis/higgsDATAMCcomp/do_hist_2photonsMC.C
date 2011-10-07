@@ -380,6 +380,7 @@ for (int i = 0 ; i < nbCuts ; i++){
 }
         doHistoGeneTroisCut("vertex","event_nVertex",0,25,25,allTheCuts,myFile);
 
+
        
 	doHistoGeneTroisCutNoOverF("higgs1_"+prefixe,"dipho_mgg",70,150,80,allTheCuts,myFile);
 	doHistoGeneTroisCutNoOverF("higgs2_"+prefixe,"dipho_mgg",80,150,35,allTheCuts,myFile);
