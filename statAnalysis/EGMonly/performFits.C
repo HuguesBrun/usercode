@@ -5,6 +5,13 @@
 #include "RooWorkspace.h"
 
 #include "TFile.h"
+#include "TLatex.h"
+
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+
+#include "plotParameters.cc"
 
 #pragma optimize 0
 
@@ -297,12 +304,12 @@ void performFits(){
 	RooBernstein poly_cat0("poly_cat0", "model2", mgg, RooArgList(a_cat0, b_cat0, c_cat0) ); 
 //	RooFitResult* r2_cat0 = poly_cat0.fitTo(theDatabg_cat0, Save());
 	RooFitResult* r2_cat0 = poly_cat0.fitTo(*myDataUnbinned_cat0, Save());
+	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float a_cat0 = " << a_cat0.getVal() << ";" << endl;
 	cout << "DATACARD float b_cat0 = " << b_cat0.getVal() << ";" << endl;
 	cout << "DATACARD float c_cat0 = " << c_cat0.getVal() << ";" << endl;
 
 /*	
-	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float tau_cat0Val = " << tau_cat0.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg_cat0Val = " << nbkg_cat0.getVal() << ";" << endl;
 	cout << "DATACARD float tau2_cat0Val = " << tau2_cat0.getVal() << ";" << endl;
@@ -311,10 +318,10 @@ void performFits(){
 	
 	RooPlot* frame0 = mgg.frame(Title("cat0"), Bins(50)) ;
 //	theDatabg_cat0.plotOn(frame0);
-	myDataUnbinned_cat0->plotOn(frame0);
+	myDataUnbinned_cat0->plotOn(frame0, Name("data"));
 	poly_cat0.plotOn(frame0, VisualizeError(*r2_cat0,2, kFALSE), FillColor(kGreen));
 	poly_cat0.plotOn(frame0, VisualizeError(*r2_cat0,1, kFALSE), FillColor(kYellow));
-	poly_cat0.plotOn(frame0, LineWidth(2), LineColor(kRed));
+	poly_cat0.plotOn(frame0, LineWidth(2), LineColor(kRed), Name("model"));
 //	modelbg_cat0.plotOn(frame0, VisualizeError(*r_cat0,2), FillColor(kYellow));
 //	modelbg_cat0.plotOn(frame0, VisualizeError(*r_cat0,1), FillColor(kGreen));
 //	modelbg_cat0.plotOn(frame0);
@@ -344,22 +351,22 @@ void performFits(){
 	RooBernstein poly_cat1("poly_cat1", "model2", mgg, RooArgList(a_cat1, b_cat1, c_cat1) ); 
 //	RooFitResult* r2_cat1 = poly_cat1.fitTo(theDatabg_cat1, Save());
 	RooFitResult* r2_cat1 = poly_cat1.fitTo(*myDataUnbinned_cat1, Save());
+	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float a_cat1 = " << a_cat1.getVal() << ";" << endl;
 	cout << "DATACARD float b_cat1 = " << b_cat1.getVal() << ";" << endl;
 	cout << "DATACARD float c_cat1 = " << c_cat1.getVal() << ";" << endl;
-
-	cout << "DATACARD //////////////////////////////////" << endl;
+/*
 	cout << "DATACARD float tau_cat1Val = " << tau_cat1.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg_cat1Val = " << nbkg_cat1.getVal() << ";" << endl;
 	cout << "DATACARD float tau2_cat1Val = " << tau2_cat1.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg2_cat1Val = " << nbkg2_cat1.getVal() << ";" << endl;
-	
+*/	
 	RooPlot* frame1 = mgg.frame(Title("cat1"),Bins(50)) ;
 //	theDatabg_cat1.plotOn(frame1);
-	myDataUnbinned_cat1->plotOn(frame1);
+	myDataUnbinned_cat1->plotOn(frame1, Name("data"));
 	poly_cat1.plotOn(frame1, VisualizeError(*r2_cat1,2, kFALSE), FillColor(kGreen));
 	poly_cat1.plotOn(frame1, VisualizeError(*r2_cat1,1, kFALSE), FillColor(kYellow));
-	poly_cat1.plotOn(frame1, LineWidth(2), LineColor(kRed));
+	poly_cat1.plotOn(frame1, LineWidth(2), LineColor(kRed), Name("model"));
 //	modelbg_cat1.plotOn(frame1, VisualizeError(*r_cat1,2), FillColor(kYellow));
 //	modelbg_cat1.plotOn(frame1, VisualizeError(*r_cat1,1), FillColor(kGreen));
 //	modelbg_cat1.plotOn(frame1);
@@ -390,22 +397,23 @@ void performFits(){
 	RooBernstein poly_cat2("poly_cat2", "model2", mgg, RooArgList(a_cat2, b_cat2, c_cat2) ); 
 //	RooFitResult* r2_cat2 = poly_cat2.fitTo(theDatabg_cat2, Save());
 	RooFitResult* r2_cat2 = poly_cat2.fitTo(*myDataUnbinned_cat2, Save());
+	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float a_cat2 = " << a_cat2.getVal() << ";" << endl;
 	cout << "DATACARD float b_cat2 = " << b_cat2.getVal() << ";" << endl;
 	cout << "DATACARD float c_cat2 = " << c_cat2.getVal() << ";" << endl;
 
-	cout << "DATACARD //////////////////////////////////" << endl;
+/*
 	cout << "DATACARD float tau_cat2Val = " << tau_cat2.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg_cat2Val = " << nbkg_cat2.getVal() << ";" << endl;
 	cout << "DATACARD float tau2_cat2Val = " << tau2_cat2.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg2_cat2Val = " << nbkg2_cat2.getVal() << ";" << endl;
-	
+*/	
 	RooPlot* frame2 = mgg.frame(Title("cat2"),Bins(50)) ;
 //	theDatabg_cat2.plotOn(frame2);
-	myDataUnbinned_cat2->plotOn(frame2);
+	myDataUnbinned_cat2->plotOn(frame2, Name("data"));
 	poly_cat2.plotOn(frame2, VisualizeError(*r2_cat2,2, kFALSE), FillColor(kGreen));
 	poly_cat2.plotOn(frame2, VisualizeError(*r2_cat2,1, kFALSE), FillColor(kYellow));
-	poly_cat2.plotOn(frame2, LineWidth(2), LineColor(kRed));
+	poly_cat2.plotOn(frame2, LineWidth(2), LineColor(kRed), Name("model"));
 //	modelbg_cat2.plotOn(frame2, VisualizeError(*r_cat2,2), FillColor(kYellow));
 //	modelbg_cat2.plotOn(frame2, VisualizeError(*r_cat2,1), FillColor(kGreen));
 //	modelbg_cat2.plotOn(frame2);
@@ -435,38 +443,48 @@ void performFits(){
 	RooBernstein poly_cat3("poly_cat3", "model2", mgg, RooArgList(a_cat3, b_cat3, c_cat3) ); 
 //	RooFitResult* r2_cat3 = poly_cat3.fitTo(theDatabg_cat3, Save());
 	RooFitResult* r2_cat3 = poly_cat3.fitTo(*myDataUnbinned_cat3, Save());
+	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float a_cat3 = " << a_cat3.getVal() << ";" << endl;
 	cout << "DATACARD float b_cat3 = " << b_cat3.getVal() << ";" << endl;
 	cout << "DATACARD float c_cat3 = " << c_cat3.getVal() << ";" << endl;
-
-	cout << "DATACARD //////////////////////////////////" << endl;
+/*
 	cout << "DATACARD float tau_cat3Val = " << tau_cat3.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg_cat3Val = " << nbkg_cat3.getVal() << ";" << endl;
 	cout << "DATACARD float tau2_cat3Val = " << tau2_cat3.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg2_cat3Val = " << nbkg2_cat3.getVal() << ";" << endl;
-	
+*/	
 	RooPlot* frame3 = mgg.frame(Title("cat3"),Bins(50)) ;
 //	theDatabg_cat3.plotOn(frame3);
-	myDataUnbinned_cat3->plotOn(frame3);
+	myDataUnbinned_cat3->plotOn(frame3, Name("data"));
 	poly_cat3.plotOn(frame3, VisualizeError(*r2_cat3,2, kFALSE), FillColor(kGreen));
 	poly_cat3.plotOn(frame3, VisualizeError(*r2_cat3,1, kFALSE), FillColor(kYellow));
-	poly_cat3.plotOn(frame3, LineWidth(2), LineColor(kRed));
+	poly_cat3.plotOn(frame3, LineWidth(2), LineColor(kRed), Name("model"));
 //	modelbg_cat3.plotOn(frame3, VisualizeError(*r_cat3,2), FillColor(kYellow));
 //	modelbg_cat3.plotOn(frame3, VisualizeError(*r_cat3,1), FillColor(kGreen));
 //	modelbg_cat3.plotOn(frame3);
 //	theDatabg_cat3.plotOn(frame3);
 	myDataUnbinned_cat3->plotOn(frame3);
+
+/////////////////////////////////////////////
 	
 	TCanvas *theCanvas = new TCanvas("theCanvas","coucou",1200,1200);
 	theCanvas->Divide(2,2);
 	theCanvas->cd(1);
 	frame0->Draw();	
+	RooArgSet *r2_cat0_param = poly_cat0.getVariables();
+	plotParameters(r2_cat0_param, theCanvas, 1, frame0);
 	theCanvas->cd(2);
 	frame1->Draw();	
+	RooArgSet *r2_cat1_param = poly_cat1.getVariables();
+	plotParameters(r2_cat1_param, theCanvas, 2, frame1);
 	theCanvas->cd(3);
 	frame2->Draw();	
+	RooArgSet *r2_cat2_param = poly_cat2.getVariables();
+	plotParameters(r2_cat2_param, theCanvas, 3, frame2);
 	theCanvas->cd(4);
 	frame3->Draw();	
+	RooArgSet *r2_cat3_param = poly_cat3.getVariables();
+	plotParameters(r2_cat3_param, theCanvas, 4, frame3);
 	theCanvas->Print("gif/fitBg.gif");
 	
 //	delete theCanvas;
