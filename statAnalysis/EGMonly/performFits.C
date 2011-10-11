@@ -6,6 +6,7 @@
 
 #include "TFile.h"
 
+#pragma optimize 0
 
 TString FloatToString(float number){
 	ostringstream oss;
@@ -14,16 +15,16 @@ TString FloatToString(float number){
 }
 
 //////////// cut NN
-float nbHiggs_cat0 = 4.95352; // après cut, les 2 dans barrel les > 0.94
+//float nbHiggs_cat0 = 4.95352; // après cut, les 2 dans barrel les > 0.94
 //float nbBg_cat0 = 1240.14;
 
-float nbHiggs_cat1 = 4.78652; // les 2 dans barrel un avec < 0.94
+//float nbHiggs_cat1 = 4.78652; // les 2 dans barrel un avec < 0.94
 //float nbBg_cat1 = 1824.72;
 
-float nbHiggs_cat2 = 2.08953; 
+//float nbHiggs_cat2 = 2.08953; 
 //float nbBg_cat2 = 1094.36;
 
-float nbHiggs_cat3 = 2.30082; 
+//float nbHiggs_cat3 = 2.30082; 
 //float nbBg_cat3 = 1699.16;
 
 
@@ -63,11 +64,11 @@ float nbBg_cat3 = 2198.94;
 using namespace RooFit;
 
 void performFits(){
-
 	// Signal component (Gaussian)
-	RooRealVar mgg("mgg","",100.,150.) ;
+	RooRealVar mgg("mgg","m_{#gamma#gamma}",100.,150., "GeV") ;
 	RooRealVar r("r","r",1.0,0,10);
 	RooArgList observables(mgg); // variables to be generated
+/*
 	
 	TFile *myFile = new TFile("diphoFile_GluGluToHToGGM115.root");
 
@@ -248,12 +249,33 @@ void performFits(){
 	delete theCanvas;
 	delete myFile;
 	
+*/
+
 	///////////
 	TFile *myFile2 = new TFile("diphoFile_DATA.root");
+	TFile *myFileUnbinned = new TFile("theUnbinnedDATA.root");
+	TTree *myTreeUnbinned_cat0 = (TTree*) myFileUnbinned->Get("higgsCat0");
+	RooDataSet *myDataUnbinned_cat0 = new RooDataSet();
+	myDataUnbinned_cat0 = new RooDataSet("myDataUnbinned_cat0", "myDataUnbinned_cat0", myTreeUnbinned_cat0, mgg);
+
+	TTree *myTreeUnbinned_cat1 = (TTree*) myFileUnbinned->Get("higgsCat1");
+	RooDataSet *myDataUnbinned_cat1 = new RooDataSet();
+	myDataUnbinned_cat1 = new RooDataSet("myDataUnbinned_cat1", "myDataUnbinned_cat1", myTreeUnbinned_cat1, mgg);
+
+	TTree *myTreeUnbinned_cat2 = (TTree*) myFileUnbinned->Get("higgsCat2");
+	RooDataSet *myDataUnbinned_cat2 = new RooDataSet();
+	myDataUnbinned_cat2 = new RooDataSet("myDataUnbinned_cat2", "myDataUnbinned_cat2", myTreeUnbinned_cat2, mgg);
+
+	TTree *myTreeUnbinned_cat3 = (TTree*) myFileUnbinned->Get("higgsCat3");
+	RooDataSet *myDataUnbinned_cat3 = new RooDataSet();
+	myDataUnbinned_cat3 = new RooDataSet("myDataUnbinned_cat3", "myDataUnbinned_cat3", myTreeUnbinned_cat3, mgg);
+
+
 	
 ////////////////////////////////	
-	TH1F *histoDATAbg_cat0 = (TH1F*) myFile2->Get("higgs2_loose1_cat0");
+//	TH1F *histoDATAbg_cat0 = (TH1F*) myFile2->Get("higgs2_loose1_cat0");
 	
+/*
 	RooRealVar tau_cat0("tau_cat0","coefficient Tau",0,-10,0);
 	RooExponential theExp_cat0("theExp_cat0","background pdf",mgg,tau_cat0);
 	RooRealVar nbkg_cat0("nbkg_cat0","nbackground",100,0,40000.);
@@ -263,21 +285,41 @@ void performFits(){
 	RooExponential theExp2_cat0("theExp2_cat0","background pdf",mgg,tau2_cat0);
 	RooRealVar nbkg2_cat0("nbkg2_cat0","nbackground",100,0,40000.);
     RooExtendPdf ebkg2_cat0("ebkg2_cat0","ebkg",theExp2_cat0,nbkg2_cat0);
+*/
 	
-	RooAddPdf modelbg_cat0("modelbg_cat0","model",RooArgList(ebkg_cat0,ebkg2_cat0));
-	RooDataHist theDatabg_cat0("theDatabg_cat0","data",mgg,histoDATAbg_cat0);
-	modelbg_cat0.fitTo(theDatabg_cat0);
-	
+//	RooAddPdf modelbg_cat0("modelbg_cat0","model",RooArgList(ebkg_cat0,ebkg2_cat0));
+//	RooDataHist theDatabg_cat0("theDatabg_cat0","data",mgg,histoDATAbg_cat0);
+//	RooFitResult* r_cat0 = modelbg_cat0.fitTo(theDatabg_cat0, Save());
+
+	RooRealVar a_cat0("a_cat0", "a_cat0", 10, 0, 50);
+	RooRealVar b_cat0("b_cat0", "b_cat0", 1, 0, 50);
+	RooRealVar c_cat0("c_cat0", "c_cat0", 1, 0, 50);
+	RooBernstein poly_cat0("poly_cat0", "model2", mgg, RooArgList(a_cat0, b_cat0, c_cat0) ); 
+//	RooFitResult* r2_cat0 = poly_cat0.fitTo(theDatabg_cat0, Save());
+	RooFitResult* r2_cat0 = poly_cat0.fitTo(*myDataUnbinned_cat0, Save());
+	cout << "DATACARD float a_cat0 = " << a_cat0.getVal() << ";" << endl;
+	cout << "DATACARD float b_cat0 = " << b_cat0.getVal() << ";" << endl;
+	cout << "DATACARD float c_cat0 = " << c_cat0.getVal() << ";" << endl;
+
+/*	
 	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float tau_cat0Val = " << tau_cat0.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg_cat0Val = " << nbkg_cat0.getVal() << ";" << endl;
 	cout << "DATACARD float tau2_cat0Val = " << tau2_cat0.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg2_cat0Val = " << nbkg2_cat0.getVal() << ";" << endl;
+*/	
 	
-	
-	RooPlot* frame0 = mgg.frame(Title("cat0"),Bins(70)) ;
-	theDatabg_cat0.plotOn(frame0);
-	modelbg_cat0.plotOn(frame0);
+	RooPlot* frame0 = mgg.frame(Title("cat0"), Bins(50)) ;
+//	theDatabg_cat0.plotOn(frame0);
+	myDataUnbinned_cat0->plotOn(frame0);
+	poly_cat0.plotOn(frame0, VisualizeError(*r2_cat0,2, kFALSE), FillColor(kGreen));
+	poly_cat0.plotOn(frame0, VisualizeError(*r2_cat0,1, kFALSE), FillColor(kYellow));
+	poly_cat0.plotOn(frame0, LineWidth(2), LineColor(kRed));
+//	modelbg_cat0.plotOn(frame0, VisualizeError(*r_cat0,2), FillColor(kYellow));
+//	modelbg_cat0.plotOn(frame0, VisualizeError(*r_cat0,1), FillColor(kGreen));
+//	modelbg_cat0.plotOn(frame0);
+//	theDatabg_cat0.plotOn(frame0);
+	myDataUnbinned_cat0->plotOn(frame0);
 	
 	////////////////////////////////	
 	TH1F *histoDATAbg_cat1 = (TH1F*) myFile2->Get("higgs2_loose1_cat1");
@@ -294,17 +336,36 @@ void performFits(){
 	
 	RooAddPdf modelbg_cat1("modelbg_cat1","model",RooArgList(ebkg_cat1,ebkg2_cat1));
 	RooDataHist theDatabg_cat1("theDatabg_cat1","data",mgg,histoDATAbg_cat1);
-	modelbg_cat1.fitTo(theDatabg_cat1);
+	RooFitResult* r_cat1 =	modelbg_cat1.fitTo(theDatabg_cat1, Save());
 	
+	RooRealVar a_cat1("a_cat1", "a_cat1", 10, 0, 50);
+	RooRealVar b_cat1("b_cat1", "b_cat1", 1, 0, 50);
+	RooRealVar c_cat1("c_cat1", "c_cat1", 1, 0, 50);
+	RooBernstein poly_cat1("poly_cat1", "model2", mgg, RooArgList(a_cat1, b_cat1, c_cat1) ); 
+//	RooFitResult* r2_cat1 = poly_cat1.fitTo(theDatabg_cat1, Save());
+	RooFitResult* r2_cat1 = poly_cat1.fitTo(*myDataUnbinned_cat1, Save());
+	cout << "DATACARD float a_cat1 = " << a_cat1.getVal() << ";" << endl;
+	cout << "DATACARD float b_cat1 = " << b_cat1.getVal() << ";" << endl;
+	cout << "DATACARD float c_cat1 = " << c_cat1.getVal() << ";" << endl;
+
 	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float tau_cat1Val = " << tau_cat1.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg_cat1Val = " << nbkg_cat1.getVal() << ";" << endl;
 	cout << "DATACARD float tau2_cat1Val = " << tau2_cat1.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg2_cat1Val = " << nbkg2_cat1.getVal() << ";" << endl;
 	
-	RooPlot* frame1 = mgg.frame(Title("cat1"),Bins(70)) ;
-	theDatabg_cat1.plotOn(frame1);
-	modelbg_cat1.plotOn(frame1);
+	RooPlot* frame1 = mgg.frame(Title("cat1"),Bins(50)) ;
+//	theDatabg_cat1.plotOn(frame1);
+	myDataUnbinned_cat1->plotOn(frame1);
+	poly_cat1.plotOn(frame1, VisualizeError(*r2_cat1,2, kFALSE), FillColor(kGreen));
+	poly_cat1.plotOn(frame1, VisualizeError(*r2_cat1,1, kFALSE), FillColor(kYellow));
+	poly_cat1.plotOn(frame1, LineWidth(2), LineColor(kRed));
+//	modelbg_cat1.plotOn(frame1, VisualizeError(*r_cat1,2), FillColor(kYellow));
+//	modelbg_cat1.plotOn(frame1, VisualizeError(*r_cat1,1), FillColor(kGreen));
+//	modelbg_cat1.plotOn(frame1);
+//	theDatabg_cat1.plotOn(frame1);
+	myDataUnbinned_cat1->plotOn(frame1);
+
 	
 	////////////////////////////////	
 	TH1F *histoDATAbg_cat2 = (TH1F*) myFile2->Get("higgs2_loose1_cat2");
@@ -321,17 +382,35 @@ void performFits(){
 	
 	RooAddPdf modelbg_cat2("modelbg_cat2","model",RooArgList(ebkg_cat2,ebkg2_cat2));
 	RooDataHist theDatabg_cat2("theDatabg_cat2","data",mgg,histoDATAbg_cat2);
-	modelbg_cat2.fitTo(theDatabg_cat2);
+	RooFitResult* r_cat2 = modelbg_cat2.fitTo(theDatabg_cat2, Save());
 	
+	RooRealVar a_cat2("a_cat2", "a_cat2", 10, 0, 50);
+	RooRealVar b_cat2("b_cat2", "b_cat2", 1, 0, 50);
+	RooRealVar c_cat2("c_cat2", "c_cat2", 1, 0, 50);
+	RooBernstein poly_cat2("poly_cat2", "model2", mgg, RooArgList(a_cat2, b_cat2, c_cat2) ); 
+//	RooFitResult* r2_cat2 = poly_cat2.fitTo(theDatabg_cat2, Save());
+	RooFitResult* r2_cat2 = poly_cat2.fitTo(*myDataUnbinned_cat2, Save());
+	cout << "DATACARD float a_cat2 = " << a_cat2.getVal() << ";" << endl;
+	cout << "DATACARD float b_cat2 = " << b_cat2.getVal() << ";" << endl;
+	cout << "DATACARD float c_cat2 = " << c_cat2.getVal() << ";" << endl;
+
 	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float tau_cat2Val = " << tau_cat2.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg_cat2Val = " << nbkg_cat2.getVal() << ";" << endl;
 	cout << "DATACARD float tau2_cat2Val = " << tau2_cat2.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg2_cat2Val = " << nbkg2_cat2.getVal() << ";" << endl;
 	
-	RooPlot* frame2 = mgg.frame(Title("cat2"),Bins(70)) ;
-	theDatabg_cat2.plotOn(frame2);
-	modelbg_cat2.plotOn(frame2);
+	RooPlot* frame2 = mgg.frame(Title("cat2"),Bins(50)) ;
+//	theDatabg_cat2.plotOn(frame2);
+	myDataUnbinned_cat2->plotOn(frame2);
+	poly_cat2.plotOn(frame2, VisualizeError(*r2_cat2,2, kFALSE), FillColor(kGreen));
+	poly_cat2.plotOn(frame2, VisualizeError(*r2_cat2,1, kFALSE), FillColor(kYellow));
+	poly_cat2.plotOn(frame2, LineWidth(2), LineColor(kRed));
+//	modelbg_cat2.plotOn(frame2, VisualizeError(*r_cat2,2), FillColor(kYellow));
+//	modelbg_cat2.plotOn(frame2, VisualizeError(*r_cat2,1), FillColor(kGreen));
+//	modelbg_cat2.plotOn(frame2);
+//	theDatabg_cat2.plotOn(frame2);
+	myDataUnbinned_cat2->plotOn(frame2);
 	
 	////////////////////////////////	
 	TH1F *histoDATAbg_cat3 = (TH1F*) myFile2->Get("higgs2_loose1_cat3");
@@ -348,17 +427,35 @@ void performFits(){
 	
 	RooAddPdf modelbg_cat3("modelbg_cat3","model",RooArgList(ebkg_cat3,ebkg2_cat3));
 	RooDataHist theDatabg_cat3("theDatabg_cat3","data",mgg,histoDATAbg_cat3);
-	modelbg_cat3.fitTo(theDatabg_cat3);
+	RooFitResult* r_cat3 = modelbg_cat3.fitTo(theDatabg_cat3, Save());
 	
+	RooRealVar a_cat3("a_cat3", "a_cat3", 10, 0, 50);
+	RooRealVar b_cat3("b_cat3", "b_cat3", 1, 0, 50);
+	RooRealVar c_cat3("c_cat3", "c_cat3", 1, 0, 50);
+	RooBernstein poly_cat3("poly_cat3", "model2", mgg, RooArgList(a_cat3, b_cat3, c_cat3) ); 
+//	RooFitResult* r2_cat3 = poly_cat3.fitTo(theDatabg_cat3, Save());
+	RooFitResult* r2_cat3 = poly_cat3.fitTo(*myDataUnbinned_cat3, Save());
+	cout << "DATACARD float a_cat3 = " << a_cat3.getVal() << ";" << endl;
+	cout << "DATACARD float b_cat3 = " << b_cat3.getVal() << ";" << endl;
+	cout << "DATACARD float c_cat3 = " << c_cat3.getVal() << ";" << endl;
+
 	cout << "DATACARD //////////////////////////////////" << endl;
 	cout << "DATACARD float tau_cat3Val = " << tau_cat3.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg_cat3Val = " << nbkg_cat3.getVal() << ";" << endl;
 	cout << "DATACARD float tau2_cat3Val = " << tau2_cat3.getVal() << ";" << endl;
 	cout << "DATACARD float nbkg2_cat3Val = " << nbkg2_cat3.getVal() << ";" << endl;
 	
-	RooPlot* frame3 = mgg.frame(Title("cat3"),Bins(70)) ;
-	theDatabg_cat3.plotOn(frame3);
-	modelbg_cat3.plotOn(frame3);
+	RooPlot* frame3 = mgg.frame(Title("cat3"),Bins(50)) ;
+//	theDatabg_cat3.plotOn(frame3);
+	myDataUnbinned_cat3->plotOn(frame3);
+	poly_cat3.plotOn(frame3, VisualizeError(*r2_cat3,2, kFALSE), FillColor(kGreen));
+	poly_cat3.plotOn(frame3, VisualizeError(*r2_cat3,1, kFALSE), FillColor(kYellow));
+	poly_cat3.plotOn(frame3, LineWidth(2), LineColor(kRed));
+//	modelbg_cat3.plotOn(frame3, VisualizeError(*r_cat3,2), FillColor(kYellow));
+//	modelbg_cat3.plotOn(frame3, VisualizeError(*r_cat3,1), FillColor(kGreen));
+//	modelbg_cat3.plotOn(frame3);
+//	theDatabg_cat3.plotOn(frame3);
+	myDataUnbinned_cat3->plotOn(frame3);
 	
 	TCanvas *theCanvas = new TCanvas("theCanvas","coucou",1200,1200);
 	theCanvas->Divide(2,2);
@@ -372,12 +469,11 @@ void performFits(){
 	frame3->Draw();	
 	theCanvas->Print("gif/fitBg.gif");
 	
-	delete theCanvas;
-	delete myFile2;
-	
+//	delete theCanvas;
+//	delete myFile2;
+//	return;	
 
-	
-	
+
 }
 
 	
