@@ -38,7 +38,10 @@ while counter < len(files):
                                 continue
 			if len(re.split("theCutAvant=",line)) > 1:
 				if (dossier=="GJetPt20"):
-					file.write("TString theCutAvant= \"&&(!(event_processId==18))\";\n")
+					file.write("TString theCutAvant= \"&&(!(event_processId==18)&&(!(((pholead_isPromptGenPho==1)||(pholead_isFromQuarkGen==1))&&((photrail_isPromptGenPho==1)||(photrail_isFromQuarkGen==1)))))\";\n")
+					continue
+				if (dossier=="QCDPt30to40doubleEMEnriched" or dossier=="QCDPt40doubleEMEnriched"):
+					file.write("TString theCutAvant= \"&&(!(((pholead_isPromptGenPho==1)||(pholead_isFromQuarkGen==1))&&((photrail_isPromptGenPho==1)||(photrail_isFromQuarkGen==1))))\";\n")
 					continue
                		file.write(line)
    		fileNumber +=1
