@@ -13,7 +13,7 @@
 //
 // Original Author:  Hugues Brun
 //         Created:  Wed Apr 20 15:43:04 CEST 2011
-// $Id$
+// $Id: ReadDataBase.cc,v 1.1 2011/04/21 06:48:41 hbrun Exp $
 //
 //
 
@@ -36,7 +36,11 @@
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
 
+//#include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
+//#include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 
 //
 // class declaration
@@ -95,19 +99,111 @@ ReadDataBase::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace std;
 
-                 ESHandle<EcalClusterEnergyCorrectionParameters> theParams;
-		 iSetup.get<EcalClusterEnergyCorrectionParametersRcd>().get(theParams);
-                 const EcalClusterEnergyCorrectionParameters *params = theParams.product();
+	edm::ESHandle<EcalClusterCrackCorrParameters> theParamsLocal;
+	iSetup.get<EcalClusterCrackCorrParametersRcd>().get(theParamsLocal);
+	const EcalClusterCrackCorrParameters *myParamsLocal = theParamsLocal.product();
+
+
+   ESHandle<EcalClusterEnergyCorrectionParameters> theParams;
+   iSetup.get<EcalClusterEnergyCorrectionParametersRcd>().get(theParams);
+   const EcalClusterEnergyCorrectionParameters *params = theParams.product();
 
 		
-		 int offset = 20;
-		 cout << "2+ offset" << (params->params())[2 + offset] << endl;
-		 cout << "3+ offset" << (params->params())[3 + offset] << endl;
-		 cout << "4+ offset" << (params->params())[4 + offset] << endl;
-		 cout << "5+ offset" << (params->params())[5 + offset] << endl;
-		 cout << "6+ offset" << (params->params())[6 + offset] << endl;
-		 cout << "7+ offset" << (params->params())[7 + offset] << endl;
-		 cout << "8+ offset" << (params->params())[8 + offset] << endl;
+		 int offset = 0;
+/*		cout << "offset= " << offset << endl;
+		for(int j = 2 ; j <= 20 ; j++ )
+		{
+		 cout << j << "+ offset= " << setprecision(10) << fixed << (params->params())[j + offset] << endl;
+		}
+
+		cout << endl << endl;
+		 offset = 20;
+		cout << "offset= " << offset << endl;
+		for(int j = 2 ; j <= 20 ; j++ )
+		{
+		 cout << j << "+ offset= " << (params->params())[j + offset] << endl;
+		}
+*/
+	cout << endl;
+	cout << "#################################################" << endl;
+	cout << "C(eta)" << endl;
+	cout << "#################################################" << endl;
+	for( int j = 0 ; j <= 1 ; j++ )
+	{
+		cout << setprecision(10) << fixed << (params->params())[j + offset] << ", ";
+	}
+
+	cout << endl;
+	cout << "#################################################" << endl;
+  cout << "f(brem), EB" << endl;
+  cout << "#################################################" << endl;
+	for( int j = 2 ; j <= 8 ; j++ )
+  {
+    cout << setprecision(10) << fixed << (params->params())[j + offset] << ", ";
+  }
+
+	cout << endl;
+	cout << "#################################################" << endl;
+  cout << "f(et, eta), EB" << endl;
+  cout << "#################################################" << endl;
+  for( int j = 9 ; j <= 19 ; j++ )
+  {
+    cout << setprecision(10) << fixed << (params->params())[j + offset] << ", ";
+  }
+
+	offset = 20;
+	cout << endl;
+	cout << "#################################################" << endl;
+  cout << "f(brem), EE" << endl;
+  cout << "#################################################" << endl;
+	for( int j = 2 ; j <= 8 ; j++ )
+  {
+    cout << setprecision(10) << fixed << (params->params())[j + offset] << ", ";
+  }
+
+	cout << endl;
+	cout << "#################################################" << endl;
+  cout << "f(et, eta), EE" << endl;
+  cout << "#################################################" << endl;
+  for( int j = 9 ; j <= 19 ; j++ )
+  {
+    cout << setprecision(10) << fixed << (params->params())[j + offset] << ", ";
+  }
+	cout << endl << endl;
+
+
+	cout << endl;
+	cout << endl;
+	cout << "#################################################" << endl;
+	cout << "#################################################" << endl;
+	cout << "#################################################" << endl;
+	cout << endl;
+	cout << "#################################################" << endl;
+  cout << "coefficients for eta side of an intermodule gap closer to the interaction point" << endl;
+	cout << "#################################################" << endl;
+	offset = 0;
+	for (int k=0; k!=5; ++k) cout << "(myParams->params())[" << k+offset << "]= " << (myParamsLocal->params())[k+offset] << endl;;
+	cout << endl;
+	cout << "#################################################" << endl;
+  cout << "coefficients for the other eta side" << endl;
+	cout << "#################################################" << endl;
+	offset = 5;
+	for (int k=0; k!=5; ++k) cout << "(myParams->params())[" << k+offset << "]= " << (myParamsLocal->params())[k+offset] << endl;;
+	cout << endl;
+	cout << "#################################################" << endl;
+	cout << "coefficients for one phi side of a SM" << endl;
+	cout << "#################################################" << endl;
+	offset = 10;
+	for (int k=0; k!=5; ++k) cout << "(myParams->params())[" << k+offset << "]= " << (myParamsLocal->params())[k+offset] << endl;;
+	cout << endl;
+	cout << "#################################################" << endl;
+	cout << "coefficients for the other side" << endl;
+	cout << "#################################################" << endl;
+	offset = 15;
+	for (int k=0; k!=5; ++k) cout << "(myParams->params())[" << k+offset << "]= " << (myParamsLocal->params())[k+offset] << endl;;
+
+
+
 }
 
 
