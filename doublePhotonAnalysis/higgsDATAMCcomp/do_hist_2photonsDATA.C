@@ -12,6 +12,11 @@ TString FloatToString(float number){
 	oss << number;
 	return oss.str();
 }
+TString IntToString(int number){
+	ostringstream oss;
+	oss << number;
+	return oss.str();
+}
 
 
 TChain *chain = new TChain("diPhotons");
@@ -141,49 +146,197 @@ int do_hist_2photonsDATA(){
 //TString etSelection = "pholead_pt>30&&photrail_pt>30";
 int theSelecType=1;
 TString prefixe;
-int nbCuts = 17;
-TString selection[17];
+int nbCuts = 6;
+TString selection[6];
 if (theSelecType==0){
-	prefixe = "loose1";
-	selection[0] = "(dipho_HLT_bit6>-1||dipho_HLT_bit16>-1)&&(abs(pholead_etaSC)<=2.5)&&(abs(photrail_etaSC)<=2.5)&&dipho_mgg>85";
-	selection[1] = 	"(!((abs(pholead_etaSC)>1.4442)&&(abs(pholead_etaSC)<1.566)))";
-	selection[2] = 	"(!((abs(photrail_etaSC)>1.4442)&&(abs(photrail_etaSC)<1.566)))";
-	selection[3] = 	"(((pholead_isEB==1)&&(pholead_sigieta<0.013))||((pholead_isEE==1)&&(pholead_sigieta<0.034)))";
-	selection[4] = 	"(((photrail_isEB==1)&&(photrail_sigieta<0.013))||((photrail_isEE==1)&&(photrail_sigieta<0.034)))";
-	selection[5] = 	"pholead_HasPixSeed==0";
-	selection[6] = 	"photrail_HasPixSeed==0";
-	selection[7] = 	"pholead_pt>40";
-	selection[8] = 	"photrail_pt>30";//30
-	selection[9] = 	"pholead_TrackerIso<2";
-	selection[10] = 	"photrail_TrackerIso<2";
-	selection[11] = 	"pholead_EcalIso<4.2";
-	selection[12] = 	"photrail_EcalIso<4.2";
-	selection[13] = 	"pholead_HcalIso<2.2";
-	selection[14] = 	"photrail_HcalIso<2.2";
-	selection[15] = 	"pholead_hoe<0.05";
-	selection[16] = 	"photrail_hoe<0.05";
+prefixe = "CIC";
+selection[0] = "(abs(pholead_etaSC)<=2.5)&&(abs(photrail_etaSC)<=2.5)&&dipho_mgg>85";
+selection[1] =  "(!((abs(pholead_etaSC)>1.4442)&&(abs(pholead_etaSC)<1.566)))";
+selection[2] =  "(!((abs(photrail_etaSC)>1.4442)&&(abs(photrail_etaSC)<1.566)))";
+selection[3] = "pholead_pt>40";
+selection[4] = "photrail_pt>30";
+//selection[5] = "pholead_pt>30 && (abs(pholead_eta)<=2.5)&&(!((abs(pholead_eta)>1.4442)&&(abs(pholead_eta)<1.566))) &&  pholead_TrackerIsodR03<(7.0+0.002*pholead_pt)&&photrail_EcalIsodR03<(8.2+0.012*pholead_pt)&&pholead_HcalIsodR03<(4.4+0.005*pholead_pt)&&((pholead_isEB==1&&pholead_sigieta<0.013)||(pholead_isEE==1&&pholead_sigieta<0.034))&&pholead_hoe<0.1&&photrail_pt>30 && (abs(photrail_eta)<=2.5)&&(!((abs(photrail_eta)>1.4442)&&(abs(photrail_eta)<1.566))) &&  photrail_TrackerIsodR03<(7.0+0.002*photrail_pt)&&photrail_EcalIsodR03<(8.2+0.012*photrail_pt)&&pholead_HcalIsodR03<(4.4+0.005*photrail_pt)&&((photrail_isEB==1&&photrail_sigieta<0.013)||(photrail_isEE==1&&photrail_sigieta<0.034))&&photrail_hoe<0.1&&event_nVertex>4&&event_nVertex<8";
+selection[5] = "((((pholead_isEB==1&&pholead_r9>0.94)&&(pholead_CICcombIsoRho<5.38&&pholead_CICtrackIso<2.95&&pholead_CICworstCombRho<5.07&&pholead_hoe<0.099&&pholead_sigieta<0.01097&&pholead_CICdR>1.0))||((pholead_isEB==1&&pholead_r9<0.94)&&(pholead_CICcombIsoRho<2.2&&pholead_CICtrackIso<2.2&&pholead_CICworstCombRho<3.4&&pholead_hoe<0.062&&pholead_sigieta<0.0097&&pholead_r9>0.36&&pholead_CICdR>0.062))||((pholead_isEE==1&&pholead_r9>0.94)&&(pholead_CICcombIsoRho<1.77&&pholead_CICtrackIso<2.3&&pholead_CICworstCombRho<3.9&&pholead_hoe<0.065&&pholead_sigieta<0.028&&pholead_CICdR>1.0))||((pholead_isEE==1&&pholead_r9<=0.94)&&(pholead_CICcombIsoRho<1.29&&pholead_CICtrackIso<1.45&&pholead_CICworstCombRho<1.84&&pholead_hoe<0.048&&pholead_sigieta<0.027&&pholead_r9>0.32&&pholead_CICdR>1.0)))&&(((photrail_isEB==1&&photrail_r9>0.94)&&(photrail_CICcombIsoRho<5.38&&photrail_CICtrackIso<2.95&&photrail_CICworstCombRho<5.07&&photrail_hoe<0.099&&photrail_sigieta<0.01097&&photrail_CICdR>1.0))||((photrail_isEB==1&&photrail_r9<0.94)&&(photrail_CICcombIsoRho<2.2&&photrail_CICtrackIso<2.2&&photrail_CICworstCombRho<3.4&&photrail_hoe<0.062&&photrail_sigieta<0.0097&&photrail_r9>0.36&&photrail_CICdR>0.062))||((photrail_isEE==1&&photrail_r9>0.94)&&(photrail_CICcombIsoRho<1.77&&photrail_CICtrackIso<2.3&&photrail_CICworstCombRho<3.9&&photrail_hoe<0.065&&photrail_sigieta<0.028&&photrail_CICdR>1.0))||((photrail_isEE==1&&photrail_r9<0.94)&&(photrail_CICcombIsoRho<1.29&&photrail_CICtrackIso<1.45&&photrail_CICworstCombRho<1.84&&photrail_hoe<0.048&&photrail_sigieta<0.027&&photrail_r9>0.32&&photrail_CICdR>1.0))))";
+// select CIC selection[5] = "((pholead_isEB==1&&(((pholead_r9>0.94)&&(pholead_CICcombIsoRho<3.8&&pholead_CICtrackIso<3.5&&pholead_CICworstCombRho<11.7&&pholead_hoe<0.082&&pholead_sigieta<0.0105&&pholead_CICdR>1.0))||((pholead_r9<0.94)&&(pholead_CICcombIsoRho<2.2&&pholead_CICtrackIso<2.2&&pholead_CICworstCombRho<3.4&&pholead_hoe<0.062&&pholead_sigieta<0.0097&&pholead_r9>0.36&&pholead_CICdR>0.062&&pholead_CICdR>1.0))))||((pholead_isEE==1&&(((pholead_r9>0.94)&&(pholead_CICcombIsoRho<1.77&&pholead_CICtrackIso<2.3&&pholead_CICworstCombRho<3.9&&pholead_hoe<0.065&&pholead_sigieta<0.028&&pholead_CICdR>1.0))||((pholead_r9<=0.94)&&(pholead_CICcombIsoRho<1.29&&pholead_CICtrackIso<1.45&&pholead_CICworstCombRho<1.84&&pholead_hoe<0.048&&pholead_sigieta<0.027&&pholead_r9>0.32&&pholead_CICdR>1.0))))))&&((photrail_isEB==1&&(((photrail_r9>0.94)&&(photrail_CICcombIsoRho<3.8&&photrail_CICtrackIso<3.5&&photrail_CICworstCombRho<11.7&&photrail_hoe<0.082&&photrail_sigieta<0.0105&&photrail_CICdR>1.0))||((photrail_r9<0.94)&&(photrail_CICcombIsoRho<2.2&&photrail_CICtrackIso<2.2&&photrail_CICworstCombRho<3.4&&photrail_hoe<0.062&&photrail_sigieta<0.0097&&photrail_r9>0.36&&photrail_CICdR>0.062))))||((photrail_isEE==1&&(((photrail_r9>0.94)&&(photrail_CICcombIsoRho<1.77&&photrail_CICtrackIso<2.3&&photrail_CICworstCombRho<3.9&&photrail_hoe<0.065&&photrail_sigieta<0.028&&photrail_CICdR>1.0))||((photrail_r9<0.94)&&(photrail_CICcombIsoRho<1.29&&photrail_CICtrackIso<1.45&&photrail_CICworstCombRho<1.84&&photrail_hoe<0.048&&photrail_sigieta<0.027&&photrail_r9>0.32&&photrail_CICdR>1.0))))))";
+//selection[5] =  "((pholead_isEB==1&&(((pholead_r9>0.94)&&(pholead_CICcombIsoRho<3.33281&&pholead_CICtrackIso<8.55045&&pholead_CICworstCombRho<3.69087&&pholead_hoe<0.0970634&&pholead_sigieta<0.0106105&&pholead_CICdR>1.0))||((pholead_r9<0.94)&&(pholead_CICcombIsoRho<2.19529&&pholead_CICtrackIso<2.18377&&pholead_CICworstCombRho<2.42234&&pholead_hoe<0.0333386&&pholead_sigieta<0.0101019&&pholead_r9>0.283491&&pholead_CICdR>0.062&&pholead_CICdR>1.0))))||((pholead_isEE==1&&(((pholead_r9>0.94)&&(pholead_CICcombIsoRho<3.77659&&pholead_CICtrackIso<1.94267&&pholead_CICworstCombRho<6.41493&&pholead_hoe<0.062406&&pholead_sigieta<0.0290648&&pholead_CICdR>1.0))||((pholead_r9<=0.94)&&(pholead_CICcombIsoRho<1.63838&&pholead_CICtrackIso<5.48653&&pholead_CICworstCombRho<1.78649&&pholead_hoe<0.0741057&&pholead_sigieta<0.0270351&&pholead_r9>0.171847))))))&&((photrail_isEB==1&&(((photrail_r9>0.94)&&(photrail_CICcombIsoRho<3.33281&&photrail_CICtrackIso<8.55045&&photrail_CICworstCombRho<3.69087&&photrail_hoe<0.0970634&&photrail_sigieta<0.0106105&&photrail_CICdR>1.0))||((photrail_r9<0.94)&&(photrail_CICcombIsoRho<2.19529&&photrail_CICtrackIso<2.18377&&photrail_CICworstCombRho<2.42234&&photrail_hoe<0.0333386&&photrail_sigieta<0.0101019&&photrail_r9>0.283491&&photrail_CICdR>0.062))))||((photrail_isEE==1&&(((photrail_r9>0.94)&&(photrail_CICcombIsoRho<3.77659&&photrail_CICtrackIso<1.94267&&photrail_CICworstCombRho<6.41493&&photrail_hoe<0.062406&&photrail_sigieta<0.0290648&&photrail_CICdR>1.0))||((photrail_r9<0.94)&&(photrail_CICcombIsoRho<1.63838&&photrail_CICtrackIso<5.48653&&photrail_CICworstCombRho<1.78649&&photrail_hoe<0.0741057&&photrail_sigieta<0.0270351&&photrail_r9>0.171847&&photrail_CICdR>1.0))))))";
+//selection[5] =  "pholead_isPassingCICRho==1&&photrail_isPassingCICRho==1";
 }
-else if (theSelecType==1){
-	prefixe = "romaRho";
-	selection[0] = 	"(dipho_HLT_bit6==1||dipho_HLT_bit16==1)&&(abs(pholead_etaSC)<=2.5)&&(abs(photrail_etaSC)<=2.5)";
-	selection[1] = "pholead_HasPixSeed==0";
-	selection[2] = "photrail_HasPixSeed==0";
-	selection[3] = 	"(((pholead_isEB==1)&&(pholead_TrackerIso<(0.834+0.548*event_rho+0.1*pholead_pt)))||((pholead_isEE==1)&&(pholead_TrackerIso<(0.887+0.525*event_rho+0.1*pholead_pt))))";
-	selection[4] = 	"(((photrail_isEB==1)&&(photrail_TrackerIso<(0.834+0.548*event_rho+0.1*photrail_pt)))||((photrail_isEE==1)&&(photrail_TrackerIso<(0.887+0.525*event_rho+0.1*photrail_pt))))";
-	selection[5] = 	"(((pholead_isEB==1)&&(pholead_EcalIso<(1.590+0.299*event_rho+0.6*pholead_pt)))||((pholead_isEE==1)&&(pholead_EcalIso<(0.832+0.192*event_rho+0.6*pholead_pt))))";
-	selection[6] = "(((photrail_isEB==1)&&(photrail_EcalIso<(1.590+0.299*event_rho+0.6*photrail_pt)))||((photrail_isEE==1)&&(photrail_EcalIso<(0.832+0.192*event_rho+0.6*photrail_pt))))";
-	selection[7] = "(((pholead_isEB==1)&&(pholead_HcalIso<(1.5+0.245*event_rho+0.1*pholead_pt)))||((pholead_isEE==1)&&(pholead_HcalIso<(1.25+0.275*event_rho+0.1*pholead_pt))))";
-	selection[8] = "(((photrail_isEB==1)&&(photrail_HcalIso<(1.5+0.245*event_rho+0.1*photrail_pt)))||((photrail_isEE==1)&&(photrail_HcalIso<(1.25+0.275*event_rho+0.1*photrail_pt))))";
-	selection[9] = "pholead_pt>40";
-	selection[10] = "photrail_pt>30";
-	selection[11] = "(((pholead_isEB==1)&&(pholead_sigieta<0.01))||((pholead_isEE==1)&&(pholead_sigieta<0.028)))";
-	selection[12] = "(((photrail_isEB==1)&&(photrail_sigieta<0.01))||((photrail_isEE==1)&&(photrail_sigieta<0.028)))";
-	selection[13] = "(((pholead_isEB==1)&&(pholead_hoe<(0.0196+0.001*event_rho)))||((pholead_isEE==1)&&(pholead_hoe<(0.0195+0.001*event_rho))))";
-	selection[14] = "(((photrail_isEB==1)&&(photrail_hoe<(0.0196+0.001*event_rho)))||((photrail_isEE==1)&&(photrail_hoe<(0.0195+0.001*event_rho))))";
-	selection[15] = "(!((abs(pholead_etaSC)>1.4442)&&(abs(pholead_etaSC)<1.566)))";
-	selection[16] = "(!((abs(photrail_etaSC)>1.4442)&&(abs(photrail_etaSC)<1.566)))";
+/*
+     TString cutEB ="&&pholead_isEB==1&&photrail_isEB==1";
+        TString cutEE = "(pholead_isEE==1&&photrail_isEE==1)";
+       TString cutMixte = "||((pholead_isEB==1&&photrail_isEE==1)||(pholead_isEE==1&&photrail_isEB==1))";
+        TString cutNotEB = "&&(!(pholead_isEB==1&&photrail_isEB==1))";
+
+
+TString CICvars[14] = {
+"(((pholead_CICcombIso*50/pholead_pt)-0.17*event_rho)*pholead_pt/50)","(((photrail_CICcombIso*50/photrail_pt)-0.17*event_rho)*photrail_pt/50)",
+"(((pholead_CICworstComb*50/pholead_pt)-0.52*event_rho)*pholead_pt/50)","(((photrail_CICworstComb*50/photrail_pt)-0.52*event_rho)*photrail_pt/50)",
+"pholead_CICtrackIso","photrail_CICtrackIso",
+"pholead_sigieta","photrail_sigieta",
+"pholead_hoe","photrail_hoe",
+"pholead_r9","photrail_r9",
+"pholead_CICdR","photrail_CICdR"
+};
+
+TString CICnom[14] = {
+"pholead_CICcombIso","photrail_CICcombIso",
+"pholead_CICworstComb","photrail_CICworstComb",
+"pholead_CICtrackIso","photrail_CICtrackIso",
+"pholead_sigieta","photrail_sigieta",
+"pholead_hoe","photrail_hoe",
+"pholead_r9","photrail_r9",
+"pholead_CICdR","photrail_CICdR"
+};
+
+
+float vcicST[7][4] = {
+  {3.8,     2.2,     1.77,   1.29},    // rel combIso (good vtx)                                
+  {11.7,    3.4,     3.9,    1.84},    // rel combIso (bad vtx)                                                   
+  {3.5,     2.2,     2.3,    1.45},    // trkIso (good vtx)                                                           
+  {0.0105,  0.0097,  0.028,  0.027},  // sigma_ie_ie                                                                  
+  {0.082,   0.062,   0.065,  0.048},  // H/E       
+  {0.94,    0.36,    0.94,   0.32},   // R9
+  {1.,      0.062,   0.97,   0.97},    // dR to trk
+};
+:
+TString NM1Cuts[7];
+for (int k=0 ; k < 7 ; k++){
+TString theCutCIC = "(";
+for (int i =0 ; i < 4 ; i++){
+	TString theCat = IntToString(i);
+	theCutCIC+= "(pholead_Cat=="+theCat;
+	for (int j = 0 ; j < 7 ; j++){
+		if (j==k) continue; 
+		TString theCut = FloatToString(vcicST[j][i]);
+		TString comparateur = "<";
+		if (j>4) comparateur = ">";
+		theCutCIC+= "&&("+CICvars[2*j] + comparateur + theCut+")";
+		cout << endl;
+	}
+	theCutCIC+=")||";
 }
-	
+theCutCIC+="0)&&(";
+for (int i =0 ; i < 4 ; i++){
+        TString theCat = IntToString(i);
+        theCutCIC+= "(photrail_Cat=="+theCat;
+        for (int j = 0 ; j < 7 ; j++){
+                if (j==k) continue; 
+                TString theCut = FloatToString(vcicST[j][i]);
+                TString comparateur = "<";
+                if (j>4) comparateur = ">";
+                theCutCIC+= "&&("+CICvars[2*j+1] + comparateur + theCut+")";
+                cout << endl;
+        }   
+        theCutCIC+=")||";
+}
+theCutCIC+="0)";
+cout << theCutCIC << endl;
+NM1Cuts[k] = "(abs(pholead_etaSC)<=2.5)&&(abs(photrail_etaSC)<=2.5)&&dipho_mgg>85&&(!((abs(pholead_etaSC)>1.4442)&&(abs(pholead_etaSC)<1.566)))&&(!((abs(photrail_etaSC)>1.4442)&&(abs(photrail_etaSC)<1.566)))&&pholead_pt>40&&photrail_pt>30&&"+theCutCIC;
+}
+
+TString theWholeCIC = "(";
+for (int i =0 ; i < 4 ; i++){
+        TString theCat = IntToString(i);
+        theWholeCIC+= "(pholead_Cat=="+theCat;
+        for (int j = 0 ; j < 7 ; j++){
+                TString theCut = FloatToString(vcicST[j][i]);
+                TString comparateur = "<";
+                if (j>4) comparateur = ">";
+                theWholeCIC+= "&&("+CICvars[2*j] + comparateur + theCut+")";
+                cout << endl;
+        }   
+        theWholeCIC+=")||";
+}
+theWholeCIC+="0)&&(";
+for (int i =0 ; i < 4 ; i++){
+        TString theCat = IntToString(i);
+        theWholeCIC+= "(photrail_Cat=="+theCat;
+        for (int j = 0 ; j < 7 ; j++){
+                TString theCut = FloatToString(vcicST[j][i]);
+                TString comparateur = "<";
+                if (j>4) comparateur = ">";
+                theWholeCIC+= "&&("+CICvars[2*j+1] + comparateur + theCut+")";
+                cout << endl;
+        }
+        theWholeCIC+=")||";
+}
+theWholeCIC+="0)";
+
+cout << "chole " << theWholeCIC << endl;
+TString totCut = "(abs(pholead_etaSC)<=2.5)&&(abs(photrail_etaSC)<=2.5)&&dipho_mgg>85&&(!((abs(pholead_etaSC)>1.4442)&&(abs(pholead_etaSC)<1.566)))&&(!((abs(photrail_etaSC)>1.4442)&&(abs(photrail_etaSC)<1.566)))&&pholead_pt>40&&photrail_pt>30&&"+ theWholeCIC;
+cout << "youhou the tot cut " << totCut << endl; 
+doHistoGeneTroisCutNoOverF("higgs2_rhoCor","dipho_mgg",80,150,35,totCut,myFile);
+return;
+float catAll[21] = {
+-2,6,32, //comb Iso
+-5,15,80, //worst comb iso
+0,3,30, // track iso 
+0,0.1,80, //sig ieta
+0,1.13,34, // HoE
+0.3,1,35, // R9
+0,0.07,35
+};
+
+float catCat0[21] = {
+-2,6,32, //comb Iso
+-5,15,80, //worst comb iso
+0,3,30, // track iso 
+0.005,0.016,33, //sig ieta
+0,1.13,34, // HoE
+0.94,1,30, // R9
+0,0.07,35
+};
+
+
+float catCat1[21] = {
+-2,6,32, //comb Iso
+-5,15,80, //worst comb iso
+0,3,30, // track iso 
+0.005,0.016,33, //sig ieta
+0,1.13,34, // HoE
+0.3,0.94,32, // R9
+0,0.07,35
+};
+
+float catCat2[21] = {
+-2,6,32, //comb Iso
+-5,15,80, //worst comb iso
+0,3,30, // track iso 
+0.018,0.038,40, //sig ieta
+0,1.13,34, // HoE
+0.94,1,30, // R9
+0,0.07,35
+};
+
+
+float catCat3[21] = {
+-2,6,32, //comb Iso
+-5,15,80, //worst comb iso
+0,3,30, // track iso 
+0.018,0.038,40, //sig ieta
+0,1.13,34, // HoE
+0.3,0.94,32, // R9
+0,0.07,35
+};
+
+
+
+for (int i = 0 ; i < 7 ; i++){
+	doHistoGeneTroisCut(CICnom[2*i], CICvars[2*i],catAll[3*i],catAll[3*i+1], catAll[3*i+2],  NM1Cuts[i], myFile);
+	doHistoGeneTroisCut(CICnom[2*i]+"_cat0", CICvars[2*i],catCat0[3*i],catCat0[3*i+1], catCat0[3*i+2],  NM1Cuts[i]+"&&pholead_Cat==0", myFile);
+	doHistoGeneTroisCut(CICnom[2*i]+"_cat1", CICvars[2*i],catCat1[3*i],catCat1[3*i+1], catCat1[3*i+2],  NM1Cuts[i]+"&&pholead_Cat==1", myFile);
+	doHistoGeneTroisCut(CICnom[2*i]+"_cat2", CICvars[2*i],catCat2[3*i],catCat2[3*i+1], catCat2[3*i+2],  NM1Cuts[i]+"&&pholead_Cat==2", myFile);
+	doHistoGeneTroisCut(CICnom[2*i]+"_cat3", CICvars[2*i],catCat3[3*i],catCat3[3*i+1], catCat3[3*i+2],  NM1Cuts[i]+"&&pholead_Cat==3", myFile);
+
+
+	doHistoGeneTroisCut(CICnom[2*i+1], CICvars[2*i+1],catAll[3*i],catAll[3*i+1], catAll[3*i+2],  NM1Cuts[i], myFile);
+	doHistoGeneTroisCut(CICnom[2*i+1]+"_cat0", CICvars[2*i+1],catCat0[3*i],catCat0[3*i+1], catCat0[3*i+2],  NM1Cuts[i]+"&&pholead_Cat==0", myFile);
+	doHistoGeneTroisCut(CICnom[2*i+1]+"_cat1", CICvars[2*i+1],catCat1[3*i],catCat1[3*i+1], catCat1[3*i+2],  NM1Cuts[i]+"&&pholead_Cat==1", myFile);
+	doHistoGeneTroisCut(CICnom[2*i+1]+"_cat2", CICvars[2*i+1],catCat2[3*i],catCat2[3*i+1], catCat2[3*i+2],  NM1Cuts[i]+"&&pholead_Cat==2", myFile);
+	doHistoGeneTroisCut(CICnom[2*i+1]+"_cat3", CICvars[2*i+1],catCat3[3*i],catCat3[3*i+1], catCat3[3*i+2],  NM1Cuts[i]+"&&pholead_Cat==3", myFile);
+}
+return;*/
+
 	int nbVars = 29;
 	TString varsToPlot[29]  = {
 		"dipho_mgg",
@@ -254,7 +407,6 @@ else if (theSelecType==1){
 	
 	
 	
-	
 	//printAllCutFlow(selection, nbCuts);
 	
 	TString allTheCuts = "1";
@@ -266,19 +418,19 @@ else if (theSelecType==1){
 			TString nom = varsToPlot[j] + "_" + prefixe + Form("Cut%i",i);
 			cout << allTheCuts << endl;
 		//	doHistoGeneTroisCut(Form("higgsTest_Cut%i",i),"dipho_mgg",90,150,60,allTheCuts,myFile);
-		//	doHistoGeneTroisCut(nom,varsToPlot[j],bining[j*3],bining[j*3+1],bining[j*3+2],allTheCuts,myFile);
+//			doHistoGeneTroisCut(nom,varsToPlot[j],bining[j*3],bining[j*3+1],bining[j*3+2],allTheCuts,myFile);
 
 			cout << "apres" << endl;
 		}
 		
 	}
-	doHistoGeneTroisCut("vertex","event_nVertex",0,20,20,allTheCuts,myFile);
+	//doHistoGeneTroisCut("vertex","event_nVertex",0,20,20,allTheCuts,myFile);
 	
-	doHistoGeneTroisCutNoOverF("higgs1_"+prefixe,"dipho_mgg",70,150,80,allTheCuts,myFile);
+//	doHistoGeneTroisCutNoOverF("higgs1_"+prefixe,"dipho_mgg",70,150,80,allTheCuts,myFile);
 	doHistoGeneTroisCutNoOverF("higgs2_"+prefixe,"dipho_mgg",80,150,35,allTheCuts,myFile);
-	doHistoGeneTroisCutNoOverF("higgs3_"+prefixe,"dipho_mgg",90,150,20,allTheCuts,myFile);
-	doHistoGeneTroisCutNoOverF("higgs4_"+prefixe,"dipho_mgg",90,150,15,allTheCuts,myFile);
-	doHistoGeneTroisCutNoOverF("higgs5_"+prefixe,"dipho_mgg",80,150,14,allTheCuts,myFile);
+//	doHistoGeneTroisCutNoOverF("higgs3_"+prefixe,"dipho_mgg",90,150,20,allTheCuts,myFile);
+//	doHistoGeneTroisCutNoOverF("higgs4_"+prefixe,"dipho_mgg",90,150,15,allTheCuts,myFile);
+//	doHistoGeneTroisCutNoOverF("higgs5_"+prefixe,"dipho_mgg",80,150,14,allTheCuts,myFile);
 
 	
 /*	TString allTheCutsNN = allTheCuts + "&&dipho_minNNshape>0.7";
@@ -328,38 +480,47 @@ else if (theSelecType==1){
        TString cutMixte = "||((pholead_isEB==1&&photrail_isEE==1)||(pholead_isEE==1&&photrail_isEB==1))";
         TString cutNotEB = "&&(!(pholead_isEB==1&&photrail_isEB==1))";
 
-        doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"_cat0","dipho_mgg",100,150,25,allTheCuts+cutEB+"&&dipho_minR9>0.94",myFile);
+  /*      doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"_cat0","dipho_mgg",100,150,25,allTheCuts+cutEB+"&&dipho_minR9>0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"_cat1","dipho_mgg",100,150,25,allTheCuts+cutEB+"&&dipho_minR9<0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"_cat2","dipho_mgg",100,150,25,allTheCuts+cutNotEB+"&&dipho_minR9>0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"_cat3","dipho_mgg",100,150,25,allTheCuts+cutNotEB+"&&dipho_minR9<0.94",myFile);
-
+*/
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"L_cat0","dipho_mgg",80,150,35,allTheCuts+cutEB+"&&dipho_minR9>0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"L_cat1","dipho_mgg",80,150,35,allTheCuts+cutEB+"&&dipho_minR9<0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"L_cat2","dipho_mgg",80,150,35,allTheCuts+cutNotEB+"&&dipho_minR9>0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"L_cat3","dipho_mgg",80,150,35,allTheCuts+cutNotEB+"&&dipho_minR9<0.94",myFile);
-
+/*	
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"B_cat0","dipho_mgg",100,150,200,allTheCuts+cutEB+"&&dipho_minR9>0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"B_cat1","dipho_mgg",100,150,200,allTheCuts+cutEB+"&&dipho_minR9<0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"B_cat2","dipho_mgg",100,150,200,allTheCuts+cutNotEB+"&&dipho_minR9>0.94",myFile);
         doHistoGeneTroisCutNoOverF("higgs2_"+prefixe+"B_cat3","dipho_mgg",100,150,200,allTheCuts+cutNotEB+"&&dipho_minR9<0.94",myFile);
 
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"_cat0","dipho_mgg",100,150,25,allTheCuts+cutEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.7",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"_cat1","dipho_mgg",100,150,25,allTheCuts+cutEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.51",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"_cat2","dipho_mgg",100,150,25,allTheCuts+cutNotEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.6",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"_cat3","dipho_mgg",100,150,25,allTheCuts+cutNotEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.31",myFile);
 
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"L_cat0","dipho_mgg",80,150,35,allTheCuts+cutEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.61",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"L_cat1","dipho_mgg",80,150,35,allTheCuts+cutEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.37",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"L_cat2","dipho_mgg",80,150,35,allTheCuts+cutNotEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.0",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"L_cat3","dipho_mgg",80,150,35,allTheCuts+cutNotEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.26",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"_cat0","dipho_mgg",100,150,25,allTheCuts+cutEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.65",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"_cat1","dipho_mgg",100,150,25,allTheCuts+cutEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.30",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"_cat2","dipho_mgg",100,150,25,allTheCuts+cutNotEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.15",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"_cat3","dipho_mgg",100,150,25,allTheCuts+cutNotEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.12",myFile);
 
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"B_cat0","dipho_mgg",100,150,200,allTheCuts+cutEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.7",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"B_cat1","dipho_mgg",100,150,200,allTheCuts+cutEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.51",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"B_cat2","dipho_mgg",100,150,200,allTheCuts+cutNotEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.6",myFile);
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"B_cat3","dipho_mgg",100,150,200,allTheCuts+cutNotEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.31",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"L_cat0","dipho_mgg",80,150,35,allTheCuts+cutEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.65",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"L_cat1","dipho_mgg",80,150,35,allTheCuts+cutEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.30",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"L_cat2","dipho_mgg",80,150,35,allTheCuts+cutNotEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.15",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"L_cat3","dipho_mgg",80,150,35,allTheCuts+cutNotEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.12",myFile);
 
-        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe,"dipho_mgg",80,150,35,allTheCuts+"&&(1"+cutEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.7||1"+cutEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.51||1"+cutNotEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.6||1"+cutNotEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.31)",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"B_cat0","dipho_mgg",100,150,200,allTheCuts+cutEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.65",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"B_cat1","dipho_mgg",100,150,200,allTheCuts+cutEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.30",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"B_cat2","dipho_mgg",100,150,200,allTheCuts+cutNotEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.15",myFile);
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe+"B_cat3","dipho_mgg",100,150,200,allTheCuts+cutNotEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.12",myFile);
 
+
+
+        doHistoGeneTroisCutNoOverF("higgs2NN_"+prefixe,"dipho_mgg",80,150,35,allTheCuts+"&&(1"+cutEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.65||1"+cutEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.30||1"+cutNotEB+"&&dipho_minR9>0.94&&dipho_minNNshape>0.15||1"+cutNotEB+"&&dipho_minR9<0.94&&dipho_minNNshape>0.12)",myFile);
+
+        doHistoGeneTroisCutNoOverF("minNN_"+prefixe,"dipho_minNNshape",-0.2,1.2,40,allTheCuts,myFile);
+
+        doHistoGeneTroisCutNoOverF("minNN_"+prefixe+"_cat0","dipho_minNNshape",-0.2,1.2,40,allTheCuts+cutEB+"&&dipho_minR9>0.94",myFile);
+        doHistoGeneTroisCutNoOverF("minNN_"+prefixe+"_cat1","dipho_minNNshape",-0.2,1.2,40,allTheCuts+cutEB+"&&dipho_minR9<0.94",myFile);
+        doHistoGeneTroisCutNoOverF("minNN_"+prefixe+"_cat2","dipho_minNNshape",-0.2,1.2,40,allTheCuts+cutNotEB+"&&dipho_minR9>0.94",myFile);
+        doHistoGeneTroisCutNoOverF("minNN_"+prefixe+"_cat3","dipho_minNNshape",-0.2,1.2,40,allTheCuts+cutNotEB+"&&dipho_minR9<0.94",myFile);
 
 
 /*      doHistoGeneTroisCut("minr9","dipho_minR9",0,1.2,40,allTheCuts,myFile);
