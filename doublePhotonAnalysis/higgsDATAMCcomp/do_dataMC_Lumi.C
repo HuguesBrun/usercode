@@ -15,17 +15,15 @@ float giveTheMax(float nb1, float nb2){
 float intLumi = 1143;
 
 TFile *myFileDATA = new TFile("diphoFile_DATA.root");
+TFile *myFileDiPhotonJet = new TFile("diphoFile_DiPhotonJet.root");
 TFile *myFileDiPhoBox10to25 = new TFile("diphoFile_diPhoBox10to25.root");
 TFile *myFileDiPhoBox25to250 = new TFile("diphoFile_diPhoBox25to250.root");
 TFile *myFileDiPhoBox250toInf = new TFile("diphoFile_DiPhoBox250toInf.root");
-TFile *myFileDiPhoBorn10to25 = new TFile("diphoFile_diPhoBorn10to25.root");
-TFile *myFileDiPhoBorn25to250 = new TFile("diphoFile_diPhoBorn25to250.root");
-TFile *myFileDiPhoBorn250toInf = new TFile("diphoFile_DiPhoBorn250toInf.root");
 TFile *myFileGammaJet = new TFile("diphoFile_GJetPt20.root");
 TFile *myFileQCDEnriched30 = new TFile("diphoFile_QCDPt30to40doubleEMEnriched.root");
 TFile *myFileQCDEnriched40 = new TFile("diphoFile_QCDPt40doubleEMEnriched.root");
 TFile *myFileWtoENu = new TFile("diphoFile_WtoENu.root");
-TFile *myFiledrellYann = new TFile("diphoFile_DY.root");
+TFile *myFiledrellYann = new TFile("diphoFile_DYJetsToLL.root");
 TFile *myFileHiggsGG = new TFile("diphoFile_GluGluToHToGGM115.root");
 TFile *myFileHiggsWHZHH = new TFile("diphoFile_WHZHHToGGM115.root");
 TFile *myFileHiggsTTHH = new TFile("diphoFile_TTHHToGGM115.root");
@@ -44,22 +42,20 @@ int plotTheHisto(TString nomHisto, TString theXtitle, TString theYtitle){
 	int NbDATA = histoDATA->Integral();
 	float sigmaDATA = sqrt(NbDATA);
 //File *myFile;
-	float weights[15] = {
-		358.20/528400, //diphoton Box
-		12.37/518288,
-		0.000208/515028,
-		236.40/505456, // diphoton Born
-		22.37/532864, 
-		0.008072/525509,
+	float weights[13] = {
+        154.7/1115800,
+		358.20/528400*1.13, //diphoton Box
+		12.37/518288*1.13,
+		0.000208/515028*1.13,
 		501.15/6757937, // gammaJet
 		10868.00/6074670, // QCD double EM enreiched
 		43571.00/39387002, 
 		7899.00/2224253, //W->e nu
-		1300.00/2224253, //Drell yann
-		0.038617/109989, // Higgs GLuon fusion
-		0.002482/102290, // Higgs strallung
-		0.000236/22000, // Higgs TT
-		0.002837/109828 // Higgs VBF
+		2475.00/20970461, //Drell yann
+		18.13*0.00213/109989, // Higgs GLuon fusion
+		0.7546*0.00213/102290, // Higgs strallung
+		0.4107*0.00213/22000, // Higgs TT
+		1.332*0.00213/109854 // Higgs VBF
     };  
 	TH1F *histoPrompt;
 	TH1F *histoISRFSR;
@@ -86,54 +82,48 @@ int plotTheHisto(TString nomHisto, TString theXtitle, TString theYtitle){
 	float NTotalLumi = 0;
 	float NHiggsLumi= 0;
 	float sigmaTwoReal, sigmaOneRealOneFake, sigmaTwoFake, sigmaTotal, sigmaHiggs sigmaDY;
-	for (int i = 0 ; i < 15 ; i ++){
+	for (int i = 0 ; i < 13 ; i ++){
 	//cout << "i = " << i << endl;
 	//	if (i==2) continue;
 		switch (i) { 
 	
 		case 0 : 
-			myFile = myFileDiPhoBox10to25;
+			myFile = myFileDiPhotonJet;
 			break;
-		case 1 : 
-			myFile = myFileDiPhoBox25to250;
-			break;
-		case 2 : 
-			myFile = myFileDiPhoBox250toInf;
-			break;
-		case 3 : 
-			myFile = myFileDiPhoBorn10to25;
+        case 1 : 
+            myFile = myFileDiPhoBox10to25;
+            break;
+        case 2 : 
+            myFile = myFileDiPhoBox25to250;
+            break;
+        case 3 : 
+            myFile = myFileDiPhoBox250toInf;
 			break;
 		case 4 : 
-			myFile = myFileDiPhoBorn25to250;
-			break;
-		case 5 : 
-			myFile = myFileDiPhoBorn250toInf;
-			break;
-		case 6 : 
 			myFile = myFileGammaJet;
 			break;
-		case 7 :
+		case 5 :
 			myFile = myFileQCDEnriched30;
 			break;
-		case 8 : 
+		case 6 : 
 			myFile = myFileQCDEnriched40;
 			break;
-		case 9 :
+		case 7 :
 			myFile = myFileWtoENu;
 			break;
-		case 10 : 
+		case 8 : 
 			myFile = myFiledrellYann;
 			break;
-		case 11 :
+		case 9 :
 			myFile = myFileHiggsGG;
 			break;
-		case 12 :
+		case 10 :
 			myFile = myFileHiggsWHZHH;
 			break;
-		case 13 :
+		case 11 :
 			myFile = myFileHiggsTTHH;
 			break;
-		case 14 :
+		case 12 :
 			myFile = myFileHiggsVBFH;
 			break;
 
@@ -141,7 +131,7 @@ int plotTheHisto(TString nomHisto, TString theXtitle, TString theYtitle){
 		TH1F *histoHiggsLocal;  TH1F *histoISRFSRLocal; TString theNomfake;
 		TH1F *histoDYLocal0; TH1F *histoDYLocal1; TH1F *histoDYLocal2;
 		TH1F *histoPromptLocal;
-		if (i>10) {
+		if (i>8) {
 			cout << "coucou le nom " << theNom << "i " << i<< endl;
 			TString theNomPrompt = theNom + "_TwoReal";
 			histoHiggsLocal = (TH1F*) myFile->Get(theNomPrompt);
@@ -149,7 +139,7 @@ int plotTheHisto(TString nomHisto, TString theXtitle, TString theYtitle){
 			SigmaHiggs += histoHiggsLocal->Integral()*weights[i]*weights[i];
 			cout << "N Higgs " << NHiggs << endl;
 		}
-		else if  (i==10){
+		else if  (i==8){
 			cout << "coucou le nom " << theNom << "i " << i<< endl;
 			TString theNomPrompt = theNom + "_TwoReal";
 			
@@ -191,19 +181,19 @@ int plotTheHisto(TString nomHisto, TString theXtitle, TString theYtitle){
 		
  	//	cout << "sous somme = " << (histoPromptLocal->Integral()+histoISRFSRLocal->Integral()+histofakeLocal->Integral()) << endl;
 		
-		if (i>10) histoHiggs->Add(histoHiggsLocal,weights[i]);
-		else if (i == 10 ){ histoDY->Add(histoDYLocal0,weights[i]); histoDY->Add(histoDYLocal1,weights[i]); histoDY->Add(histoDYLocal2,weights[i]);}
+		if (i>8) histoHiggs->Add(histoHiggsLocal,weights[i]);
+		else if (i == 8 ){ histoDY->Add(histoDYLocal0,weights[i]); histoDY->Add(histoDYLocal1,weights[i]); histoDY->Add(histoDYLocal2,weights[i]);}
 		else {histoPrompt->Add(histoPromptLocal,weights[i]); histoISRFSR->Add(histoISRFSRLocal,weights[i]); histofake->Add(histofakeLocal,weights[i]);}
 		delete histoPromptLocal; delete histoISRFSRLocal; delete histofakeLocal; delete histoHiggsLocal; delete histoDYLocal0; delete histoDYLocal1; delete histoDYLocal2;
 //		 delete myFile;
 	}	
 	NTotal = NTwoReal + NOneRealOneFake + NTwoFake + NHiggs+ NDY;
 
-	NTwoRealLumi = NTwoReal*intLumi*1.33;
+	NTwoRealLumi = NTwoReal*intLumi*1.15;
 	NOneRealOneFakeLumi = NOneRealOneFake*intLumi*1.33;
 	NTwoFakeLumi = NTwoFake*intLumi;
 	NHiggsLumi = NHiggs*intLumi;
-	NDYLumi = NDY*intLumi*1.15;
+	NDYLumi = NDY*intLumi;
 	NTotalLumi = NTwoRealLumi + NOneRealOneFakeLumi + NTwoFakeLumi + NDYLumi;
 	
 	sigmaTwoRealLumi = sqrt(SigmaTwoReal)*intLumi;
@@ -252,11 +242,11 @@ int plotTheHisto(TString nomHisto, TString theXtitle, TString theYtitle){
 
 	/// here put the 
 	    cout << "coeff : " << coeff << endl;
-        histoPrompt->Scale(intLumi*1.3);
+        histoPrompt->Scale(intLumi*1.15);
         histoISRFSR->Scale(intLumi*1.3);
         histofake->Scale(intLumi);
 		histoHiggs->Scale(intLumi*1);
-		histoDY->Scale(intLumi*1.15);
+		histoDY->Scale(intLumi*1);
 
         TH1F *bas = new TH1F("bas","",histoPrompt->GetXaxis()->GetNbins(),histoPrompt->GetXaxis()->GetXmin(),histoPrompt->GetXaxis()->GetXmax());
         TH1F *milieu = new TH1F("milieu","",histoPrompt->GetXaxis()->GetNbins(),histoPrompt->GetXaxis()->GetXmin(),histoPrompt->GetXaxis()->GetXmax());
@@ -548,25 +538,30 @@ for (int i = 6 ; i < 7 ; i++){
 		}	
 	}*/
 
-	plotTheHisto("vertex","nb of vertex","Events");
+//	plotTheHisto("vertex","nb of vertex","Events");
 	
-	plotTheHisto("higgs1_CIC","M_{#gamma #gamma} (GeV)","Events / GeV");
+	//plotTheHisto("higgs1_CIC","M_{#gamma #gamma} (GeV)","Events / GeV");
 	plotTheHisto("higgs2_CIC","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
-	plotTheHisto("higgs3_CIC","M_{#gamma #gamma} (GeV)","Events / 3 GeV");
-	plotTheHisto("higgs4_CIC","M_{#gamma #gamma} (GeV)","Events / 4 GeV");
-	plotTheHisto("higgs5_CIC","M_{#gamma #gamma} (GeV)","Events / 5 GeV");
+	//plotTheHisto("higgs3_CIC","M_{#gamma #gamma} (GeV)","Events / 3 GeV");
+//	plotTheHisto("higgs4_CIC","M_{#gamma #gamma} (GeV)","Events / 4 GeV");
+///	plotTheHisto("higgs5_CIC","M_{#gamma #gamma} (GeV)","Events / 5 GeV");
+	
+/*	plotTheHisto("higgs2_CICL_cat0","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
+	plotTheHisto("higgs2_CICL_cat1","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
+	plotTheHisto("higgs2_CICL_cat2","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
+	plotTheHisto("higgs2_CICL_cat3","M_{#gamma #gamma} (GeV)","Events / 2 GeV");*/	
+    
+   plotTheHisto("higgs2_CICL_cat0","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
+	plotTheHisto("higgs2_CICL_cat1","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
+	plotTheHisto("higgs2_CICL_cat2","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
+	plotTheHisto("higgs2_CICL_cat3","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
 	
 	plotTheHisto("higgs2_CIC_cat0","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
 	plotTheHisto("higgs2_CIC_cat1","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
 	plotTheHisto("higgs2_CIC_cat2","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
 	plotTheHisto("higgs2_CIC_cat3","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
-    
-    plotTheHisto("higgs2_CICL_cat0","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
-	plotTheHisto("higgs2_CICL_cat1","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
-	plotTheHisto("higgs2_CICL_cat2","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
-	plotTheHisto("higgs2_CICL_cat3","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
 	
-	plotTheHisto("higgs2NN_CIC_cat0","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
+/*	plotTheHisto("higgs2NN_CIC_cat0","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
 	plotTheHisto("higgs2NN_CIC_cat1","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
 	plotTheHisto("higgs2NN_CIC_cat2","M_{#gamma #gamma} (GeV)","Events / 2 GeV");	
 	plotTheHisto("higgs2NN_CIC_cat3","M_{#gamma #gamma} (GeV)","Events / 2 GeV");
@@ -577,7 +572,7 @@ for (int i = 6 ; i < 7 ; i++){
     plotTheHisto("minNN_CIC_cat0","min NN output", "Events / 0.05 GeV");
     plotTheHisto("minNN_CIC_cat1","min NN output", "Events / 0.05 GeV");
     plotTheHisto("minNN_CIC_cat2","min NN output", "Events / 0.05 GeV");
-    plotTheHisto("minNN_CIC_cat3","min NN output", "Events / 0.05 GeV");
+    plotTheHisto("minNN_CIC_cat3","min NN output", "Events / 0.05 GeV");*/
 
 	
 /*	plotTheHisto("higgs1_romaRho","M_{#gamma #gamma} (GeV)","Events / GeV");
