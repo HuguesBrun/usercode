@@ -53,7 +53,7 @@ TChain *inputRunTree = new TChain("runTree");
 
 //string ListWantedHLTnames[18] = {"HLT_DoublePhoton33_v3","HLT_Photon125_NoSpikeFilter_v3","HLT_Photon20_CaloIdVL_IsoL_v2","HLT_Photon20_R9Id_Photon18_R9Id_v3","HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v3","HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v2","HLT_Photon26_CaloIdL_IsoVL_Photon18_v3","HLT_Photon26_IsoVL_Photon18_IsoVL_v3","HLT_Photon26_IsoVL_Photon18_v3","HLT_Photon26_Photon18_v3","HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v2","HLT_Photon30_CaloIdVL_IsoL_v3","HLT_Photon30_CaloIdVL_v3","HLT_Photon32_CaloIdL_Photon26_CaloIdL_v3","HLT_Photon36_CaloIdL_Photon22_CaloIdL_v2","HLT_Photon50_CaloIdVL_IsoL_v2","HLT_Photon75_CaloIdVL_IsoL_v3","HLT_Photon75_CaloIdVL_v3"};
 
-/*string ListWantedHLTnames[34] = { // Run2011 1e33 v1.3 
+string ListWantedHLTnames[34] = { // Run2011 1e33 v1.3 
 "HLT_DoubleEle33_CaloIdL_v1",
 "HLT_DoubleEle33_v1",
 "HLT_DoublePhoton33_HEVT_v1",
@@ -88,7 +88,7 @@ TChain *inputRunTree = new TChain("runTree");
 "HLT_Photon75_CaloIdVL_v4",
 "HLT_Photon90_CaloIdVL_IsoL_v1",
 "HLT_Photon90_CaloIdVL_IsoL_v1"
-};*/
+};
 
 /*
 string ListWantedHLTnames[38] = { // Run2011 1e33 v2.3
@@ -177,7 +177,7 @@ string ListWantedHLTnames[38] = { // Run2011 1e33 v2.3
 //string ListWantedHLTnames[12] = {"HLT_DoublePhoton22_L1R_v1","HLT_DoublePhoton17_SingleIsol_L1R_v1","HLT_Photon20_Cleaned_L1R","HLT_Photon30_Cleaned_L1R","HLT_Photon40_Isol_Cleaned_L1R_v1","HLT_DoublePhoton5_CEP_L1R_v3","HLT_Photon110_NoHE_Cleaned_L1R_v1","HLT_Photon17_Isol_SC17HE_L1R_v1","HLT_Photon22_SC22HE_L1R_v1","HLT_Photon40_CaloId_Cleaned_L1R_v1","HLT_Photon50_Cleaned_L1R_v1","HLT_Photon70_Cleaned_L1R_v1"};
 
 
-string ListWantedHLTnames[19] = { // /online/collisions/2011/5e32/v6.2/HLT/V3 
+/*string ListWantedHLTnames[19] = { // /online/collisions/2011/5e32/v6.2/HLT/V3 
 "HLT_DoublePhoton33_v2",
 "HLT_DoublePhoton5_IsoVL_CEP_v1",
 "HLT_Photon125_NoSpikeFilter_v2",
@@ -197,9 +197,9 @@ string ListWantedHLTnames[19] = { // /online/collisions/2011/5e32/v6.2/HLT/V3
 "HLT_Photon50_CaloIdVL_IsoL_v1",
 "HLT_Photon75_CaloIdVL_IsoL_v2",
 "HLT_Photon75_CaloIdVL_v2"
-};
+};*/
 
-int nbHlt = 19; 
+int nbHlt = 34; 
 
 
 float secondPhotonCut = 20.0;

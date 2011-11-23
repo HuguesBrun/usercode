@@ -409,7 +409,10 @@ void beginMacro(){
 		myTree_->Branch("pho_CICtrackIso",&pho_CICtrackIso,"pho_CICtrackIso/F");
 		myTree_->Branch("pho_CICworstComb",&pho_CICworstComb,"pho_CICworstComb/F");
 		myTree_->Branch("pho_CICdR",&pho_CICdR,"pho_CICdR/F");
-
+		myTree_->Branch("pho_isPassingCICRho",&pho_isPassingCICRho,"pho_isPassingCICRho/I");
+		myTree_->Branch("pho_CICcombIsoRho",&pho_CICcombIsoRho,"pho_CICcombIsoRho/F");
+		myTree_->Branch("pho_CICworstCombRho",&pho_CICworstCombRho,"pho_CICworstCombRho/F");
+		myTree_->Branch("pho_etWorstVertex",&pho_etWorstVertex,"pho_etWorstVertex/F");
 
 }
 
@@ -781,15 +784,25 @@ int main(){
 			//CIC value
 			TRootVertex* theBestVertex= (TRootVertex*) vertices->At(0); 
 			pho_Cat = findThePhoCat(*myphoton);
-			pho_CICcombIso = (myphoton->dR03IsolationEcalRecHit() + myphoton->dR04IsolationHcalRecHit() +  localtrackIsolationCIC(*theBestVertex, tracks, *myphoton, *beamSpot, 0.3))*50.0/myphoton->Et();
+			float combIso =(myphoton->dR03IsolationEcalRecHit() + myphoton->dR04IsolationHcalRecHit() +  localtrackIsolationCIC(*theBestVertex, tracks, *myphoton, *beamSpot, 0.3));
+			pho_CICcombIso = combIso*50.0/myphoton->Et();
+			pho_CICcombIsoRho = (combIso-pho_rho*0.17)*50.0/myphoton->Et();
 		        TRootVertex theWorstVertex;
        			 TRootPhoton thePhotonWithWorstVertex = *myphoton;
-			pho_CICworstComb = (myphoton->dR04IsolationEcalRecHit() + myphoton->dR04IsolationHcalRecHit() + calcWorstTrackIsolationCIC(vertices, tracks, *myphoton, *beamSpot, &theWorstVertex))*50;
+			float worstCombIso = (myphoton->dR04IsolationEcalRecHit() + myphoton->dR04IsolationHcalRecHit() + calcWorstTrackIsolationCIC(vertices, tracks, *myphoton, *beamSpot, &theWorstVertex));
+			pho_CICworstComb = worstCombIso*50;
 			TVector3 theWorstCoords(theWorstVertex.x(), theWorstVertex.y(), theWorstVertex.z());
         		thePhotonWithWorstVertex.setVertex(theWorstCoords);
 			pho_CICworstComb = pho_CICworstComb / thePhotonWithWorstVertex.Et();
+			pho_CICworstCombRho = (worstCombIso-0.52*pho_rho)*50/ thePhotonWithWorstVertex.Et();
+			pho_etWorstVertex = thePhotonWithWorstVertex.Et();
 			pho_CICtrackIso = (localtrackIsolation(*theBestVertex, tracks, *myphoton, *beamSpot,0.3))*50.0/myphoton->Et();// iso track calc with the selected vertex
 			pho_CICdR = dRtoTrack(*myphoton, electrons);
+			pho_isPassingCICRho = photonIsPassingCICrho(*myphoton, vertices, tracks, *beamSpot, electrons, &CICstop, thePhotonCat, pho_rho); 
+
+
+			
+
 			myTree_->Fill();
 
 		}

@@ -431,15 +431,16 @@ int cat = -1;
 return cat;
 }
 double dRtoTrack(TRootPhoton thePhoton, TClonesArray* electrons){
-	float theMinDr = 99;
+	float theMinDr = 99.;
 	float theDr;
 	for (int iTrack = 0 ; iTrack < electrons->GetEntriesFast() ; iTrack++){
 		TRootElectron *theLocalElectron = (TRootElectron*) electrons->At(iTrack);
 		if (theLocalElectron->trackMissedInnerLayers() > 0 ) continue;
 		//if (fabs(thePhoton.superCluster()->Phi() - theLocalElectron->theSCphi())>0.01) continue;
 		//if (fabs(thePhoton.superCluster()->Eta() - theLocalElectron->theSCeta())>0.01) continue;
-		float deltaCalo = sqrt((thePhoton.caloPosition().X()-theLocalElectron->caloPosition().X())*(thePhoton.caloPosition().X()-theLocalElectron->caloPosition().X())+(thePhoton.caloPosition().Y()-theLocalElectron->caloPosition().Y())*(thePhoton.caloPosition().Y()-theLocalElectron->caloPosition().Y())+(thePhoton.caloPosition().Z()-theLocalElectron->caloPosition().Z())*(thePhoton.caloPosition().Z()-theLocalElectron->caloPosition().Z()));
-		if (deltaCalo > 0.0001 ) continue; //no matching between the electrons and the photon :( 
+//		float deltaCalo = sqrt((thePhoton.caloPosition().X()-theLocalElectron->caloPosition().X())*(thePhoton.caloPosition().X()-theLocalElectron->caloPosition().X())+(thePhoton.caloPosition().Y()-theLocalElectron->caloPosition().Y())*(thePhoton.caloPosition().Y()-theLocalElectron->caloPosition().Y())+(thePhoton.caloPosition().Z()-theLocalElectron->caloPosition().Z())*(thePhoton.caloPosition().Z()-theLocalElectron->caloPosition().Z()));
+               float deltaCalo = sqrt((thePhoton.superCluster()->calX()-theLocalElectron->caloPosition().X())*(thePhoton.superCluster()->calX()-theLocalElectron->caloPosition().X())+(thePhoton.superCluster()->calY()-theLocalElectron->caloPosition().Y())*(thePhoton.superCluster()->calY()-theLocalElectron->caloPosition().Y())+(thePhoton.superCluster()->calZ()-theLocalElectron->caloPosition().Z())*(thePhoton.superCluster()->calZ()-theLocalElectron->caloPosition().Z()));
+		if (deltaCalo > 0.0001) continue; //no matching between the electrons and the photon :( 
 
 		theDr = sqrt(theLocalElectron->deltaEtaIn()*theLocalElectron->deltaEtaIn()+theLocalElectron->deltaPhiIn()*theLocalElectron->deltaPhiIn());
 		if (theDr < theMinDr) theMinDr = theDr;
@@ -466,6 +467,50 @@ float vcicST[7][4] = {
 	TRootVertex theWorstVertex;
 	TRootPhoton thePhotonWithWorstVertex = thePhoton;
 	varToCut[1] = (thePhoton.dR04IsolationEcalRecHit() + thePhoton.dR04IsolationHcalRecHit() + calcWorstTrackIsolationCIC(theVertices, theTracks, thePhoton, theBeamSpot, &theWorstVertex))*50; // worst comb iso 
+	TVector3 theWorstCoords(theWorstVertex.x(), theWorstVertex.y(), theWorstVertex.z());
+	thePhotonWithWorstVertex.setVertex(theWorstCoords);
+	varToCut[1] = varToCut[1]/thePhotonWithWorstVertex.Et();
+	varToCut[2] = (localtrackIsolation(*theBestVertex, theTracks, thePhoton, theBeamSpot,0.3))*50.0/thePhoton.Et();// iso track calc with the selected vertex
+	//varToCut[2] = varToCut[2]*50.0/thePhoton.Et();// iso track calc with the selected vertex
+	varToCut[3] = thePhoton.sigmaIetaIeta(); // sigma ieta 
+	varToCut[4] = thePhoton.hoe(); // HoE
+	varToCut[5] = thePhoton.r9(); // R9
+	varToCut[6] = dRtoTrack(thePhoton, electrons); // calc the dR
+
+	//cout << "photon Et = " << thePhoton.Et();
+/*	for (int i = 0 ; i < 7 ; i++){
+		cout << " var" << i << "= " << varToCut[i];
+	}
+	cout << endl;*/
+	//cout << " combIso(default vtx)*50/Et=" << varToCut[0] << " 		worst comb Iso *50 /Etworst vtx=" << varToCut[1] << " iso tracker(default vtx)*50/Et=" <<  varToCut[2] << "  		sig Ieta Ieta=" << varToCut[3] << " 		HoE=" << varToCut[4] << " 		R9=" << varToCut[5] << " 		dR to Track=" << varToCut[6] << endl;
+	//cout << "isoHcal = " << thePhoton.dR04IsolationHcalRecHit()  << " isoEcal = " << thePhoton.dR03IsolationEcalRecHit() << " isoTracker =  " << localtrackIsolation(*theBestVertex, theTracks, thePhoton, theBeamSpot, 0.3) << "the worst iso = " << calcWorstTrackIsolation(theVertices, theTracks, thePhoton, theBeamSpot, &theWorstVertex) << "Et worst =" << thePhotonWithWorstVertex.Et() << endl;
+
+ 	for (int i = 0 ; i < 7 ; i++){  // test if pass the CiC cuts
+		//cout << "i " << varToCut[i] << " " << vcicST[i][cat-1] << endl;
+		if (i < 5) {if (varToCut[i] > vcicST[i][cat]) isCIC = false; else (*theCutStop)++;}
+		else {if (varToCut[i] < vcicST[i][cat]) isCIC = false; else (*theCutStop)++;} 
+	}
+	return isCIC;
+}
+bool photonIsPassingCICrho(TRootPhoton thePhoton, TClonesArray* theVertices, TClonesArray* theTracks, TRootBeamSpot theBeamSpot, TClonesArray* electrons, int *theCutStop, int cat, float theRho){
+float vcicST[7][4] = { 
+  {3.8,     2.2,     1.77,   1.29},    // rel combIso (good vtx)                                
+  {11.7,    3.4,     3.9,    1.84},    // rel combIso (bad vtx)                                                   
+  {3.5,     2.2,     2.3,    1.45},    // trkIso (good vtx)                                                           
+  {0.0105,  0.0097,  0.028,  0.027},  // sigma_ie_ie                                                                  
+  {0.082,   0.062,   0.065,  0.048},  // H/E       
+  {0.94,    0.36,    0.94,   0.32},   // R9
+  {1.,      0.062,   0.97,   0.97},    // dR to trk
+};
+
+	bool isCIC = true;
+	(*theCutStop) = 0;
+	double varToCut[7]; // now calc the CiC variables
+	TRootVertex* theBestVertex= (TRootVertex*) theVertices->At(0); // take the default vertex 
+	varToCut[0] = ((thePhoton.dR03IsolationEcalRecHit() + thePhoton.dR04IsolationHcalRecHit() + localtrackIsolationCIC(*theBestVertex, theTracks, thePhoton, theBeamSpot, 0.3))-0.17*theRho)*50.0/thePhoton.Et(); // comb iso respect to the selected vertex
+	TRootVertex theWorstVertex;
+	TRootPhoton thePhotonWithWorstVertex = thePhoton;
+	varToCut[1] = ((thePhoton.dR04IsolationEcalRecHit() + thePhoton.dR04IsolationHcalRecHit() + calcWorstTrackIsolationCIC(theVertices, theTracks, thePhoton, theBeamSpot, &theWorstVertex))-0.52*theRho)*50; // worst comb iso 
 	TVector3 theWorstCoords(theWorstVertex.x(), theWorstVertex.y(), theWorstVertex.z());
 	thePhotonWithWorstVertex.setVertex(theWorstCoords);
 	varToCut[1] = varToCut[1]/thePhotonWithWorstVertex.Et();
