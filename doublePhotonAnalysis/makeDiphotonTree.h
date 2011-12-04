@@ -17,6 +17,7 @@
 #include "TBits.h"
 #include "TMath.h"
 #include "TSystem.h"
+#include "TRandom2.h"
 #include "TMVA/Reader.h"
 #include "TMVA/Tools.h"
 #include <TLorentzVector.h>
@@ -25,7 +26,7 @@ TFile *myFile;// = new TFile("theMiniTree.root","RECREATE");
 TTree *myTree_;
 TChain *chain = new TChain("photons");
 //TMVA::Reader* reader;
-  bool doMC, doNN, doAllHlt, doHLTobject;
+  bool doMC, doNN, doAllHlt, doHLTobject, doSmearing;
   int NbEntries;
 
 // MiniTtree d'entr�e
@@ -75,6 +76,7 @@ TChain *chain = new TChain("photons");
                 float pho_IsoHollowTrkCone03;
 		int   pho_IsoSolidNtrackCone;
 		int   pho_IsoHollowNtrackCone;
+		float pho_IsoSolidTrkConeWorst;
                 float pho_esRatio;
                 int pho_convNTracks;
                 float pho_ptoverjetpt;
@@ -220,6 +222,19 @@ TChain *chain = new TChain("photons");
 	float pho_CovAngle;
 	int pho_isMatchWithMuon;
         int pho_isConverted;
+	int pho_isPassingCIC;
+
+	int pho_Cat;
+	float pho_CICcombIso;
+	float pho_CICworstComb;
+	float pho_CICtrackIso;
+	float pho_CICdR;
+	int pho_isPassingCICRho;
+	float pho_CICcombIsoRho;
+	float pho_CICworstCombRho;
+	float pho_etWorstVertex;
+
+
 
 // miniTree de sortie
 
@@ -349,6 +364,8 @@ float pholead_EcalIsoPerso;
 float photrail_EcalIsoPerso;
 float pholead_TrackerIsoPerso;
 float photrail_TrackerIsoPerso;
+float pholead_IsoSolidTrkConeWorst;
+float photrail_IsoSolidTrkConeWorst;
 int   pholead_TrackerIsoN;
 int   photrail_TrackerIsoN;
 int   pholead_TrackerIsoNsolid;
@@ -481,6 +498,27 @@ int   pholead_SCnXtal;
 int   photrail_SCnXtal;
 int   pholead_isConverted;
 int   photrail_isConverted;
+int   pholead_isPassingCIC;
+int   photrail_isPassingCIC;
+int pholead_Cat;
+int photrail_Cat;
+float pholead_CICcombIso;
+float photrail_CICcombIso;
+float pholead_CICworstComb;
+float photrail_CICworstComb;
+float pholead_CICtrackIso;
+float photrail_CICtrackIso;
+float pholead_CICdR;
+float photrail_CICdR;
+int pholead_isPassingCICRho;
+int photrail_isPassingCICRho;
+float pholead_CICcombIsoRho;
+float photrail_CICcombIsoRho;
+float pholead_CICworstCombRho;
+float photrail_CICworstCombRho;
+float pholead_etWorstVertex;
+float photrail_etWorstVertex;
+
   TLorentzVector P_loc[100] ;
 TLorentzVector Ptrue_loc[100];
   double Eta_loc[100] ;
@@ -576,3 +614,15 @@ int pho_SCnbBC_loc[100];
 int pho_SCnXtal_loc[100];
 int pho_isConverted_loc[100];
 
+float pho_IsoSolidTrkConeWorst_loc[100];
+int pho_isPassingCIC_loc[100];
+
+int pho_Cat_loc[100];
+float pho_CICcombIso_loc[100];
+float pho_CICworstComb_loc[100];
+float pho_CICtrackIso_loc[100];
+float pho_CICdR_loc[100];
+int pho_isPassingCICRho_loc[100];
+float pho_CICcombIsoRho_loc[100];
+float pho_CICworstCombRho_loc[100];
+float pho_etWorstVertex_loc[100];
