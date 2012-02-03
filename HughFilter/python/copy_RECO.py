@@ -8,9 +8,13 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.MessageLogger.cerr.threshold = 'INFO'
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-"/store/caf/user/meridian/MinimumBias/BeamCommissioning09_BSCFilter_Jan29_v8/3dc62ed5c705a8d2a0012a5326b1446e/bscFilter_124275_3.root"
+"file:/sps/cms/sgandurr/CMSSW_4_2_8/src/PhysicsTools/Utilities/scripts/MuMuGammaSelection_DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia_Summer11-PU_S4_START42_V11-v1_AODSIM.root"
 )
 )
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(30)
+)
+
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands =  process.FEVTEventContent.outputCommands,
@@ -25,9 +29,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 
 process.outpath = cms.EndPath(process.out)
-process.HughFilter.nEvent = cms.int32(1)
-process.HughFilter.runNumber = cms.int32(135149)
-process.HughFilter.eventNumbers = cms.vint32(125426133)
 
 process.theHughFilter = cms.Path(process.HughFilter)
 #process.p = cms.path(process.HughFilter+process.outpath)
