@@ -1,3 +1,0 @@
-string ListWantedHLTnames[18] = {"HLT_DoublePhoton33_v3","HLT_Photon125_NoSpikeFilter_v3","HLT_Photon20_CaloIdVL_IsoL_v2","HLT_Photon20_R9Id_Photon18_R9Id_v3","HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v3","HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v2","HLT_Photon26_CaloIdL_IsoVL_Photon18_v3","HLT_Photon26_IsoVL_Photon18_IsoVL_v3","HLT_Photon26_IsoVL_Photon18_v3","HLT_Photon26_Photon18_v3","HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v2","HLT_Photon30_CaloIdVL_IsoL_v3","HLT_Photon30_CaloIdVL_v3","HLT_Photon32_CaloIdL_Photon26_CaloIdL_v3","HLT_Photon36_CaloIdL_Photon22_CaloIdL_v2","HLT_Photon50_CaloIdVL_IsoL_v2","HLT_Photon75_CaloIdVL_IsoL_v3","HLT_Photon75_CaloIdVL_v3"};
-
-int nbHlt = 18;
