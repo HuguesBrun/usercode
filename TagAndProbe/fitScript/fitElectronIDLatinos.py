@@ -51,6 +51,10 @@ Template = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                           passIdTrigIso   = cms.vstring("passIdTrigIso", "dummy[pass=1,fail=0]"),
                           tag_HLT_Ele27_WP80 = cms.vstring("tag_HLT_Ele27_WP80","dummy[pass=1,fail=0]"),
                           passIsoTrig = cms.vstring("passIsoTrig","dummy[pass=1,fail=0]"),
+                          passElec_FO = cms.vstring("passElec_FO","dummy[pass=1,fail=0]"),
+                          passElec_FO_ID = cms.vstring("passElec_FO_ID","dummy[pass=1,fail=0]"),
+                          passElec_FO_ISO = cms.vstring("passElec_FO_ISO","dummy[pass=1,fail=0]"),
+                          passElec_FO_ISO_ID = cms.vstring("passElec_FO_ISO_ID","dummy[pass=1,fail=0]"),
                           tag_AnyE1 = cms.vstring("tag_AnyE1","dummy[pass=1,fail=0]"),
 
                           
@@ -131,7 +135,7 @@ PT_ETA_BINS_SMURFS = cms.PSet(
 
 
 #PREFIX="/data/gpetrucc/7TeV/tnp/2011.02.17/"
-PREFIX="file:/afs/cern.ch/work/h/hbrun/latinoTnP/"
+PREFIX="file:/afs/cern.ch/work/h/hbrun/latinoTnP/newProdElec/"
 process.TnP_ElecID = Template.clone(
     InputFileNames = cms.vstring(PREFIX+"tnpZ_withMVAIsoNew.root"),
     InputTreeName = cms.string("fitter_tree"),
@@ -145,7 +149,7 @@ if "mc" in scenario:
 if "data" in scenario:
     if   "v1" in scenario: process.TnP_ElecID.InputFileNames = [ PREFIX+"tnpZ_HWWid2012.root" ]
     elif "v2" in scenario: process.TnP_ElecID.InputFileNames = [ PREFIX+"tnpZ_2011A_v2_GOLDEN.root" ]
-    elif "huguesTest" in scenario: process.TnP_ElecID.InputFileNames = [ PREFIX+"tnpElectronID.root" ]
+    elif "huguesTest" in scenario: process.TnP_ElecID.InputFileNames = [ PREFIX+"tnpElectronID_runA.root", PREFIX+"tnpElectronID_runB.root" ]
     else: print "coucou c encore moi"
 if "mc" in scenario:
     process.TnP_ElecID.InputFileNames = [ PREFIX+"tnpMC_weightsEle.root" ]
@@ -156,10 +160,12 @@ if "tag35" in scenario:
 print "les fichiers que l'on va utiliser = ", process.TnP_ElecID.InputFileNames
 
 #IDS = ["TOGCPFTIPMVA_from_TrackerOrGlobal"]
-IDS = [ "passPogLoose","passPogTight","passTrig","passTrigPlusID","passIdTrigIso","passIsoTrig","passID2012_from_passTrig","passISO2012_from_passTrig","passISO2012_from_passID2012","passID2012_from_passISO2012"]
+#IDS = [ "passPogLoose","passPogTight","passTrig","passTrigPlusID","passIdTrigIso","passIsoTrig","passID2012_from_passTrig","passISO2012_from_passTrig","passISO2012_from_passID2012","passID2012_from_passISO2012"]
+IDS = ["passElec_FO_ISO_ID_from_passElec_FO_ISO","passElec_FO_ISO_ID_from_passElec_FO_ID","passElec_FO_ISO_ID_from_passISO2012"]
+
 #ALLBINS = [("ptXcheck",PT_ETA_BINS_XCHECK)]
-ALLBINS = [("pt",PT_ETA_BINS)]
-ALLBINS += [("ptEta_smurfs", PT_ETA_BINS_SMURFS)]
+#ALLBINS = [("pt",PT_ETA_BINS)]
+ALLBINS = [("ptEta_smurfs", PT_ETA_BINS_SMURFS)]
 #ALLBINS += [("vtx",VTX_BINS)]
 
 
