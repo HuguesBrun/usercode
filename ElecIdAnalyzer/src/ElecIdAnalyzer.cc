@@ -1,0 +1,1599 @@
+#include "../interface/ElecIdAnalyzer.h"
+
+//
+// constants, enums and typedefs
+//
+
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
+ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
+
+{
+   //now do what ever initialization is needed
+    // is DATA/MC 
+    isMC_                   = iConfig.getParameter<bool>("isMC");
+    
+    // get input parameters
+    electronsInputTag_      = iConfig.getParameter<edm::InputTag>("electronsInputTag");
+    conversionsInputTag_    = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
+    beamSpotInputTag_       = iConfig.getParameter<edm::InputTag>("beamSpotInputTag");
+    rhoIsoInputTag          = iConfig.getParameter<edm::InputTag>("rhoIsoInputTag");
+    primaryVertexInputTag_  = iConfig.getParameter<edm::InputTag>("primaryVertexInputTag");
+    triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("TriggerResults");
+    triggerSummaryLabel_    = iConfig.getParameter<edm::InputTag>("HLTTriggerSummaryAOD");
+    isoValInputTags_        = iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
+    
+    // debug
+    printDebug_             = iConfig.getParameter<bool>("printDebug");
+    
+    outputFile_   = iConfig.getParameter<std::string>("outputFile");
+    rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE");
+    
+    HLT_name.push_back("HLT_Ele27_WP80_v");
+    HLT_name.push_back("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v");
+    HLT_name.push_back("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_v");
+    HLT_name.push_back("HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v");
+    
+    HLT_triggerObjects.push_back("hltEle27WP80TrackIsoFilter");
+    HLT_triggerObjects.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter");
+    HLT_triggerObjects.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter");
+    HLT_triggerObjects.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8PMMassFilter");
+    HLT_triggerObjects.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8TrackIsoFilter");
+    HLT_triggerObjects.push_back("hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4PMMassFilter");
+    HLT_triggerObjects.push_back("hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4TrackIsoFilter");
+
+
+    
+    
+    fElectronIsoMVA = new EGammaMvaEleEstimator();
+    vector<string> eleiso_weightfiles;
+    eleiso_weightfiles.push_back("EGamma/EGammaAnalysisTools/data/ElectronIso_BDTG_V0_BarrelPt5To10.weights.xml");
+    eleiso_weightfiles.push_back("EGamma/EGammaAnalysisTools/data/ElectronIso_BDTG_V0_EndcapPt5To10.weights.xml");
+    eleiso_weightfiles.push_back("EGamma/EGammaAnalysisTools/data/ElectronIso_BDTG_V0_BarrelPt10ToInf.weights.xml");
+    eleiso_weightfiles.push_back("EGamma/EGammaAnalysisTools/data/ElectronIso_BDTG_V0_EndcapPt10ToInf.weights.xml");
+    
+    vector<string> eleiso_weightfilesReal;
+    string the_path;
+    for (unsigned i  = 0 ; i < eleiso_weightfiles.size() ; i++){
+        the_path = edm::FileInPath ( eleiso_weightfiles[i] ).fullPath();
+        eleiso_weightfilesReal.push_back(the_path);
+    }
+    
+    
+    fElectronIsoMVA->initialize("EleIso_BDTG_IsoRings",
+                                EGammaMvaEleEstimator::kIsoRings,
+                                kTRUE,
+                                eleiso_weightfilesReal);
+    fElectronIsoMVA->SetPrintMVADebug(kTRUE);
+    
+    myMVANonTrig = new EGammaMvaEleEstimator();
+    
+    // NOTE: it is better if you copy the MVA weight files locally
+    std::vector<std::string> myManualCatWeigths;
+    myManualCatWeigths.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml");
+    myManualCatWeigths.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml");
+    myManualCatWeigths.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml");
+    myManualCatWeigths.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml");
+    myManualCatWeigths.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml");
+    myManualCatWeigths.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml");
+    
+    Bool_t manualCat = true;
+    
+    vector<string> myManualCatWeigthsReal;
+    for (unsigned i  = 0 ; i < myManualCatWeigths.size() ; i++){
+        the_path = edm::FileInPath ( myManualCatWeigths[i] ).fullPath();
+        myManualCatWeigthsReal.push_back(the_path);
+    }
+    
+    myMVANonTrig->initialize("BDT",
+                             EGammaMvaEleEstimator::kNonTrig,
+                             manualCat, 
+                             myManualCatWeigthsReal);
+    
+    // NOTE: it is better if you copy the MVA weight files locally
+    
+    std::vector<std::string> myManualCatWeigthsTrig;
+    myManualCatWeigthsTrig.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat1.weights.xml");
+    myManualCatWeigthsTrig.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat2.weights.xml");
+    myManualCatWeigthsTrig.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat3.weights.xml");
+    myManualCatWeigthsTrig.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat4.weights.xml");
+    myManualCatWeigthsTrig.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat5.weights.xml");
+    myManualCatWeigthsTrig.push_back("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat6.weights.xml");
+    
+    vector<string> myManualCatWeigthsTrigReal;
+    for (unsigned i  = 0 ; i < myManualCatWeigthsTrig.size() ; i++){
+        the_path = edm::FileInPath ( myManualCatWeigthsTrig[i] ).fullPath();
+        myManualCatWeigthsTrigReal.push_back(the_path);
+    }
+    
+    myMVATrig = new EGammaMvaEleEstimator();
+    myMVATrig->initialize("BDT",
+                          EGammaMvaEleEstimator::kTrig,
+                          manualCat,
+                          myManualCatWeigthsTrigReal);
+    
+
+}
+
+
+ElecIdAnalyzer::~ElecIdAnalyzer()
+{
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+    delete rootFile_;
+    
+
+}
+
+
+//
+// member functions
+//
+
+// ------------ method called for each event  ------------
+void
+ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+
+    using namespace std;
+    using namespace edm;
+    using namespace reco;
+    
+    beginEvent();
+     bool debugMVAclass = false;
+    // electrons
+    edm::Handle<reco::GsfElectronCollection> els_h;
+    iEvent.getByLabel(electronsInputTag_, els_h);
+    const GsfElectronCollection inElectrons = *(els_h.product());
+
+    
+    //recup of the isolation vals
+    // iso deposits
+    IsoDepositVals isoVals(isoValInputTags_.size());
+    for (size_t j = 0; j < isoValInputTags_.size(); ++j) {
+        iEvent.getByLabel(isoValInputTags_[j], isoVals[j]);
+    }
+    
+    // conversions
+    edm::Handle<reco::ConversionCollection> conversions_h;
+    iEvent.getByLabel(conversionsInputTag_, conversions_h);
+    
+    // beam spot
+    edm::Handle<reco::BeamSpot> beamspot_h;
+    iEvent.getByLabel(beamSpotInputTag_, beamspot_h);
+    const reco::BeamSpot &beamSpot = *(beamspot_h.product());
+    
+    // the muons collection
+    Handle<reco::MuonCollection> hMuonProduct;
+    iEvent.getByLabel("muons", hMuonProduct);  
+    const reco::MuonCollection inMuons = *(hMuonProduct.product()); 
+    
+    // pf Collection
+    Handle<reco::PFCandidateCollection> hPfCandProduct;
+	iEvent.getByLabel("particleFlow", hPfCandProduct);
+    const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
+    
+    //mET stuff
+    edm::Handle<reco::PFMETCollection> metPF;
+    iEvent.getByLabel("pfMet",metPF);
+    const PFMET * metsPF= &((metPF.product())->front());
+    
+  /*  edm::Handle<reco::PFMETCollection> metPFTypeI;
+    iEvent.getByLabel("pfType1CorrectedMet",metPFTypeI);
+    const PFMET * metsPFTypeI= &((metPFTypeI.product())->front());*/
+    
+    // Jet 
+    edm::Handle < std::vector <reco::PFJet> > recoPFJets;
+    iEvent.getByLabel("ak5PFJets", recoPFJets);
+    int nJets = recoPFJets->size();
+    
+    // vertices
+    edm::Handle<reco::VertexCollection> vtx_h;
+    iEvent.getByLabel(primaryVertexInputTag_, vtx_h);
+    const reco::VertexCollection& vtxs = *(vtx_h.product());
+    
+    //trans tracks builder
+    edm::ESHandle<TransientTrackBuilder> builder;
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+    TransientTrackBuilder thebuilder = *(builder.product());
+    
+    //ecal recHit for cluster shape 
+    InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
+    InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
+    
+    EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
+    
+    //collection of Gen Particle for MC case
+    edm::Handle <reco::GenParticleCollection> genParticles;
+//    std::vector<reco::GenParticle> theGenParts;
+    
+    //read the trigger results 
+    edm::Handle<edm::TriggerResults> triggerResults;
+    iEvent.getByLabel(triggerResultsLabel_, triggerResults);
+    
+    edm::Handle<trigger::TriggerEvent> triggerSummary;
+    iEvent.getByLabel(triggerSummaryLabel_, triggerSummary);
+    
+    
+
+
+    
+    
+    
+    reco::Vertex dummy;
+    const reco::Vertex *pv = &dummy;
+    if (vtx_h->size() != 0) {
+        pv = &*vtx_h->begin();
+    } else { // create a dummy PV
+        Vertex::Error e;
+        e(0, 0) = 0.0015 * 0.0015;
+        e(1, 1) = 0.0015 * 0.0015;
+        e(2, 2) = 15. * 15.;
+        Vertex::Point p(0, 0, 0);
+        dummy = Vertex(p, e, 0, 0, 0);
+    }
+  
+    // rho for isolation
+    edm::Handle<double> rhoIso_h;
+    iEvent.getByLabel(rhoIsoInputTag, rhoIso_h);
+    double rhoIso = *(rhoIso_h.product());
+    
+    // rho 
+    Handle<double> hRho;
+    edm::InputTag tag("kt6PFJets","rho");
+    iEvent.getByLabel(tag,hRho);
+    double Rho = *hRho;
+
+    T_Event_Rho = Rho;
+    T_Event_RhoIso = rhoIso;
+
+    /// fill the electron and the muon collection for the MVA iso 
+    
+    reco::MuonCollection IdentifiedMuons;
+    reco::GsfElectronCollection IdentifiedElectrons;
+    
+    
+    
+    for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin(); 
+         iE != inElectrons.end(); ++iE) {
+        
+        double electronTrackZ = 0;
+        if (iE->gsfTrack().isNonnull()) {
+            electronTrackZ = iE->gsfTrack()->dz(vtx_h->at(0).position());
+        } else if (iE->closestCtfTrackRef().isNonnull()) {
+            electronTrackZ = iE->closestCtfTrackRef()->dz(vtx_h->at(0).position());
+        }    
+        if(fabs(electronTrackZ) > 0.2)  continue;
+        
+        
+        if(fabs(iE->superCluster()->eta())<1.479) {     
+            if(iE->pt() > 20) {
+                if(iE->sigmaIetaIeta()       > 0.01)  continue;
+                if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
+                if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+                if(iE->hadronicOverEm()       > 0.15)  continue;    
+            } else {
+                if(iE->sigmaIetaIeta()       > 0.012)  continue;
+                if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
+                if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+                if(iE->hadronicOverEm()       > 0.15) continue;    
+            } 
+        } else {     
+            if(iE->pt() > 20) {
+                if(iE->sigmaIetaIeta()       > 0.03)  continue;
+                if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
+                if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+            } else {
+                if(iE->sigmaIetaIeta()       > 0.032)  continue;
+                if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
+                if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+            }
+        }
+        IdentifiedElectrons.push_back(*iE);
+    }
+
+    for (reco::MuonCollection::const_iterator iM = inMuons.begin(); 
+         iM != inMuons.end(); ++iM) {
+        
+        if(!(iM->innerTrack().isNonnull())) {
+            continue;
+        } 
+        
+        if(!(iM->isGlobalMuon() || iM->isTrackerMuon())) continue;
+        if(iM->innerTrack()->numberOfValidHits() < 11 ) continue;
+        
+        IdentifiedMuons.push_back(*iM);
+        
+    }
+    /// prepare the HLT matching 
+
+
+   bool changedConfig = false;
+    if (!hltConfig.init(iEvent.getRun(), iSetup, triggerResultsLabel_.process(), changedConfig)) {
+        edm::LogError("HLTMatchingFilter") << "Initialization of HLTConfigProvider failed!!"; 
+        return;
+    }
+    if (changedConfig){
+        moduleLabels.clear();
+        for (size_t j = 0; j < hltConfig.triggerNames().size(); j++) {
+            for (int m = 0 ; m < 4 ; m++){
+                if (TString(hltConfig.triggerNames()[j]).Contains(HLT_name[m])){
+              //      cout << j << " = " << hltConfig.triggerNames()[j] << endl;
+                    theBitCorr.push_back(j);
+                }
+            }
+        }
+        for (unsigned int j=0; j<HLT_triggerObjects.size(); j++)
+            moduleLabels.push_back(edm::InputTag(HLT_triggerObjects[j], "", triggerResultsLabel_.process()));
+    }
+    // nom fill the trigger bits : 
+    T_Event_HLT_Ele27_WP80 =         triggerResults->accept(theBitCorr[0]);
+    T_Event_HLT_Ele17_Ele8 =         triggerResults->accept(theBitCorr[1]);
+    T_Event_HLT_Ele17_Ele8_M50_TnP = triggerResults->accept(theBitCorr[2]);
+    T_Event_HLT_Ele20_SC4_M50_TnP =  triggerResults->accept(theBitCorr[3]);
+    
+    
+    /// fill the in selected Objet the HLT filter we will use for the matching
+    trigger::TriggerObjectCollection allTriggerObjects = triggerSummary->getObjects();
+    trigger::TriggerObjectCollection selectedObjects;
+    vector<int> theHLTcorr;
+    for (size_t t=0; t<moduleLabels.size(); t++) {
+        
+        size_t filterIndex = (*triggerSummary).filterIndex(moduleLabels[t]);
+        if (filterIndex < (*triggerSummary).sizeFilters()) {
+            const trigger::Keys &keys = (*triggerSummary).filterKeys(filterIndex);
+            
+            for (size_t j = 0; j < keys.size(); j++) {
+                trigger::TriggerObject foundObject = (allTriggerObjects)[keys[j]];
+                selectedObjects.push_back(foundObject);
+                theHLTcorr.push_back(t);
+            }
+        }
+    }
+    
+
+
+    
+
+    
+    
+    //  now fill event content
+    
+    T_Event_RunNumber = iEvent.id().run();
+    T_Event_EventNumber = iEvent.id().event();
+    T_Event_LuminosityBlock = iEvent.id().luminosityBlock(); 
+    
+    T_Event_nPU =-1;
+    T_Event_nPUp=-1;
+    T_Event_nPUm=-1;
+    T_Event_AveNTruePU=-1.;
+    T_Event_ptHat = -1.;
+    T_Event_processID = -1.;
+    
+    float truePu=0.;
+    
+    if(isMC_){
+           edm::Handle<GenEventInfoProduct> genEvent;
+           iEvent.getByLabel("generator", genEvent);
+        
+           iEvent.getByLabel( "genParticles", genParticles );
+    //    theGenParts = genParticles;
+
+
+        T_Event_processID = genEvent->signalProcessID();
+        if ( genEvent->binningValues().size()>0 ) T_Event_ptHat = genEvent->binningValues()[0];
+        Handle<std::vector< PileupSummaryInfo > > puInfo;
+        try {
+            iEvent.getByLabel("addPileupInfo",puInfo);
+            std::vector<PileupSummaryInfo>::const_iterator PVI;
+            //The in-time crossing is getBunchCrossing = 0; negative ones are early, positive ones are late.
+            for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
+                
+                //    std::cout << " Pileup Information: bunchXing, nvtx: " << PVI->getBunchCrossing() << " " << PVI->getPU_NumInteractions() << std::endl;
+                if(PVI->getBunchCrossing()==0){
+                    T_Event_nPU =PVI->getPU_NumInteractions();
+                    T_Event_nTruePU=PVI->getTrueNumInteractions();
+                    
+                }
+                
+                else if(PVI->getBunchCrossing()==-1){
+                    T_Event_nPUm=PVI->getPU_NumInteractions();
+                }
+                else if(PVI->getBunchCrossing()==1){
+                    T_Event_nPUp=PVI->getPU_NumInteractions();
+                }
+                truePu += PVI->getTrueNumInteractions();
+            }
+        } catch (...) {}
+        
+    }
+    T_Event_AveNTruePU=truePu/3.;
+    
+    // loop on the vertices 
+    if (vtxs.size() != 0){
+        for (size_t i=0; i < vtxs.size(); i++){
+            T_Vertex_z->push_back(vtxs[i].z());
+            T_Vertex_y->push_back(vtxs[i].y());
+            T_Vertex_x->push_back(vtxs[i].x());
+            T_Vertex_Chi2Prob->push_back(ChiSquaredProbability(vtxs[i].chi2(),vtxs[i].ndof()));
+            T_Vertex_rho->push_back( vtxs[i].position().Rho());
+            T_Vertex_ndof->push_back(vtxs[i].ndof());
+            T_Vertex_isFake->push_back(vtxs[i].isFake());
+            T_Vertex_tracksSize->push_back(vtxs[i].tracksSize());      
+        }
+    } 
+    
+    
+    
+    
+    // loop on electrons
+    unsigned int n = els_h->size();
+ //   cout << "nb of electrons = " << n << endl;
+    for(unsigned int i = 0; i < n; ++i) {
+        
+        // get reference to electron
+        reco::GsfElectronRef ele(els_h, i);
+        
+        if (isMC_) doMCtruth(ele, genParticles, 0.3);
+        
+        T_Elec_Eta->push_back(ele->eta());
+        T_Elec_Pt->push_back(ele->pt());
+        T_Elec_Px->push_back(ele->px());
+        T_Elec_Py->push_back(ele->py());
+        T_Elec_Pz->push_back(ele->pz());
+        T_Elec_Energy->push_back(ele->energy());
+        T_Elec_Charge->push_back(ele->charge());
+
+        T_Elec_nBrems->push_back(ele->numberOfBrems());
+        T_Elec_fBrem->push_back(ele->fbrem());
+        T_Elec_eSuperClusterOverP->push_back(ele->eSuperClusterOverP());
+        T_Elec_vz->push_back(ele->vz());
+        T_Elec_vy->push_back(ele->vy());
+        T_Elec_vx->push_back(ele->vx());	
+
+        T_Elec_SC_Et->push_back( ele->superCluster()->energy()/TMath::CosH(ele->superCluster()->eta()));
+        T_Elec_SC_Eta->push_back( ele->superCluster()->eta());
+	float etaSC = ele->superCluster()->eta();
+
+        T_Elec_sigmaIetaIeta ->push_back( ele->sigmaIetaIeta());
+        T_Elec_deltaPhiIn->push_back( ele->deltaPhiSuperClusterTrackAtVtx());
+        T_Elec_deltaEtaIn->push_back( ele->deltaEtaSuperClusterTrackAtVtx());
+        T_Elec_isEcalDriven -> push_back(ele->ecalDrivenSeed());
+        T_Elec_HtoE ->push_back(ele->hadronicOverEm());
+
+        T_Elec_isEB->push_back(ele->isEB());
+        T_Elec_isEE->push_back(ele->isEE());
+        
+        // conversion rejection variables
+        bool vtxFitConversion = ConversionTools::hasMatchedConversion(*ele, conversions_h, beamSpot.position());
+        float mHits = ele->gsfTrack()->trackerExpectedHitsInner().numberOfHits(); 
+        float missingHist = ele->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits();
+        T_Elec_passConversionVeto->push_back(vtxFitConversion);
+        T_Elec_nHits->push_back(mHits);
+        T_Elec_nLost->push_back(missingHist);
+        
+        double iso_ch =  (*(isoVals)[0])[ele];
+        double iso_em = (*(isoVals)[1])[ele];
+        double iso_nh = (*(isoVals)[2])[ele];
+        double iso_ch04 =  (*(isoVals)[3])[ele];
+        double iso_em04 = (*(isoVals)[4])[ele];
+        double iso_nh04 = (*(isoVals)[5])[ele];
+        T_Elec_photonIso->push_back(iso_em);
+        T_Elec_neutralHadronIso->push_back(iso_nh);
+        T_Elec_chargedHadronIso->push_back(iso_ch);
+        
+        
+        T_Elec_photonIso04->push_back(iso_em04);
+        T_Elec_neutralHadronIso04->push_back(iso_nh04);
+        T_Elec_chargedHadronIso04->push_back(iso_ch04);
+        
+        float rhoPlus = std::max(0.0, Rho);
+        // effective area for isolation
+        float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso04, etaSC, ElectronEffectiveArea::kEleEAData2011);
+        
+        float isoSum04 = iso_ch04 + std::max(iso_em04 + iso_nh04 - rhoPlus * AEff, 0.0); 
+    
+        T_Elec_CombIsoHWW->push_back(isoSum04);  
+        
+        // working points
+        bool veto       = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+        bool loose      = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+        bool medium     = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+        bool tight      = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso);
+        
+        // eop/fbrem cuts for extra tight ID
+        bool fbremeopin = EgammaCutBasedEleId::PassEoverPCuts(ele);
+        
+        // cuts to match tight trigger requirements
+        bool trigtight = EgammaCutBasedEleId::PassTriggerCuts(EgammaCutBasedEleId::TRIGGERTIGHT, ele);
+        
+        // for 2011 WP70 trigger
+        bool trigwp70 = EgammaCutBasedEleId::PassTriggerCuts(EgammaCutBasedEleId::TRIGGERWP70, ele);
+        
+        T_Elec_passVeto->push_back(veto);
+        T_Elec_passLoose->push_back(loose);
+        T_Elec_passMedium->push_back(medium);
+        T_Elec_passTight->push_back(tight);
+        T_Elec_passFbremopin->push_back(fbremeopin);
+        T_Elec_passtrigTight->push_back(trigtight);
+        T_Elec_passtrigwp70->push_back(trigwp70);
+        
+        bool isTriggering = trainTrigPresel(*ele);
+        //T_Elec_isTrig->push_back();
+         double myMVANonTrigMethod = myMVANonTrig->mvaValue(*ele,*pv,thebuilder,lazyTools,debugMVAclass);
+        double myMVATrigMethod= myMVATrig->mvaValue(*ele,*pv,thebuilder,lazyTools,debugMVAclass);
+        
+        double isomva = fElectronIsoMVA->mvaValue( *ele, vtx_h->at(0), 
+                                                  inPfCands, Rho, 
+                                                  ElectronEffectiveArea::kEleEAData2011,
+                                                  IdentifiedElectrons, IdentifiedMuons);
+        T_Elec_isTrig->push_back(isTriggering);
+        T_Elec_MVAid_trig->push_back(myMVATrigMethod);
+        T_Elec_MVAid_Nontrig->push_back(myMVANonTrigMethod);
+        T_Elec_Mvaiso->push_back(isomva);
+        
+        double theRadIso = GetRadialIsoValue(*ele, inPfCands);
+        T_Elec_RadialIso->push_back(theRadIso);
+        
+        fillIsoRings(*ele, vtx_h->at(0), 
+        inPfCands, Rho, 
+        ElectronEffectiveArea::kEleEAData2011,
+        IdentifiedElectrons, IdentifiedMuons);
+        
+        int pass_Elec_HLT_Elec27_WP80 = 0;
+        int pass_Elec_HLT_Ele17_Ele8_Ele8Leg = 0;
+        int pass_Elec_HLT_Ele17_Ele8_Ele17Leg = 0;
+        int pass_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg = 0;
+        int pass_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg = 0;
+        int pass_Elec_HLT_Ele20_SC4_TnP_SC4Leg = 0; 
+        int pass_Elec_HLT_Ele20_SC4_TnP_Ele20Leg = 0;
+        
+        for (size_t t = 0 ; t < selectedObjects.size() ; t++){
+      //      cout << "eta = " << selectedObjects[t].eta() << " phi = " << selectedObjects[t].phi() << "filter = " << HLT_triggerObjects[theHLTcorr[t]] << endl;
+            float HLTdeltaR = deltaR(ele->phi(), selectedObjects[t].phi(), ele->eta(), selectedObjects[t].eta());
+      //      cout << "delta R =" << HLTdeltaR << endl;
+            if (HLTdeltaR < 0.3){
+                if (theHLTcorr[t] == 0) pass_Elec_HLT_Elec27_WP80 = 1; 
+                if (theHLTcorr[t] == 1) pass_Elec_HLT_Ele17_Ele8_Ele8Leg = 1; 
+                if (theHLTcorr[t] == 2) pass_Elec_HLT_Ele17_Ele8_Ele17Leg = 1; 
+                if (theHLTcorr[t] == 3) pass_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg = 1; 
+                if (theHLTcorr[t] == 4) pass_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg = 1; 
+                if (theHLTcorr[t] == 5) pass_Elec_HLT_Ele20_SC4_TnP_SC4Leg = 1; 
+                if (theHLTcorr[t] == 6) pass_Elec_HLT_Ele20_SC4_TnP_Ele20Leg = 1;                 
+           }
+        }
+        T_Elec_HLT_Elec27_WP80->push_back(pass_Elec_HLT_Elec27_WP80);
+        T_Elec_HLT_Ele17_Ele8_Ele8Leg->push_back(pass_Elec_HLT_Ele17_Ele8_Ele8Leg);
+        T_Elec_HLT_Ele17_Ele8_Ele17Leg->push_back(pass_Elec_HLT_Ele17_Ele8_Ele17Leg);
+        T_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg->push_back(pass_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg);
+        T_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg->push_back(pass_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg);
+        T_Elec_HLT_Ele20_SC4_TnP_Ele20Leg->push_back(pass_Elec_HLT_Ele20_SC4_TnP_Ele20Leg);
+        T_Elec_HLT_Ele20_SC4_TnP_SC4Leg->push_back(pass_Elec_HLT_Ele20_SC4_TnP_SC4Leg);
+        
+        bool validKF= false; 
+        reco::TrackRef myTrackRef = ele->closestCtfTrackRef();
+        validKF = (myTrackRef.isAvailable());
+        validKF = (myTrackRef.isNonnull());  
+        
+        T_Elec_kfchi2->push_back((validKF) ? myTrackRef->normalizedChi2() : 0 );
+        T_Elec_kfhits->push_back((validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.);
+        T_Elec_gsfchi2->push_back(ele->gsfTrack()->normalizedChi2());
+        T_Elec_detacalo->push_back(ele->deltaEtaSeedClusterTrackAtCalo());
+        T_Elec_see->push_back(ele->sigmaIetaIeta());
+        std::vector<float> vCov = lazyTools.localCovariances(*(ele->superCluster()->seed())) ;
+        if (!isnan(vCov[2])) T_Elec_spp->push_back(sqrt(vCov[2]));   //EleSigmaIPhiIPhi
+        else T_Elec_spp->push_back(0.);
+        T_Elec_etawidth->push_back(ele->superCluster()->etaWidth());
+        T_Elec_phiwidth->push_back(ele->superCluster()->phiWidth());
+        T_Elec_e1x5e5x5->push_back((ele->e5x5()) !=0. ? 1.-(ele->e1x5()/ele->e5x5()) : -1.);
+        T_Elec_R9->push_back(lazyTools.e3x3(*(ele->superCluster()->seed())) / ele->superCluster()->rawEnergy());
+        T_Elec_EoP->push_back(ele->eSuperClusterOverP());
+        T_Elec_IoEmIoP->push_back((1.0/ele->ecalEnergy()) - (1.0 / ele->p()));
+        T_Elec_eleEoPout->push_back(ele->eEleClusterOverPout());
+        T_Elec_PreShowerOverRaw->push_back(ele->superCluster()->preshowerEnergy() / ele->superCluster()->rawEnergy());
+        
+        bool isPassingMVA = passMVAcuts((*ele), myMVATrigMethod);
+        T_Elec_passMVA->push_back(isPassingMVA);
+        
+        bool isPassingFO = passFOcuts((*ele), vtx_h->at(0), vtxFitConversion);
+        T_Elec_isFO->push_back(isPassingFO);
+        
+        float fMVAVar_d0;
+        if (ele->gsfTrack().isNonnull()) {
+            fMVAVar_d0 = (-1.0)*ele->gsfTrack()->dxy(vtx_h->at(0).position()); 
+        } else if (ele->closestCtfTrackRef().isNonnull()) {
+            fMVAVar_d0 = (-1.0)*ele->closestCtfTrackRef()->dxy(vtx_h->at(0).position()); 
+        } else {
+            fMVAVar_d0 = -9999.0;
+        }
+        T_Elec_d0->push_back(fMVAVar_d0);
+        
+        float fMVAVar_ip3d = -999.0; 
+        // fMVAVar_ip3dSig = 0.0;
+        if (ele->gsfTrack().isNonnull()) {
+            const double gsfsign   = ( (-ele->gsfTrack()->dxy(vtx_h->at(0).position()))   >=0 ) ? 1. : -1.;
+            
+           const reco::TransientTrack &tt = thebuilder.build(ele->gsfTrack()); 
+           const std::pair<bool,Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt,vtx_h->at(0));
+            if (ip3dpv.first) {
+                double ip3d = gsfsign*ip3dpv.second.value();
+                //double ip3derr = ip3dpv.second.error();  
+                fMVAVar_ip3d = ip3d; 
+                // fMVAVar_ip3dSig = ip3d/ip3derr;
+            }
+        }
+        T_Elec_IP3D->push_back(fMVAVar_ip3d);
+        float dzvtx = 0;
+        if (vtx_h->size() > 0) {
+            reco::VertexRef vtx(vtx_h, 0);    
+            dzvtx = ele->gsfTrack()->dz(vtx->position());
+        } else {
+            dzvtx = ele->gsfTrack()->dz();
+        }
+        T_Elec_dZ->push_back(dzvtx);
+    
+    }
+    T_METPF_ET = metsPF[0].pt();
+    T_METPF_Phi = metsPF[0].phi();
+    T_METPF_Sig = metsPF[0].significance();
+   /* T_METPFTypeI_ET = metsPFTypeI[0].pt();
+    T_METPFTypeI_Phi = metsPFTypeI[0].phi();*/
+ /*   
+    
+    ///now fill the jets collections 
+    JetCorrectorParameters *ResJetPar,*L3JetPar,*L2JetPar,*L1JetPar;
+	std::vector<JetCorrectorParameters> vPar;
+	if (!(isMC_)){
+        ResJetPar = new JetCorrectorParameters("../data/data_L2L3Residual_AK5PF.txt"); 
+        L3JetPar  = new JetCorrectorParameters("../data/data_L3Absolute_AK5PF.txt");
+        L2JetPar  = new JetCorrectorParameters("../data/data_L2Relative_AK5PF.txt");
+        L1JetPar  = new JetCorrectorParameters("../data/data_L1FastJet_AK5PF.txt");
+        //  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!! 
+        vPar.push_back(*L1JetPar);
+        vPar.push_back(*L2JetPar);
+        vPar.push_back(*L3JetPar);
+        vPar.push_back(*ResJetPar);
+	}
+	else{
+        L3JetPar  = new JetCorrectorParameters("../data/MC_L3Absolute_AK5PF.txt");
+        L2JetPar  = new JetCorrectorParameters("../data/MC_L2Relative_AK5PF.txt");
+        L1JetPar  = new JetCorrectorParameters("../data/MC_L1FastJet_AK5PF.txt");
+        //  Load the JetCorrectorParameter objects into a vector, IMPORTANT: THE ORDER MATTERS HERE !!!!
+        vPar.push_back(*L1JetPar);
+        vPar.push_back(*L2JetPar);
+        vPar.push_back(*L3JetPar);
+	}
+    
+    FactorizedJetCorrector *JetCorrector = new FactorizedJetCorrector(vPar);
+    
+    for (int k = 0 ; k < nJets ; k++){
+        const reco::Jet* jet = (const reco::Jet*) ( & ((*recoPFJets)[k]) );
+        double correction = 1.0;
+        
+        JetCorrector->setJetEta(jet->eta());
+        JetCorrector->setJetPt(jet->pt());
+        JetCorrector->setJetA(jet->jetArea());
+        JetCorrector->setRho(Rho);
+        correction = JetCorrector->getCorrection();
+        T_Jet_Px->push_back(jet->px()*correction);
+        T_Jet_Py->push_back(jet->py()*correction);
+        T_Jet_Pz->push_back(jet->pz()*correction);
+        T_Jet_Eta->push_back(jet->eta());
+        T_Jet_Et->push_back(jet->et()*correction);
+        T_Jet_Energy->push_back(jet->energy()*correction);
+        T_Jet_Phi->push_back(jet->phi());
+        T_Jet_Corr->push_back(correction);
+    }*/
+    
+    mytree_->Fill();
+    endEvent();
+}
+
+
+
+// ------------ method called once each job just before starting event loop  ------------
+void 
+ElecIdAnalyzer::beginJob()
+{
+    mytree_ = new TTree("eventsTree","");
+    
+   mytree_->Branch("T_Event_Rho", &T_Event_Rho, "T_Event_Rho/F");
+   mytree_->Branch("T_Event_RhoIso", &T_Event_RhoIso, "T_Event_RhoIso/F");
+   mytree_->Branch("T_Event_RhoNoPu", &T_Event_RhoNoPu, "T_Event_RhoNoPu/F");
+   mytree_->Branch("T_Event_RhoIsoNoPu", &T_Event_RhoIsoNoPu, "T_Event_RhoIsoNoPu/F");
+   mytree_->Branch("T_Event_RunNumber", &T_Event_RunNumber, "T_Event_RunNumber/I");
+   mytree_->Branch("T_Event_EventNumber", &T_Event_EventNumber, "T_Event_EventNumber/I");
+   mytree_->Branch("T_Event_LuminosityBlock", &T_Event_LuminosityBlock, "T_Event_LuminosityBlock/I");
+   mytree_->Branch("T_Event_processID", &T_Event_processID, "T_Event_processID/I");    
+   mytree_->Branch("T_Event_ptHat", &T_Event_ptHat, "T_Event_ptHat/I");    
+   mytree_->Branch("T_Event_nPU", &T_Event_nPU, "T_Event_nPU/I");
+   mytree_->Branch("T_Event_nTruePU", &T_Event_nTruePU, "T_Event_nTruePU/F");
+   mytree_->Branch("T_Event_nPUm", &T_Event_nPUm, "T_Event_nPUm/I");
+   mytree_->Branch("T_Event_nPUp", &T_Event_nPUp, "T_Event_nPUp/I");
+   mytree_->Branch("T_Event_AveNTruePU", &T_Event_AveNTruePU, "T_Event_AveNTruePU/F"); 
+   mytree_->Branch("T_Event_HLT_Ele27_WP80",&T_Event_HLT_Ele27_WP80,"T_Event_HLT_Ele27_WP80/I");
+   mytree_->Branch("T_Event_HLT_Ele17_Ele8",&T_Event_HLT_Ele17_Ele8,"T_Event_HLT_Ele17_Ele8/I");
+   mytree_->Branch("T_Event_HLT_Ele17_Ele8_M50_TnP",&T_Event_HLT_Ele17_Ele8_M50_TnP,"T_Event_HLT_Ele17_Ele8_M50_TnP/I");
+   mytree_->Branch("T_Event_HLT_Ele20_SC4_M50_TnP",&T_Event_HLT_Ele20_SC4_M50_TnP,"T_Event_HLT_Ele20_SC4_M50_TnP/I");
+    
+    
+   mytree_->Branch("T_Gen_Elec_Px", "std::vector<float>", &T_Gen_Elec_Px);
+   mytree_->Branch("T_Gen_Elec_Py", "std::vector<float>", &T_Gen_Elec_Py);
+   mytree_->Branch("T_Gen_Elec_Pz", "std::vector<float>", &T_Gen_Elec_Pz);
+   mytree_->Branch("T_Gen_Elec_Energy", "std::vector<float>", &T_Gen_Elec_Energy);
+   mytree_->Branch("T_Gen_Elec_deltaR","std::vector<float>",&T_Gen_Elec_deltaR);
+   mytree_->Branch("T_Gen_Elec_MCpart", "std::vector<int>", &T_Gen_Elec_MCpart);
+   mytree_->Branch("T_Gen_Elec_PDGid", "std::vector<int>", &T_Gen_Elec_PDGid);
+   mytree_->Branch("T_Gen_Elec_status", "std::vector<int>", &T_Gen_Elec_status);
+   mytree_->Branch("T_Gen_Elec_MotherID", "std::vector<int>", &T_Gen_Elec_MotherID);
+   
+    
+    //Vertex
+   mytree_->Branch("T_Vertex_z", "std::vector<float>", &T_Vertex_z);
+   mytree_->Branch("T_Vertex_y", "std::vector<float>", &T_Vertex_y);
+   mytree_->Branch("T_Vertex_x", "std::vector<float>", &T_Vertex_x);
+   mytree_->Branch("T_Vertex_Chi2Prob", "std::vector<float>", &T_Vertex_Chi2Prob);
+   mytree_->Branch("T_Vertex_rho","std::vector<float>", &T_Vertex_rho);
+   mytree_->Branch("T_Vertex_ndof","std::vector<float>", &T_Vertex_ndof);
+   mytree_->Branch("T_Vertex_isFake","std::vector<bool>", &T_Vertex_isFake);
+   mytree_->Branch("T_Vertex_tracksSize","std::vector<int>", &T_Vertex_tracksSize);
+    
+    //Electrons  
+   mytree_->Branch("T_Elec_Eta", "std::vector<float>", &T_Elec_Eta);
+   mytree_->Branch("T_Elec_IPwrtAveBS", "std::vector<float>", &T_Elec_IPwrtAveBS);
+   mytree_->Branch("T_Elec_IPwrtPV", "std::vector<float>", &T_Elec_IPwrtPV);
+   mytree_->Branch("T_Elec_Px", "std::vector<float>", &T_Elec_Px);
+   mytree_->Branch("T_Elec_Py", "std::vector<float>", &T_Elec_Py);
+   mytree_->Branch("T_Elec_Pz", "std::vector<float>", &T_Elec_Pz);
+   mytree_->Branch("T_Elec_Pt", "std::vector<float>", &T_Elec_Pt);
+   mytree_->Branch("T_Elec_Energy", "std::vector<float>", &T_Elec_Energy);
+   mytree_->Branch("T_Elec_Charge", "std::vector<int>", &T_Elec_Charge);    
+   mytree_->Branch("T_Elec_nBrems", "std::vector<int>", &T_Elec_nBrems); 
+   mytree_->Branch("T_Elec_fBrem", "std::vector<float>", &T_Elec_fBrem);
+   mytree_->Branch("T_Elec_eSuperClusterOverP", "std::vector<float>", &T_Elec_eSuperClusterOverP);
+   mytree_->Branch("T_Elec_isEB", "std::vector<bool>", &T_Elec_isEB);
+   mytree_->Branch("T_Elec_isEE", "std::vector<bool>", &T_Elec_isEE);
+   mytree_->Branch("T_Elec_MVA", "std::vector<float>", &T_Elec_MVA);
+   mytree_->Branch("T_Elec_simpleEleId95", "std::vector<float>", &T_Elec_simpleEleId95);
+   mytree_->Branch("T_Elec_simpleEleId90", "std::vector<float>", &T_Elec_simpleEleId90);
+   mytree_->Branch("T_Elec_simpleEleId85", "std::vector<float>", &T_Elec_simpleEleId85);
+   mytree_->Branch("T_Elec_simpleEleId80", "std::vector<float>", &T_Elec_simpleEleId80);
+   mytree_->Branch("T_Elec_simpleEleId70", "std::vector<float>", &T_Elec_simpleEleId70);
+   mytree_->Branch("T_Elec_simpleEleId60", "std::vector<float>", &T_Elec_simpleEleId60); 
+
+   mytree_->Branch("T_Elec_chargedHadronIso", "std::vector<float>", &T_Elec_chargedHadronIso);
+   mytree_->Branch("T_Elec_neutralHadronIso", "std::vector<float>", &T_Elec_neutralHadronIso);
+   mytree_->Branch("T_Elec_photonIso", "std::vector<float>", &T_Elec_photonIso);
+   mytree_->Branch("T_Elec_chargedHadronIso04", "std::vector<float>", &T_Elec_chargedHadronIso04);
+   mytree_->Branch("T_Elec_neutralHadronIso04", "std::vector<float>", &T_Elec_neutralHadronIso04);
+   mytree_->Branch("T_Elec_photonIso04", "std::vector<float>", &T_Elec_photonIso04);
+   mytree_->Branch("T_Elec_puChargedHadronIso", "std::vector<float>", &T_Elec_puChargedHadronIso);
+
+   mytree_->Branch("T_Elec_passConversionVeto","std::vector<bool>",&T_Elec_passConversionVeto);
+    
+   mytree_->Branch("T_Elec_sigmaIetaIeta", "std::vector<float>", &T_Elec_sigmaIetaIeta);
+   mytree_->Branch("T_Elec_deltaPhiIn", "std::vector<float>", &T_Elec_deltaPhiIn);
+   mytree_->Branch("T_Elec_deltaEtaIn", "std::vector<float>", &T_Elec_deltaEtaIn);
+   mytree_->Branch("T_Elec_isEcalDriven", "std::vector<bool>", &T_Elec_isEcalDriven);
+   mytree_->Branch("T_Elec_HtoE", "std::vector<float>", &T_Elec_HtoE);
+   mytree_->Branch("T_Elec_vz", "std::vector<float>", &T_Elec_vz);
+   mytree_->Branch("T_Elec_vy", "std::vector<float>", &T_Elec_vy);
+   mytree_->Branch("T_Elec_vx", "std::vector<float>", &T_Elec_vx);
+   mytree_->Branch("T_Elec_nLost", "std::vector<int>", &T_Elec_nLost);
+   mytree_->Branch("T_Elec_nHits", "std::vector<int>", &T_Elec_nHits);
+   mytree_->Branch("T_Elec_SC_Et","std::vector<float>", &T_Elec_SC_Et);
+   mytree_->Branch("T_Elec_SC_Eta","std::vector<float>", &T_Elec_SC_Eta); 
+
+    mytree_->Branch("T_Elec_passVeto","std::vector<bool>", &T_Elec_passVeto); 
+    mytree_->Branch("T_Elec_passLoose","std::vector<bool>", &T_Elec_passLoose); 
+    mytree_->Branch("T_Elec_passMedium","std::vector<bool>", &T_Elec_passMedium); 
+    mytree_->Branch("T_Elec_passTight","std::vector<bool>", &T_Elec_passTight); 
+    mytree_->Branch("T_Elec_passFbremopin","std::vector<bool>", &T_Elec_passFbremopin); 
+    mytree_->Branch("T_Elec_passtrigTight","std::vector<bool>", &T_Elec_passtrigTight); 
+    mytree_->Branch("T_Elec_passtrigwp70","std::vector<bool>", &T_Elec_passtrigwp70);
+    mytree_->Branch("T_Elec_isTrig","std::vector<bool>", &T_Elec_isTrig);
+    
+    mytree_->Branch("T_Elec_MVAid_trig","std::vector<double>", &T_Elec_MVAid_trig); 
+    mytree_->Branch("T_Elec_MVAid_Nontrig","std::vector<double>", &T_Elec_MVAid_Nontrig); 
+    mytree_->Branch("T_Elec_Mvaiso","std::vector<double>", &T_Elec_Mvaiso); 
+    mytree_->Branch("T_Elec_RadialIso","std::vector<double>", &T_Elec_RadialIso); 
+    
+    mytree_->Branch("T_Elec_ChargedIso_DR0p1To0p1_DR0p0To0p1","std::vector<double>", &T_Elec_ChargedIso_DR0p0To0p1); 
+    mytree_->Branch("T_Elec_ChargedIso_DR0p1To0p2","std::vector<double>", &T_Elec_ChargedIso_DR0p1To0p2); 
+    mytree_->Branch("T_Elec_ChargedIso_DR0p2To0p3","std::vector<double>", &T_Elec_ChargedIso_DR0p2To0p3); 
+    mytree_->Branch("T_Elec_ChargedIso_DR0p3To0p4","std::vector<double>", &T_Elec_ChargedIso_DR0p3To0p4); 
+    mytree_->Branch("T_Elec_ChargedIso_DR0p4To0p5","std::vector<double>", &T_Elec_ChargedIso_DR0p4To0p5); 
+    
+    mytree_->Branch("T_Elec_GammaIso_DR0p0To0p1","std::vector<double>", &T_Elec_GammaIso_DR0p0To0p1); 
+    mytree_->Branch("T_Elec_GammaIso_DR0p1To0p2","std::vector<double>", &T_Elec_GammaIso_DR0p1To0p2); 
+    mytree_->Branch("T_Elec_GammaIso_DR0p2To0p3","std::vector<double>", &T_Elec_GammaIso_DR0p2To0p3); 
+    mytree_->Branch("T_Elec_GammaIso_DR0p3To0p4","std::vector<double>", &T_Elec_GammaIso_DR0p3To0p4); 
+    mytree_->Branch("T_Elec_GammaIso_DR0p4To0p5","std::vector<double>", &T_Elec_GammaIso_DR0p4To0p5); 
+    
+    mytree_->Branch("T_Elec_NeutralHadronIso_DR0p0To0p1","std::vector<double>", &T_Elec_NeutralHadronIso_DR0p0To0p1); 
+    mytree_->Branch("T_Elec_NeutralHadronIso_DR0p1To0p2","std::vector<double>", &T_Elec_NeutralHadronIso_DR0p1To0p2); 
+    mytree_->Branch("T_Elec_NeutralHadronIso_DR0p2To0p3","std::vector<double>", &T_Elec_NeutralHadronIso_DR0p2To0p3); 
+    mytree_->Branch("T_Elec_NeutralHadronIso_DR0p3To0p4","std::vector<double>", &T_Elec_NeutralHadronIso_DR0p3To0p4); 
+    mytree_->Branch("T_Elec_NeutralHadronIso_DR0p4To0p5","std::vector<double>", &T_Elec_NeutralHadronIso_DR0p4To0p5); 
+
+    mytree_->Branch("T_Elec_HLT_Elec27_WP80","std::vector<int>", &T_Elec_HLT_Elec27_WP80); 
+    mytree_->Branch("T_Elec_HLT_Ele17_Ele8_Ele8Leg","std::vector<int>", &T_Elec_HLT_Ele17_Ele8_Ele8Leg); 
+    mytree_->Branch("T_Elec_HLT_Ele17_Ele8_Ele17Leg","std::vector<int>", &T_Elec_HLT_Ele17_Ele8_Ele17Leg); 
+    mytree_->Branch("T_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg","std::vector<int>", &T_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg); 
+    mytree_->Branch("T_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg","std::vector<int>", &T_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg); 
+    mytree_->Branch("T_Elec_HLT_Ele20_SC4_TnP_SC4Leg","std::vector<int>", &T_Elec_HLT_Ele20_SC4_TnP_SC4Leg); 
+    mytree_->Branch("T_Elec_HLT_Ele20_SC4_TnP_Ele20Leg","std::vector<int>", &T_Elec_HLT_Ele20_SC4_TnP_Ele20Leg); 
+
+    mytree_->Branch("T_Elec_passMVA","std::vector<bool>", &T_Elec_passMVA); 
+    mytree_->Branch("T_Elec_kfchi2","std::vector<float>", &T_Elec_kfchi2); 
+    mytree_->Branch("T_Elec_kfhits","std::vector<float>", &T_Elec_kfhits); 
+    mytree_->Branch("T_Elec_gsfchi2","std::vector<float>", &T_Elec_gsfchi2); 
+    mytree_->Branch("T_Elec_detacalo","std::vector<float>", &T_Elec_detacalo); 
+    mytree_->Branch("T_Elec_see","std::vector<float>", &T_Elec_see); 
+    mytree_->Branch("T_Elec_spp","std::vector<float>", &T_Elec_spp); 
+    mytree_->Branch("T_Elec_etawidth","std::vector<float>", &T_Elec_etawidth); 
+    mytree_->Branch("T_Elec_phiwidth","std::vector<float>", &T_Elec_phiwidth); 
+    mytree_->Branch("T_Elec_e1x5e5x5","std::vector<float>", &T_Elec_e1x5e5x5); 
+    mytree_->Branch("T_Elec_R9","std::vector<float>", &T_Elec_R9); 
+    mytree_->Branch("T_Elec_EoP","std::vector<float>", &T_Elec_EoP); 
+    mytree_->Branch("T_Elec_IoEmIoP","std::vector<float>", &T_Elec_IoEmIoP); 
+    mytree_->Branch("T_Elec_eleEoPout","std::vector<float>", &T_Elec_eleEoPout); 
+    mytree_->Branch("T_Elec_PreShowerOverRaw","std::vector<float>", &T_Elec_PreShowerOverRaw); 
+    mytree_->Branch("T_Elec_d0","std::vector<float>", &T_Elec_d0); 
+    mytree_->Branch("T_Elec_IP3D","std::vector<float>", &T_Elec_IP3D); 
+    mytree_->Branch("T_Elec_dZ","std::vector<float>", &T_Elec_dZ);
+    mytree_->Branch("T_Elec_isFO","std::vector<bool>", &T_Elec_isFO); 
+    mytree_->Branch("T_Elec_CombIsoHWW","std::vector<float>", &T_Elec_CombIsoHWW);
+
+    
+    mytree_->Branch("T_METPF_ET", &T_METPF_ET, "T_METPF_ET/F");
+    mytree_->Branch("T_METPF_Phi", &T_METPF_Phi, "T_METPF_Phi/F");	
+    mytree_->Branch("T_METPF_Sig", &T_METPF_Sig, "T_METPF_Sig/F");
+    
+    mytree_->Branch("T_METPFTypeI_ET", &T_METPFTypeI_ET, "T_METPFTypeI_ET/F");
+    mytree_->Branch("T_METPFTypeI_Phi", &T_METPFTypeI_Phi, "T_METPFTypeI_Phi/F");
+    
+    
+/*    mytree_->Branch("T_Jet_Px" , "std::vector<float>", &T_Jet_Px);
+    mytree_->Branch("T_Jet_Py", "std::vector<float>", &T_Jet_Py);
+    mytree_->Branch("T_Jet_Pz", "std::vector<float>", &T_Jet_Pz);
+    mytree_->Branch("T_Jet_Et", "std::vector<float>", &T_Jet_Et);
+    mytree_->Branch("T_Jet_Eta", "std::vector<float>", &T_Jet_Eta);
+    mytree_->Branch("T_Jet_Energy", "std::vector<float>", &T_Jet_Energy);
+    mytree_->Branch("T_Jet_Corr", "std::vector<float>", &T_Jet_Corr);
+    mytree_->Branch("T_Jet_Phi", "std::vector<float>", &T_Jet_Phi);*/
+
+
+    
+}
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+ElecIdAnalyzer::endJob() 
+{
+    rootFile_->Write();
+    rootFile_->Close();
+
+}
+
+// ------------ method called when starting to processes a run  ------------
+void 
+ElecIdAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when ending the processing of a run  ------------
+void 
+ElecIdAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when starting to processes a luminosity block  ------------
+void 
+ElecIdAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when ending the processing of a luminosity block  ------------
+void 
+ElecIdAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
+
+void 
+ElecIdAnalyzer::beginEvent()
+{
+    T_Gen_Elec_Px = new std::vector<float>;
+    T_Gen_Elec_Py = new std::vector<float>;
+    T_Gen_Elec_Pz = new std::vector<float>;
+    T_Gen_Elec_Energy = new std::vector<float>;
+    T_Gen_Elec_deltaR = new std::vector<float>;
+    T_Gen_Elec_MCpart = new std::vector<int>;    
+    T_Gen_Elec_PDGid = new std::vector<int>;    
+    T_Gen_Elec_status = new std::vector<int>;
+    T_Gen_Elec_MotherID = new std::vector<int>;
+    
+    T_Vertex_z = new std::vector<float>;   
+    T_Vertex_y = new std::vector<float>;
+    T_Vertex_x = new std::vector<float>; 
+    T_Vertex_Chi2Prob= new std::vector<float>;
+    T_Vertex_rho = new std::vector<float>;
+    T_Vertex_ndof = new std::vector<float>;
+    T_Vertex_isFake = new std::vector<bool>;
+    T_Vertex_tracksSize = new std::vector<int>; 
+    
+    T_Elec_Eta  = new std::vector<float>;
+    T_Elec_IPwrtAveBS = new std::vector<float>;
+    T_Elec_IPwrtPV = new std::vector<float>;
+    T_Elec_Px = new std::vector<float>;
+    T_Elec_Py = new std::vector<float>;
+    T_Elec_Pz = new std::vector<float>;
+    T_Elec_Pt = new std::vector<float>;
+    T_Elec_Energy = new std::vector<float>;
+    T_Elec_Charge = new std::vector<int>;
+    
+    T_Elec_vz = new std::vector<float>;
+    T_Elec_vy = new std::vector<float>;  
+    T_Elec_vx = new std::vector<float>;
+    T_Elec_nLost =  new std::vector<int>; 
+    T_Elec_nHits  =  new std::vector<int>;
+    T_Elec_SC_Et = new std::vector<float>;
+    T_Elec_SC_Eta = new std::vector<float>; 
+    T_Elec_nBrems  = new std::vector<int>;
+    T_Elec_fBrem = new std::vector<float>;
+    T_Elec_eSuperClusterOverP = new std::vector<float>;
+    
+    T_Elec_passConversionVeto=new std::vector<bool>;
+    T_Elec_isEB = new std::vector<bool>;
+    T_Elec_isEE = new std::vector<bool>;
+    T_Elec_MVA = new std::vector<float>;
+    T_Elec_simpleEleId95 = new std::vector<float>;
+    T_Elec_simpleEleId90 = new std::vector<float>;
+    T_Elec_simpleEleId85 = new std::vector<float>;
+    T_Elec_simpleEleId80 = new std::vector<float>;
+    T_Elec_simpleEleId70 = new std::vector<float>;
+    T_Elec_simpleEleId60 = new std::vector<float>;
+    
+    T_Elec_sigmaIetaIeta = new std::vector<float>;
+    T_Elec_deltaPhiIn = new std::vector<float>;
+    T_Elec_deltaEtaIn =new  std::vector<float>;
+    T_Elec_isEcalDriven = new std::vector<bool>;
+    T_Elec_HtoE = new std::vector<float>;
+    T_Elec_chargedHadronIso= new std::vector<float>;
+    T_Elec_neutralHadronIso= new std::vector<float>;
+    T_Elec_photonIso= new std::vector<float>;
+    T_Elec_chargedHadronIso04= new std::vector<float>;
+    T_Elec_neutralHadronIso04= new std::vector<float>;
+    T_Elec_photonIso04= new std::vector<float>;
+    T_Elec_puChargedHadronIso = new std::vector<float>;
+    
+    T_Elec_passVeto= new std::vector<bool>;
+    T_Elec_passLoose= new std::vector<bool>;
+    T_Elec_passMedium= new std::vector<bool>;
+    T_Elec_passTight= new std::vector<bool>;
+    T_Elec_passFbremopin= new std::vector<bool>;
+    T_Elec_passtrigTight= new std::vector<bool>;
+    T_Elec_passtrigwp70= new std::vector<bool>;
+    
+    T_Elec_isTrig = new std::vector<bool>;
+    
+    T_Elec_MVAid_trig = new std::vector<double>;
+    T_Elec_MVAid_Nontrig= new std::vector<double>;
+    T_Elec_Mvaiso= new std::vector<double>;
+    T_Elec_RadialIso = new std::vector<double>;
+    
+    T_Elec_ChargedIso_DR0p0To0p1 = new std::vector<double>;
+    T_Elec_ChargedIso_DR0p1To0p2 = new std::vector<double>;
+    T_Elec_ChargedIso_DR0p2To0p3 = new std::vector<double>;
+    T_Elec_ChargedIso_DR0p3To0p4 = new std::vector<double>;
+    T_Elec_ChargedIso_DR0p4To0p5 = new std::vector<double>;
+    T_Elec_GammaIso_DR0p0To0p1 = new std::vector<double>;
+    T_Elec_GammaIso_DR0p1To0p2 = new std::vector<double>;
+    T_Elec_GammaIso_DR0p2To0p3 = new std::vector<double>;
+    T_Elec_GammaIso_DR0p3To0p4 = new std::vector<double>;
+    T_Elec_GammaIso_DR0p4To0p5 = new std::vector<double>;
+    T_Elec_NeutralHadronIso_DR0p0To0p1 = new std::vector<double>;
+    T_Elec_NeutralHadronIso_DR0p1To0p2 = new std::vector<double>;
+    T_Elec_NeutralHadronIso_DR0p2To0p3 = new std::vector<double>;
+    T_Elec_NeutralHadronIso_DR0p3To0p4 = new std::vector<double>;
+    T_Elec_NeutralHadronIso_DR0p4To0p5 = new std::vector<double>;
+
+    T_Elec_HLT_Elec27_WP80 = new std::vector<int>;
+    T_Elec_HLT_Ele17_Ele8_Ele8Leg = new std::vector<int>;
+    T_Elec_HLT_Ele17_Ele8_Ele17Leg = new std::vector<int>;
+    T_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg = new std::vector<int>;
+    T_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg = new std::vector<int>;
+    T_Elec_HLT_Ele20_SC4_TnP_SC4Leg = new std::vector<int>;
+    T_Elec_HLT_Ele20_SC4_TnP_Ele20Leg = new std::vector<int>;
+    
+    T_Elec_passMVA = new std::vector<bool>;
+    T_Elec_kfchi2 = new std::vector<float>;
+    T_Elec_kfhits = new std::vector<float>;
+    T_Elec_gsfchi2 = new std::vector<float>;
+    T_Elec_detacalo = new std::vector<float>;
+    T_Elec_see = new std::vector<float>;
+    T_Elec_spp = new std::vector<float>;
+    T_Elec_etawidth = new std::vector<float>;
+    T_Elec_phiwidth = new std::vector<float>;
+    T_Elec_e1x5e5x5 = new std::vector<float>;
+    T_Elec_R9 = new std::vector<float>;
+    T_Elec_EoP = new std::vector<float>;
+    T_Elec_IoEmIoP = new std::vector<float>;
+    T_Elec_eleEoPout = new std::vector<float>;
+    T_Elec_PreShowerOverRaw = new std::vector<float>;
+    T_Elec_d0 = new std::vector<float>;
+    T_Elec_IP3D = new std::vector<float>;
+    T_Elec_dZ = new std::vector<float>;
+    T_Elec_isFO = new std::vector<bool>;
+    T_Elec_CombIsoHWW = new std::vector<float>;
+    
+    
+    T_Gen_Elec_Px = new std::vector<float>;
+    T_Gen_Elec_Py = new std::vector<float>;
+    T_Gen_Elec_Pz = new std::vector<float>;
+    T_Gen_Elec_Energy = new std::vector<float>;
+    
+    
+    
+ /*   T_Jet_Px = new std::vector<float>;
+    T_Jet_Py = new std::vector<float>;
+    T_Jet_Pz = new std::vector<float>;
+    T_Jet_Et = new std::vector<float>;
+    T_Jet_Eta = new std::vector<float>;
+    T_Jet_Energy = new std::vector<float>;
+    T_Jet_Phi = new std::vector<float>;
+    T_Jet_Corr = new std::vector<float>;*/
+    
+    
+}
+
+void ElecIdAnalyzer::endEvent(){
+    //Vertex 
+    delete T_Vertex_z;
+    delete T_Vertex_y;
+    delete T_Vertex_x;
+    delete T_Vertex_Chi2Prob;
+    delete T_Vertex_rho;
+    delete T_Vertex_ndof;
+    delete T_Vertex_isFake; 
+    delete T_Vertex_tracksSize;
+    
+    //Electrons
+    delete T_Elec_Eta;
+    delete T_Elec_IPwrtAveBS;
+    delete T_Elec_IPwrtPV;
+    delete T_Elec_Px;
+    delete T_Elec_Py;
+    delete T_Elec_Pz;
+    delete T_Elec_Pt;
+    delete T_Elec_Energy;
+    delete T_Elec_Charge;
+    delete T_Elec_vz;
+    delete T_Elec_vy;
+    delete T_Elec_vx;
+    delete T_Elec_nLost;
+    delete T_Elec_nHits;
+    delete T_Elec_SC_Et;
+    delete T_Elec_SC_Eta;
+    delete T_Elec_nBrems;
+    delete T_Elec_fBrem;
+    delete T_Elec_eSuperClusterOverP;
+    delete T_Elec_isEB;
+    delete T_Elec_isEE;
+    delete T_Elec_MVA;
+    delete T_Elec_simpleEleId95;
+    delete T_Elec_simpleEleId90;
+    delete T_Elec_simpleEleId85;
+    delete T_Elec_simpleEleId80;
+    delete T_Elec_simpleEleId70;
+    delete T_Elec_simpleEleId60;
+    delete T_Elec_sigmaIetaIeta;
+    delete T_Elec_deltaPhiIn;
+    delete T_Elec_deltaEtaIn;
+    delete T_Elec_isEcalDriven;
+    delete T_Elec_HtoE;
+    delete T_Elec_chargedHadronIso;
+    delete T_Elec_neutralHadronIso;
+    delete T_Elec_photonIso;
+    delete T_Elec_chargedHadronIso04;
+    delete T_Elec_neutralHadronIso04;
+    delete T_Elec_photonIso04;
+    delete T_Elec_puChargedHadronIso;
+    delete T_Elec_passConversionVeto;
+    delete T_Elec_passVeto;
+    delete T_Elec_passLoose;
+    delete T_Elec_passMedium;
+    delete T_Elec_passTight;
+    delete T_Elec_passFbremopin;
+    delete T_Elec_passtrigTight;
+    delete T_Elec_passtrigwp70;
+    delete T_Elec_isTrig;
+    delete T_Elec_MVAid_trig;
+    delete T_Elec_MVAid_Nontrig;
+    delete T_Elec_Mvaiso;
+    delete T_Elec_RadialIso;
+    
+    delete T_Elec_ChargedIso_DR0p0To0p1;
+    delete T_Elec_ChargedIso_DR0p1To0p2;
+    delete T_Elec_ChargedIso_DR0p2To0p3;
+    delete T_Elec_ChargedIso_DR0p3To0p4;
+    delete T_Elec_ChargedIso_DR0p4To0p5;
+    delete T_Elec_GammaIso_DR0p0To0p1;
+    delete T_Elec_GammaIso_DR0p1To0p2;
+    delete T_Elec_GammaIso_DR0p2To0p3;
+    delete T_Elec_GammaIso_DR0p3To0p4;
+    delete T_Elec_GammaIso_DR0p4To0p5;
+    delete T_Elec_NeutralHadronIso_DR0p0To0p1;
+    delete T_Elec_NeutralHadronIso_DR0p1To0p2;
+    delete T_Elec_NeutralHadronIso_DR0p2To0p3;
+    delete T_Elec_NeutralHadronIso_DR0p3To0p4;
+    delete T_Elec_NeutralHadronIso_DR0p4To0p5;
+    
+    delete T_Elec_HLT_Elec27_WP80;
+    delete T_Elec_HLT_Ele17_Ele8_Ele8Leg;
+    delete T_Elec_HLT_Ele17_Ele8_Ele17Leg;
+    delete T_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg;
+    delete T_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg;
+    delete T_Elec_HLT_Ele20_SC4_TnP_SC4Leg;
+    delete T_Elec_HLT_Ele20_SC4_TnP_Ele20Leg;
+    
+    delete T_Elec_passMVA;
+    delete T_Elec_kfchi2;
+    delete T_Elec_kfhits;
+    delete T_Elec_gsfchi2;
+    delete T_Elec_detacalo;
+    delete T_Elec_see;
+    delete T_Elec_spp;
+    delete T_Elec_etawidth;
+    delete T_Elec_phiwidth;
+    delete T_Elec_e1x5e5x5;
+    delete T_Elec_R9;
+    delete T_Elec_EoP;
+    delete T_Elec_IoEmIoP;
+    delete T_Elec_eleEoPout;
+    delete T_Elec_PreShowerOverRaw;
+    delete T_Elec_d0;
+    delete T_Elec_IP3D;
+    delete T_Elec_dZ;
+    delete T_Elec_isFO;
+    delete T_Elec_CombIsoHWW;
+  
+    
+    delete T_Gen_Elec_Px;
+    delete T_Gen_Elec_Py;
+    delete T_Gen_Elec_Pz;
+    delete T_Gen_Elec_Energy;
+    delete T_Gen_Elec_MCpart;    
+    delete T_Gen_Elec_PDGid;    
+    delete T_Gen_Elec_status;
+    delete T_Gen_Elec_MotherID;
+    delete T_Gen_Elec_deltaR;
+    
+  /*  delete T_Jet_Px;
+    delete T_Jet_Py;
+    delete T_Jet_Pz;
+    delete T_Jet_Et;
+    delete T_Jet_Eta;
+    delete T_Jet_Energy;
+    delete T_Jet_Phi;
+    delete T_Jet_Corr;*/
+     
+}
+
+bool ElecIdAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
+    
+    bool myTrigPresel = false;
+    if(fabs(ele.superCluster()->eta()) < 1.479) {
+        if(ele.sigmaIetaIeta() < 0.014 &&
+           ele.hadronicOverEm() < 0.15 &&
+           ele.dr03TkSumPt()/ele.pt() < 0.2 &&
+           ele.dr03EcalRecHitSumEt()/ele.pt() < 0.2 &&
+           ele.dr03HcalTowerSumEt()/ele.pt() < 0.2 &&
+           ele.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits() == 0)
+            myTrigPresel = true;
+    }
+    else {
+        if(ele.sigmaIetaIeta() < 0.035 &&
+           ele.hadronicOverEm() < 0.10 &&
+           ele.dr03TkSumPt()/ele.pt() < 0.2 &&
+           ele.dr03EcalRecHitSumEt()/ele.pt() < 0.2 &&
+           ele.dr03HcalTowerSumEt()/ele.pt() < 0.2 &&
+           ele.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits() == 0)
+            myTrigPresel = true;
+    }
+    return myTrigPresel;
+}
+double ElecIdAnalyzer::GetRadialIsoValue(const reco::GsfElectron& electron, 
+                                         const reco::PFCandidateCollection &PFCandidates){
+    
+    double RadialIso = 0;
+   // GsfTrackRef elecTrack = electron.gsfTrack();
+    
+
+    if (electron.gsfTrack().isNull()) {
+        //if muon is not standalone either, then return -9999
+        return -9999;
+    }
+    
+ for (reco::PFCandidateCollection::const_iterator iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
+        //exclude the electron itself
+        if(iP->trackRef().isNonnull() && electron.gsfTrack().isNonnull() &&
+           refToPtr(iP->trackRef()) == refToPtr(electron.closestTrack())) continue;
+        
+        //************************************************************
+        // New Isolation Calculations
+        //************************************************************
+      double dr = sqrt(pow(iP->eta() - electron.eta(),2) + pow(acos(cos(iP->phi() - electron.phi())),2));
+        
+        if (dr > 0.3)  continue;
+        if (dr < 0.01) continue; 
+        
+        //Charged
+        if(iP->trackRef().isNonnull()) {	  	   
+            // Veto any PFmuon, or PFEle
+            if (iP->particleId() == reco::PFCandidate::e || iP->particleId() == reco::PFCandidate::mu) continue;
+            RadialIso += iP->pt() * (1 - 3*dr) / electron.pt();
+        }
+        else if (iP->pt() > 1.0) {
+            RadialIso += iP->pt() * (1 - 3*dr) / electron.pt();
+        } 
+    } //loop over PF candidate
+    
+    return RadialIso;
+}
+
+/*void 
+ElecIdAnalyzer::doMCtruth(reco::GsfElectronRef theElec, edm::Handle <reco::GenParticleCollection> genParts, double dR)
+{
+    int nbOfGen = genParts->size();
+   // cout << "electron pt=" << theElec->pt() << " eta=" << theElec->eta() << " phi=" << theElec->phi() << endl;
+    float minDiff= 100; 
+    int iteDiff = -1000; 
+    //reco::GenParticle & theCand = (*genParts)[0];
+    for (int j = 0 ; j < nbOfGen ; j++){
+        const reco::GenParticle & p = (*genParts)[j];
+        float theDeltaR = deltaR(p.phi(), theElec->phi(), p.eta(), theElec->eta());
+        if (theDeltaR > dR) continue;
+        if (!(p.status()==1)) continue;
+        float theDiff = fabs(p.pt()-theElec->pt())/p.pt();
+        if (theDiff < minDiff){
+            minDiff = theDiff;
+            iteDiff = j;            
+        }
+    }
+    T_Gen_Elec_Px->push_back(-1);
+    T_Gen_Elec_Py->push_back(-1);
+    T_Gen_Elec_Pz->push_back(-1);
+    T_Gen_Elec_Energy->push_back(-1);
+    T_Gen_Elec_MCpart->push_back(-1);
+    T_Gen_Elec_PDGid->push_back(-1);
+    T_Gen_Elec_status->push_back(-1);
+    T_Gen_Elec_MotherID->push_back(-1);
+    
+    if (iteDiff>=0) {
+        const reco::GenParticle & theCand = (*genParts)[iteDiff];
+        const reco::Candidate * mom = theCand.mother();
+   //     cout << "ID =" << theCand.pdgId() << " pt = " << theCand.pt() << " status=" << theCand.status() << endl;
+     //   cout << "nb of mother " << theCand.numberOfMothers() << endl;
+        if (theCand.numberOfMothers()>0) mom = theCand.mother();
+     //   cout << "mother id " << mom->pdgId() << endl; 
+        T_Gen_Elec_Px->push_back(theCand.px());
+        T_Gen_Elec_Py->push_back(theCand.py());
+        T_Gen_Elec_Pz->push_back(theCand.pz());
+        T_Gen_Elec_Energy->push_back(theCand.energy());
+        T_Gen_Elec_MCpart->push_back(1);
+        T_Gen_Elec_PDGid->push_back(theCand.pdgId());
+        T_Gen_Elec_status->push_back(theCand.status());
+        if (theCand.numberOfMothers()>0) T_Gen_Elec_MotherID->push_back(mom->pdgId());  
+        else T_Gen_Elec_MotherID->push_back(-1); 
+    }
+    else{
+        T_Gen_Elec_Px->push_back(-1);
+        T_Gen_Elec_Py->push_back(-1);
+        T_Gen_Elec_Pz->push_back(-1);
+        T_Gen_Elec_Energy->push_back(-1);
+        T_Gen_Elec_MCpart->push_back(0);
+        T_Gen_Elec_PDGid->push_back(-1);
+        T_Gen_Elec_status->push_back(-1);
+        T_Gen_Elec_MotherID->push_back(-1);      
+    }
+    
+}*/
+void 
+ElecIdAnalyzer::doMCtruth(reco::GsfElectronRef theElec, edm::Handle <reco::GenParticleCollection> genParts, double dR)
+{
+    int nbOfGen = genParts->size();
+    // cout << "electron pt=" << theElec->pt() << " eta=" << theElec->eta() << " phi=" << theElec->phi() << endl;
+    float minDiff= 100; 
+    int iteDiff = -1000; 
+    //reco::GenParticle & theCand = (*genParts)[0];
+    for (int j = 0 ; j < nbOfGen ; j++){
+        const reco::GenParticle & p = (*genParts)[j];
+        float theDeltaR = deltaR(p.phi(), theElec->phi(), p.eta(), theElec->eta());
+  //      if (theDeltaR  dR) continue;
+  //      if (!(p.status()==1)) continue;
+   //     float theDiff = fabs(p.pt()-theElec->pt())/p.pt();
+        if (theDeltaR < minDiff){
+            minDiff = theDeltaR;
+            iteDiff = j;            
+        }
+    }
+
+    
+    if (iteDiff>=0) {
+        const reco::GenParticle & theCand = (*genParts)[iteDiff];
+        const reco::Candidate * mom = theCand.mother();
+        //     cout << "ID =" << theCand.pdgId() << " pt = " << theCand.pt() << " status=" << theCand.status() << endl;
+        //   cout << "nb of mother " << theCand.numberOfMothers() << endl;
+        if (theCand.numberOfMothers()>0) mom = theCand.mother();
+        //   cout << "mother id " << mom->pdgId() << endl; 
+        T_Gen_Elec_Px->push_back(theCand.px());
+        T_Gen_Elec_Py->push_back(theCand.py());
+        T_Gen_Elec_Pz->push_back(theCand.pz());
+        T_Gen_Elec_Energy->push_back(theCand.energy());
+        T_Gen_Elec_MCpart->push_back(1);
+        T_Gen_Elec_PDGid->push_back(theCand.pdgId());
+        T_Gen_Elec_status->push_back(theCand.status());
+        if (theCand.numberOfMothers()>0) T_Gen_Elec_MotherID->push_back(mom->pdgId());  
+        else T_Gen_Elec_MotherID->push_back(-1); 
+        T_Gen_Elec_deltaR->push_back(minDiff);
+    }
+    else{
+        T_Gen_Elec_Px->push_back(-1);
+        T_Gen_Elec_Py->push_back(-1);
+        T_Gen_Elec_Pz->push_back(-1);
+        T_Gen_Elec_Energy->push_back(-1);
+        T_Gen_Elec_MCpart->push_back(0);
+        T_Gen_Elec_PDGid->push_back(-1);
+        T_Gen_Elec_status->push_back(-1);
+        T_Gen_Elec_MotherID->push_back(-1);  
+        T_Gen_Elec_deltaR->push_back(-1);
+        
+    }
+    
+}
+
+float ElecIdAnalyzer::deltaR(float phi1, float phi2, float eta1, float eta2)
+{
+    float dphi=deltaPhi(phi1,phi2);
+    float deta=fabs(eta1-eta2);
+    float dr = sqrt(dphi*dphi+ deta*deta);
+    return dr;
+}
+
+
+float ElecIdAnalyzer::deltaPhi(float phi1, float phi2)
+{
+    float dphi;
+    if(phi1<0) phi1+=2*TMath::Pi();
+    if(phi2<0) phi2+=2*TMath::Pi();
+    dphi=fabs(phi1-phi2);
+    if(dphi>2*TMath::Pi()) dphi-=2*TMath::Pi();
+    if(dphi>TMath::Pi()) dphi=2*TMath::Pi()-dphi;
+    return dphi;
+}
+
+void 
+ElecIdAnalyzer::fillIsoRings(const reco::GsfElectron& ele, 
+                             const reco::Vertex& vertex, 
+                             const reco::PFCandidateCollection &PFCandidates,
+                             double Rho,
+                             ElectronEffectiveArea::ElectronEffectiveAreaTarget EATarget,
+                             const reco::GsfElectronCollection &IdentifiedElectrons,
+                             const reco::MuonCollection &IdentifiedMuons)
+{
+    
+    float fMVAVar_eta = ele.superCluster()->eta(); 
+    //**********************************************************
+    //Isolation variables
+    //**********************************************************
+    Double_t tmpChargedIso_DR0p0To0p1  = 0;
+    Double_t tmpChargedIso_DR0p1To0p2  = 0;
+    Double_t tmpChargedIso_DR0p2To0p3  = 0;
+    Double_t tmpChargedIso_DR0p3To0p4  = 0;
+    Double_t tmpChargedIso_DR0p4To0p5  = 0;
+    Double_t tmpGammaIso_DR0p0To0p1  = 0;
+    Double_t tmpGammaIso_DR0p1To0p2  = 0;
+    Double_t tmpGammaIso_DR0p2To0p3  = 0;
+    Double_t tmpGammaIso_DR0p3To0p4  = 0;
+    Double_t tmpGammaIso_DR0p4To0p5  = 0;
+    Double_t tmpNeutralHadronIso_DR0p0To0p1  = 0;
+    Double_t tmpNeutralHadronIso_DR0p1To0p2  = 0;
+    Double_t tmpNeutralHadronIso_DR0p2To0p3  = 0;
+    Double_t tmpNeutralHadronIso_DR0p3To0p4  = 0;
+    Double_t tmpNeutralHadronIso_DR0p4To0p5  = 0;
+    
+    double electronTrackZ = 0;
+    if (ele.gsfTrack().isNonnull()) {
+        electronTrackZ = ele.gsfTrack()->dz(vertex.position());
+    } else if (ele.closestCtfTrackRef().isNonnull()) {
+        electronTrackZ = ele.closestCtfTrackRef()->dz(vertex.position());
+    }
+    
+    for (reco::PFCandidateCollection::const_iterator iP = PFCandidates.begin(); 
+         iP != PFCandidates.end(); ++iP) {
+        
+        //exclude the electron itself
+        if(iP->gsfTrackRef().isNonnull() && ele.gsfTrack().isNonnull() &&
+           refToPtr(iP->gsfTrackRef()) == refToPtr(ele.gsfTrack())) continue;
+        if(iP->trackRef().isNonnull() && ele.closestCtfTrackRef().isNonnull() &&
+           refToPtr(iP->trackRef()) == refToPtr(ele.closestCtfTrackRef())) continue;      
+        
+        //************************************************************
+        // New Isolation Calculations
+        //************************************************************
+        double dr = sqrt(pow(iP->eta() - ele.eta(),2) + pow(acos(cos(iP->phi() - ele.phi())),2));
+        //Double_t deta = (iP->eta() - ele.eta());
+        
+        if (dr < 1.0) {
+            Bool_t IsLeptonFootprint = kFALSE;
+            //************************************************************
+            // Lepton Footprint Removal
+            //************************************************************   
+            for (reco::GsfElectronCollection::const_iterator iE = IdentifiedElectrons.begin(); 
+                 iE != IdentifiedElectrons.end(); ++iE) {
+                //if pf candidate matches an electron passing ID cuts, then veto it
+                if(iP->gsfTrackRef().isNonnull() && iE->gsfTrack().isNonnull() &&
+                   refToPtr(iP->gsfTrackRef()) == refToPtr(iE->gsfTrack())) IsLeptonFootprint = kTRUE;
+                if(iP->trackRef().isNonnull() && iE->closestCtfTrackRef().isNonnull() &&
+                   refToPtr(iP->trackRef()) == refToPtr(iE->closestCtfTrackRef())) IsLeptonFootprint = kTRUE;
+                
+                //if pf candidate lies in veto regions of electron passing ID cuts, then veto it
+                double tmpDR = sqrt(pow(iP->eta() - iE->eta(),2) + pow(acos(cos(iP->phi() - iE->phi())),2));
+                if(iP->trackRef().isNonnull() && fabs(iE->superCluster()->eta()) >= 1.479 
+                   && tmpDR < 0.015) IsLeptonFootprint = kTRUE;
+                if(iP->particleId() == reco::PFCandidate::gamma && fabs(iE->superCluster()->eta()) >= 1.479 
+                   && tmpDR < 0.08) IsLeptonFootprint = kTRUE;
+            }
+            for (reco::MuonCollection::const_iterator iM = IdentifiedMuons.begin(); 
+                 iM != IdentifiedMuons.end(); ++iM) {
+                //if pf candidate matches an muon passing ID cuts, then veto it
+                if(iP->trackRef().isNonnull() && iM->innerTrack().isNonnull() &&
+                   refToPtr(iP->trackRef()) == refToPtr(iM->innerTrack())) IsLeptonFootprint = kTRUE;
+                
+                //if pf candidate lies in veto regions of muon passing ID cuts, then veto it
+                double tmpDR = sqrt(pow(iP->eta() - iM->eta(),2) + pow(acos(cos(iP->phi() - iM->phi())),2));
+                if(iP->trackRef().isNonnull() && tmpDR < 0.01) IsLeptonFootprint = kTRUE;
+            }
+            
+            if (!IsLeptonFootprint) {
+                Bool_t passVeto = kTRUE;
+                //Charged
+                if(iP->trackRef().isNonnull()) {	  	   
+                    if (!(fabs(iP->trackRef()->dz(vertex.position()) - electronTrackZ) < 0.2)) passVeto = kFALSE;
+                    //************************************************************
+                    // Veto any PFmuon, or PFEle
+                    if (iP->particleId() == reco::PFCandidate::e || iP->particleId() == reco::PFCandidate::mu) passVeto = kFALSE;
+                    //************************************************************
+                    //************************************************************
+                    // Footprint Veto
+                    if (fabs(fMVAVar_eta) > 1.479 && dr < 0.015) passVeto = kFALSE;
+                    //************************************************************
+                    if (passVeto) {
+                        if (dr < 0.1) tmpChargedIso_DR0p0To0p1 += iP->pt();
+                        if (dr >= 0.1 && dr < 0.2) tmpChargedIso_DR0p1To0p2 += iP->pt();
+                        if (dr >= 0.2 && dr < 0.3) tmpChargedIso_DR0p2To0p3 += iP->pt();
+                        if (dr >= 0.3 && dr < 0.4) tmpChargedIso_DR0p3To0p4 += iP->pt();
+                        if (dr >= 0.4 && dr < 0.5) tmpChargedIso_DR0p4To0p5 += iP->pt();
+                    } //pass veto	   
+                }
+                //Gamma
+                else if (iP->particleId() == reco::PFCandidate::gamma) {
+                    //************************************************************
+                    // Footprint Veto
+                    if (fabs(fMVAVar_eta) > 1.479 && dr < 0.08) passVeto = kFALSE;
+                    //************************************************************	
+                    if (passVeto) {
+                        if (dr < 0.1) tmpGammaIso_DR0p0To0p1 += iP->pt();
+                        if (dr >= 0.1 && dr < 0.2) tmpGammaIso_DR0p1To0p2 += iP->pt();
+                        if (dr >= 0.2 && dr < 0.3) tmpGammaIso_DR0p2To0p3 += iP->pt();
+                        if (dr >= 0.3 && dr < 0.4) tmpGammaIso_DR0p3To0p4 += iP->pt();
+                        if (dr >= 0.4 && dr < 0.5) tmpGammaIso_DR0p4To0p5 += iP->pt();
+                    }
+                }
+                //NeutralHadron
+                else {
+                    if (dr < 0.1) tmpNeutralHadronIso_DR0p0To0p1 += iP->pt();
+                    if (dr >= 0.1 && dr < 0.2) tmpNeutralHadronIso_DR0p1To0p2 += iP->pt();
+                    if (dr >= 0.2 && dr < 0.3) tmpNeutralHadronIso_DR0p2To0p3 += iP->pt();
+                    if (dr >= 0.3 && dr < 0.4) tmpNeutralHadronIso_DR0p3To0p4 += iP->pt();
+                    if (dr >= 0.4 && dr < 0.5) tmpNeutralHadronIso_DR0p4To0p5 += iP->pt();
+                }
+            } //not lepton footprint
+        } //in 1.0 dr cone
+    } //loop over PF candidates
+    T_Elec_ChargedIso_DR0p0To0p1->push_back(TMath::Min((tmpChargedIso_DR0p0To0p1)/ele.pt(), 2.5));
+    T_Elec_ChargedIso_DR0p1To0p2->push_back(TMath::Min((tmpChargedIso_DR0p1To0p2)/ele.pt(), 2.5));
+    T_Elec_ChargedIso_DR0p2To0p3->push_back(TMath::Min((tmpChargedIso_DR0p2To0p3)/ele.pt(), 2.5));
+    T_Elec_ChargedIso_DR0p3To0p4->push_back(TMath::Min((tmpChargedIso_DR0p3To0p4)/ele.pt(), 2.5));
+    T_Elec_ChargedIso_DR0p4To0p5->push_back(TMath::Min((tmpChargedIso_DR0p4To0p5)/ele.pt(), 2.5));
+    
+    T_Elec_GammaIso_DR0p0To0p1->push_back(TMath::Min((tmpGammaIso_DR0p0To0p1)/ele.pt(), 2.5));
+    T_Elec_GammaIso_DR0p1To0p2->push_back(TMath::Min((tmpGammaIso_DR0p1To0p2)/ele.pt(), 2.5));
+    T_Elec_GammaIso_DR0p2To0p3->push_back(TMath::Min((tmpGammaIso_DR0p2To0p3)/ele.pt(), 2.5));
+    T_Elec_GammaIso_DR0p3To0p4->push_back(TMath::Min((tmpGammaIso_DR0p3To0p4)/ele.pt(), 2.5));
+    T_Elec_GammaIso_DR0p4To0p5->push_back(TMath::Min((tmpGammaIso_DR0p4To0p5)/ele.pt(), 2.5));
+    
+    T_Elec_NeutralHadronIso_DR0p0To0p1->push_back(TMath::Min((tmpNeutralHadronIso_DR0p0To0p1)/ele.pt(), 2.5));
+    T_Elec_NeutralHadronIso_DR0p1To0p2->push_back(TMath::Min((tmpNeutralHadronIso_DR0p1To0p2)/ele.pt(), 2.5));
+    T_Elec_NeutralHadronIso_DR0p2To0p3->push_back(TMath::Min((tmpNeutralHadronIso_DR0p2To0p3)/ele.pt(), 2.5));
+    T_Elec_NeutralHadronIso_DR0p3To0p4->push_back(TMath::Min((tmpNeutralHadronIso_DR0p3To0p4)/ele.pt(), 2.5));
+    T_Elec_NeutralHadronIso_DR0p4To0p5->push_back(TMath::Min((tmpNeutralHadronIso_DR0p4To0p5)/ele.pt(), 2.5));
+
+}
+
+bool
+ElecIdAnalyzer::passMVAcuts(const reco::GsfElectron&  electron, double theMVAvalue)
+{
+    bool theResult = false;
+    float pt = electron.pt();
+    float abseta = fabs(electron.eta());
+    
+    if (pt <= 20){
+        if ((abseta>=0)&&(abseta<0.8)) theResult = (theMVAvalue > 0.0);
+        else if ((abseta>=0.8)&&(abseta<1.479)) theResult = (theMVAvalue > 0.1);
+        else if ((abseta>=1.479)&&(abseta<2.5)) theResult = (theMVAvalue > 0.62);
+    }
+    else {
+        if ((abseta>=0)&&(abseta<0.8)) theResult = (theMVAvalue > 0.94);
+        else if ((abseta>=0.8)&&(abseta<1.479)) theResult = (theMVAvalue > 0.85);
+        else if ((abseta>=1.479)&&(abseta<2.5)) theResult = (theMVAvalue > 0.92); 
+
+    }
+    return theResult;
+}
+
+bool 
+ElecIdAnalyzer::passFOcuts(const reco::GsfElectron &electron,const reco::Vertex& vertex, bool conv)
+{
+    float pt = electron.pt();
+    float d0 = fabs(electron.gsfTrack()->dxy(vertex.position()));
+    float dz = fabs(electron.gsfTrack()->dz(vertex.position()));
+    if (electron.dr03TkSumPt()/pt          > 0.2)  return false;
+    if (electron.dr03HcalTowerSumEt()/pt   > 0.2)  return false;
+    if (d0 > 0.02)                                  return false;
+    if (dz > 0.1)                                   return false;
+    
+    unsigned int mhits = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+    if (mhits > 0)      return false;
+    if (conv)           return false;
+    
+    if (electron.isEB()) {
+        if (electron.sigmaIetaIeta()                               > 0.01)  return false;
+        if (fabs(electron.deltaEtaSuperClusterTrackAtVtx())        > 0.007) return false;
+        if (fabs(electron.deltaPhiSuperClusterTrackAtVtx())        > 0.15)  return false;
+        if (electron.hadronicOverEm()                              > 0.12)  return false;
+        if ((electron.dr03EcalRecHitSumEt() - 1.0)/pt > 0.2)   return false;
+    } else {
+        if (electron.sigmaIetaIeta()                               > 0.03)  return false;
+        if (fabs(electron.deltaEtaSuperClusterTrackAtVtx())        > 0.009) return false;
+        if (fabs(electron.deltaPhiSuperClusterTrackAtVtx())        > 0.10)  return false;
+        if (electron.hadronicOverEm()                              > 0.10)  return false;
+        if (electron.dr03EcalRecHitSumEt()/pt                      > 0.2)   return false;
+    }
+    
+    return true;
+    
+}
+
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+ElecIdAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
+
+
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(ElecIdAnalyzer);
