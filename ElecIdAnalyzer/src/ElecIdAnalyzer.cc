@@ -11,13 +11,15 @@
 //
 // constructors and destructor
 //
+
+
 ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
     // is DATA/MC 
     isMC_                   = iConfig.getParameter<bool>("isMC");
-    
+    doMuons_				= iConfig.getParameter<bool>("doMuons");
     // get input parameters
     electronsInputTag_      = iConfig.getParameter<edm::InputTag>("electronsInputTag");
     conversionsInputTag_    = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
@@ -26,6 +28,7 @@ ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
     primaryVertexInputTag_  = iConfig.getParameter<edm::InputTag>("primaryVertexInputTag");
     triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("TriggerResults");
     triggerSummaryLabel_    = iConfig.getParameter<edm::InputTag>("HLTTriggerSummaryAOD");
+	muonProducers_			= iConfig.getParameter<vtag>("muonProducer");
     isoValInputTags_        = iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
     
     // debug
@@ -38,6 +41,13 @@ ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
     HLT_name.push_back("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v");
     HLT_name.push_back("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_v");
     HLT_name.push_back("HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v");
+    HLT_name.push_back("HLT_Ele22_CaloIdL_CaloIsoVL_v");
+    HLT_name.push_back("HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v");
+    HLT_name.push_back("HLT_Ele30_CaloIdVT_TrkIdT_v");
+    HLT_name.push_back("HLT_Ele27_WP80_PFMET_MT50_v");
+    HLT_name.push_back("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v");
+    
+    
     
     HLT_triggerObjects.push_back("hltEle27WP80TrackIsoFilter");
     HLT_triggerObjects.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter");
@@ -183,7 +193,14 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<reco::PFMETCollection> metPF;
     iEvent.getByLabel("pfMet",metPF);
     const PFMET * metsPF= &((metPF.product())->front());
-    
+	
+	
+	//muon collection :
+	
+	edm::Handle < std::vector <reco::Muon> > recoMuons;
+    edm::InputTag muonProducer = muonProducers_.at(0);
+	iEvent.getByLabel(muonProducer, recoMuons);
+	
   /*  edm::Handle<reco::PFMETCollection> metPFTypeI;
     iEvent.getByLabel("pfType1CorrectedMet",metPFTypeI);
     const PFMET * metsPFTypeI= &((metPFTypeI.product())->front());*/
@@ -321,10 +338,10 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     if (changedConfig){
         moduleLabels.clear();
-        for (size_t j = 0; j < hltConfig.triggerNames().size(); j++) {
-            for (int m = 0 ; m < 4 ; m++){
+        for (size_t m = 0 ; m < HLT_name.size() ; m++){
+            for (size_t j = 0; j < hltConfig.triggerNames().size(); j++) {
                 if (TString(hltConfig.triggerNames()[j]).Contains(HLT_name[m])){
-              //      cout << j << " = " << hltConfig.triggerNames()[j] << endl;
+                    cout << j << " = " << hltConfig.triggerNames()[j] << endl;
                     theBitCorr.push_back(j);
                 }
             }
@@ -333,11 +350,16 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             moduleLabels.push_back(edm::InputTag(HLT_triggerObjects[j], "", triggerResultsLabel_.process()));
     }
     // nom fill the trigger bits : 
+
     T_Event_HLT_Ele27_WP80 =         triggerResults->accept(theBitCorr[0]);
     T_Event_HLT_Ele17_Ele8 =         triggerResults->accept(theBitCorr[1]);
     T_Event_HLT_Ele17_Ele8_M50_TnP = triggerResults->accept(theBitCorr[2]);
     T_Event_HLT_Ele20_SC4_M50_TnP =  triggerResults->accept(theBitCorr[3]);
-    
+    T_Event_HLT_Ele22_CaloIdL_CaloIsoVL =         triggerResults->accept(theBitCorr[4]);
+    T_Event_HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL =         triggerResults->accept(theBitCorr[5]);
+    T_Event_HLT_Ele30_CaloIdVT_TrkIdT =         triggerResults->accept(theBitCorr[6]);
+    T_Event_HLT_Ele27_WP80_PFMET_MT50 =         triggerResults->accept(theBitCorr[7]);
+    T_Event_HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30 =         triggerResults->accept(theBitCorr[8]);
     
     /// fill the in selected Objet the HLT filter we will use for the matching
     trigger::TriggerObjectCollection allTriggerObjects = triggerSummary->getObjects();
@@ -366,6 +388,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //  now fill event content
     
     T_Event_RunNumber = iEvent.id().run();
+	//cout << "coucou on est dans le run " << T_Event_RunNumber << endl;
     T_Event_EventNumber = iEvent.id().event();
     T_Event_LuminosityBlock = iEvent.id().luminosityBlock(); 
     
@@ -434,7 +457,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     // loop on electrons
     unsigned int n = els_h->size();
- //   cout << "nb of electrons = " << n << endl;
+//    cout << "nb of electrons = " << n << endl;
     for(unsigned int i = 0; i < n; ++i) {
         
         // get reference to electron
@@ -541,6 +564,12 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         double theRadIso = GetRadialIsoValue(*ele, inPfCands);
         T_Elec_RadialIso->push_back(theRadIso);
         
+        double theRadIsoVeto = GetRadialIsoValueVeto(*ele, inPfCands);
+        T_Elec_RadialIsoVeto->push_back(theRadIsoVeto);
+        
+        double theRadIsoVetoMore = GetRadialIsoValueVetoMore(*ele, inPfCands, IdentifiedElectrons, IdentifiedMuons);
+        T_Elec_RadialIsoVetoMore->push_back(theRadIsoVetoMore);
+        
         fillIsoRings(*ele, vtx_h->at(0), 
         inPfCands, Rho, 
         ElectronEffectiveArea::kEleEAData2011,
@@ -555,10 +584,11 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         int pass_Elec_HLT_Ele20_SC4_TnP_Ele20Leg = 0;
         
         for (size_t t = 0 ; t < selectedObjects.size() ; t++){
-      //      cout << "eta = " << selectedObjects[t].eta() << " phi = " << selectedObjects[t].phi() << "filter = " << HLT_triggerObjects[theHLTcorr[t]] << endl;
+           //cout << "eta = " << selectedObjects[t].eta() << " phi = " << selectedObjects[t].phi() << "filter = " << HLT_triggerObjects[theHLTcorr[t]] << endl;
             float HLTdeltaR = deltaR(ele->phi(), selectedObjects[t].phi(), ele->eta(), selectedObjects[t].eta());
-      //      cout << "delta R =" << HLTdeltaR << endl;
+           //cout << "delta R =" << HLTdeltaR << endl;
             if (HLTdeltaR < 0.3){
+	//	cout << "coucou on passe = " << theHLTcorr[t] << endl;
                 if (theHLTcorr[t] == 0) pass_Elec_HLT_Elec27_WP80 = 1; 
                 if (theHLTcorr[t] == 1) pass_Elec_HLT_Ele17_Ele8_Ele8Leg = 1; 
                 if (theHLTcorr[t] == 2) pass_Elec_HLT_Ele17_Ele8_Ele17Leg = 1; 
@@ -690,9 +720,20 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         T_Jet_Phi->push_back(jet->phi());
         T_Jet_Corr->push_back(correction);
     }*/
+	
+	if (doMuons_){
+		int nbMuons = recoMuons->size();
+		cout << "il y a " << nbMuons << " muons " << endl;
+		//loop on the muons in the event 
+		for (int k = 0 ; k < nbMuons ; k++){
+				const reco::Muon* muon = &((*recoMuons)[k]);
+			cout << "the muon = pt " << muon->pt()  << endl;
+		}
+	}
     
     mytree_->Fill();
     endEvent();
+    //cout << "on a fini cet event ;) " << endl;
 }
 
 
@@ -721,6 +762,12 @@ ElecIdAnalyzer::beginJob()
    mytree_->Branch("T_Event_HLT_Ele17_Ele8",&T_Event_HLT_Ele17_Ele8,"T_Event_HLT_Ele17_Ele8/I");
    mytree_->Branch("T_Event_HLT_Ele17_Ele8_M50_TnP",&T_Event_HLT_Ele17_Ele8_M50_TnP,"T_Event_HLT_Ele17_Ele8_M50_TnP/I");
    mytree_->Branch("T_Event_HLT_Ele20_SC4_M50_TnP",&T_Event_HLT_Ele20_SC4_M50_TnP,"T_Event_HLT_Ele20_SC4_M50_TnP/I");
+   mytree_->Branch("T_Event_HLT_Ele22_CaloIdL_CaloIsoVL",&T_Event_HLT_Ele22_CaloIdL_CaloIsoVL,"T_Event_HLT_Ele22_CaloIdL_CaloIsoVL/I");
+   mytree_->Branch("T_Event_HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL",&T_Event_HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL,"T_Event_HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL/I");
+   mytree_->Branch("T_Event_HLT_Ele30_CaloIdVT_TrkIdT",&T_Event_HLT_Ele30_CaloIdVT_TrkIdT,"T_Event_HLT_Ele30_CaloIdVT_TrkIdT/I");
+   mytree_->Branch("T_Event_HLT_Ele27_WP80_PFMET_MT50",&T_Event_HLT_Ele27_WP80_PFMET_MT50,"T_Event_HLT_Ele27_WP80_PFMET_MT50/I");
+   mytree_->Branch("T_Event_HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30",&T_Event_HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30,"T_Event_HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30/I");
+
     
     
    mytree_->Branch("T_Gen_Elec_Px", "std::vector<float>", &T_Gen_Elec_Px);
@@ -803,6 +850,8 @@ ElecIdAnalyzer::beginJob()
     mytree_->Branch("T_Elec_MVAid_Nontrig","std::vector<double>", &T_Elec_MVAid_Nontrig); 
     mytree_->Branch("T_Elec_Mvaiso","std::vector<double>", &T_Elec_Mvaiso); 
     mytree_->Branch("T_Elec_RadialIso","std::vector<double>", &T_Elec_RadialIso); 
+    mytree_->Branch("T_Elec_RadialIsoVeto","std::vector<double>", &T_Elec_RadialIsoVeto); 
+    mytree_->Branch("T_Elec_RadialIsoVetoMore","std::vector<double>", &T_Elec_RadialIsoVetoMore); 
     
     mytree_->Branch("T_Elec_ChargedIso_DR0p1To0p1_DR0p0To0p1","std::vector<double>", &T_Elec_ChargedIso_DR0p0To0p1); 
     mytree_->Branch("T_Elec_ChargedIso_DR0p1To0p2","std::vector<double>", &T_Elec_ChargedIso_DR0p1To0p2); 
@@ -858,7 +907,55 @@ ElecIdAnalyzer::beginJob()
     
     mytree_->Branch("T_METPFTypeI_ET", &T_METPFTypeI_ET, "T_METPFTypeI_ET/F");
     mytree_->Branch("T_METPFTypeI_Phi", &T_METPFTypeI_Phi, "T_METPFTypeI_Phi/F");
-    
+	
+	//Muons
+	if (doMuons_){
+		mytree_->Branch("T_Muon_Eta", "std::vector<float>", &T_Muon_Eta);
+		mytree_->Branch("T_Muon_IsGlobalMuon", "std::vector<bool>", &T_Muon_IsGlobalMuon);
+
+		mytree_-> Branch("T_Muon_IsAllTrackerMuons", "std::vector<bool>", &T_Muon_IsAllTrackerMuons);
+		mytree_-> Branch("T_Muon_IsTrackerMuonArbitrated", "std::vector<bool>", &T_Muon_IsTrackerMuonArbitrated);
+
+		mytree_-> Branch("T_Muon_IsGMPTMuons", "std::vector<bool>", &T_Muon_IsGMPTMuons);
+	
+		mytree_->Branch("T_Muon_SegmentCompatibility","std::vector<float>", &T_Muon_SegmentCompatibility);
+		mytree_->Branch("T_Muon_trkKink","std::vector<float>", &T_Muon_trkKink);
+		mytree_->Branch("T_Muon_Px", "std::vector<float>", &T_Muon_Px);
+		mytree_->Branch("T_Muon_Py", "std::vector<float>", &T_Muon_Py);
+		mytree_->Branch("T_Muon_Pz", "std::vector<float>", &T_Muon_Pz);
+		mytree_->Branch("T_Muon_Pt", "std::vector<float>", &T_Muon_Pt);
+		mytree_->Branch("T_Muon_deltaPt", "std::vector<float>", &T_Muon_deltaPt);
+		mytree_->Branch("T_Muon_Energy", "std::vector<float>", &T_Muon_Energy);
+		mytree_->Branch("T_Muon_Charge", "std::vector<int>", &T_Muon_Charge);
+		mytree_->Branch("T_Muon_NormChi2GTrk", "std::vector<float>", &T_Muon_NormChi2GTrk);
+		mytree_->Branch("T_Muon_NValidHitsInTrk", "std::vector<int>", &T_Muon_NValidHitsInTrk);
+		mytree_->Branch("T_Muon_NValidPixelHitsInTrk", "std::vector<int>", &T_Muon_NValidPixelHitsInTrk);
+		mytree_->Branch("T_Muon_InnerTrackFound", "std::vector<int>", &T_Muon_InnerTrackFound);
+		mytree_->Branch("T_Muon_NValidHitsSATrk", "std::vector<int>", &T_Muon_NValidHitsSATrk);
+		mytree_->Branch("T_Muon_NValidHitsGTrk", "std::vector<int>", &T_Muon_NValidHitsGTrk);
+		mytree_->Branch("T_Muon_Chi2InTrk", "std::vector<float>", &T_Muon_Chi2InTrk);
+		mytree_->Branch("T_Muon_dofInTrk", "std::vector<float>", &T_Muon_dofInTrk);
+		mytree_->Branch("T_Muon_IPAbsGTrack", "std::vector<float>", &T_Muon_IPAbsGTrack);
+		mytree_->Branch("T_Muon_IPAbsInTrack", "std::vector<float>", &T_Muon_IPAbsInTrack);
+		mytree_->Branch("T_Muon_IPwrtAveBSInTrack", "std::vector<float>", &T_Muon_IPwrtAveBSInTrack);
+
+		mytree_->Branch("T_Muon_chargedHadronIsoR04", "std::vector<float>", &T_Muon_chargedHadronIsoR04);
+		mytree_->Branch("T_Muon_neutralHadronIsoR04", "std::vector<float>", &T_Muon_neutralHadronIsoR04);
+		mytree_->Branch("T_Muon_photonIsoR04", "std::vector<float>", &T_Muon_photonIsoR04);
+		mytree_->Branch("T_Muon_chargedParticleIsoR03", "std::vector<float>", &T_Muon_chargedParticleIsoR03);
+		mytree_->Branch("T_Muon_chargedHadronIsoR03", "std::vector<float>", &T_Muon_chargedHadronIsoR03);
+		mytree_->Branch("T_Muon_neutralHadronIsoR03", "std::vector<float>", &T_Muon_neutralHadronIsoR03);
+		mytree_->Branch("T_Muon_photonIsoR03", "std::vector<float>", &T_Muon_photonIsoR03);
+		mytree_->Branch("T_Muon_sumPUPtR04", "std::vector<float>", &T_Muon_sumPUPtR04);
+		mytree_->Branch("T_Muon_sumPUPtR03", "std::vector<float>", &T_Muon_sumPUPtR03);
+		mytree_->Branch("T_Muon_vz", "std::vector<float>", &T_Muon_vz);
+		mytree_->Branch("T_Muon_vy", "std::vector<float>", &T_Muon_vy);
+		mytree_->Branch("T_Muon_vx", "std::vector<float>", &T_Muon_vx);
+		mytree_->Branch("T_Muon_NumOfMatches", "std::vector<int>", &T_Muon_NumOfMatches);
+
+		mytree_->Branch("T_Muon_NLayers","std::vector<int>", &T_Muon_NLayers);
+	
+    }
     
 /*    mytree_->Branch("T_Jet_Px" , "std::vector<float>", &T_Jet_Px);
     mytree_->Branch("T_Jet_Py", "std::vector<float>", &T_Jet_Py);
@@ -987,6 +1084,8 @@ ElecIdAnalyzer::beginEvent()
     T_Elec_MVAid_Nontrig= new std::vector<double>;
     T_Elec_Mvaiso= new std::vector<double>;
     T_Elec_RadialIso = new std::vector<double>;
+    T_Elec_RadialIsoVeto = new std::vector<double>;
+    T_Elec_RadialIsoVetoMore = new std::vector<double>;
     
     T_Elec_ChargedIso_DR0p0To0p1 = new std::vector<double>;
     T_Elec_ChargedIso_DR0p1To0p2 = new std::vector<double>;
@@ -1033,7 +1132,49 @@ ElecIdAnalyzer::beginEvent()
     T_Elec_isFO = new std::vector<bool>;
     T_Elec_CombIsoHWW = new std::vector<float>;
     
-    
+	T_Muon_Eta = new std::vector<float>;
+	T_Muon_IsGlobalMuon = new std::vector<bool>;
+	T_Muon_IsGMPTMuons = new std::vector<bool>;
+	T_Muon_IsAllTrackerMuons = new std::vector<bool>;
+	T_Muon_IsTrackerMuonArbitrated = new std::vector<bool>;
+	T_Muon_IsAllArbitrated = new std::vector<bool>;
+	T_Muon_SegmentCompatibility= new std::vector<float>;
+	T_Muon_trkKink  = new std::vector<float>;
+	T_Muon_Px = new std::vector<float>;
+	T_Muon_Py = new std::vector<float>;
+	T_Muon_Pz = new std::vector<float>;
+	T_Muon_Pt = new std::vector<float>;
+	T_Muon_deltaPt = new std::vector<float>;
+	T_Muon_Energy = new std::vector<float>;
+	T_Muon_Charge = new std::vector<int>;
+	T_Muon_NormChi2GTrk = new std::vector<float>;
+	T_Muon_NValidHitsInTrk = new std::vector<int>;
+	T_Muon_NValidPixelHitsInTrk = new std::vector<int>;
+	T_Muon_NValidHitsSATrk = new std::vector<int>;
+	T_Muon_NValidHitsGTrk = new std::vector<int>;
+	T_Muon_NumOfMatches = new std::vector<int>;
+	T_Muon_Chi2InTrk = new std::vector<float>;
+	T_Muon_dofInTrk = new std::vector<float>;
+	T_Muon_IPAbsGTrack = new std::vector<float>;
+	T_Muon_IPAbsInTrack = new std::vector<float>;
+	T_Muon_IPwrtAveBSInTrack =  new std::vector<float>;
+	T_Muon_InnerTrackFound=new std::vector<int>;
+	T_Muon_chargedHadronIsoR04 = new std::vector<float>;
+	T_Muon_neutralHadronIsoR04 = new std::vector<float>;
+	T_Muon_photonIsoR04 = new std::vector<float>;
+	T_Muon_sumPUPtR04 = new std::vector<float>;
+	T_Muon_chargedParticleIsoR03 = new std::vector<float>;
+	T_Muon_chargedHadronIsoR03 = new std::vector<float>;
+	T_Muon_neutralHadronIsoR03 = new std::vector<float>;
+	T_Muon_photonIsoR03 = new std::vector<float>;
+	T_Muon_sumPUPtR03 = new std::vector<float>;
+	T_Muon_vz = new std::vector<float>;
+	T_Muon_vy = new std::vector<float>;  
+	T_Muon_vx = new std::vector<float>;
+	T_Muon_NLayers =  new std::vector<int>;
+	
+	
+	
     T_Gen_Elec_Px = new std::vector<float>;
     T_Gen_Elec_Py = new std::vector<float>;
     T_Gen_Elec_Pz = new std::vector<float>;
@@ -1118,6 +1259,8 @@ void ElecIdAnalyzer::endEvent(){
     delete T_Elec_MVAid_Nontrig;
     delete T_Elec_Mvaiso;
     delete T_Elec_RadialIso;
+    delete T_Elec_RadialIsoVeto;
+    delete T_Elec_RadialIsoVetoMore;
     
     delete T_Elec_ChargedIso_DR0p0To0p1;
     delete T_Elec_ChargedIso_DR0p1To0p2;
@@ -1174,6 +1317,53 @@ void ElecIdAnalyzer::endEvent(){
     delete T_Gen_Elec_status;
     delete T_Gen_Elec_MotherID;
     delete T_Gen_Elec_deltaR;
+	
+	//Muons
+	delete T_Muon_Eta;
+	delete T_Muon_IsGlobalMuon;
+
+	delete T_Muon_IsGMPTMuons;
+	delete T_Muon_IsAllTrackerMuons;
+	delete T_Muon_IsTrackerMuonArbitrated;
+	delete T_Muon_IsAllArbitrated;
+
+	delete T_Muon_Px;
+	delete T_Muon_Py;
+	delete T_Muon_Pz;
+	delete T_Muon_Pt;
+	delete T_Muon_deltaPt;
+	delete T_Muon_Energy;
+	delete T_Muon_Charge;
+	delete T_Muon_NormChi2GTrk;
+	delete T_Muon_NValidHitsInTrk;
+	delete T_Muon_NValidHitsSATrk;
+	delete T_Muon_NValidHitsGTrk;
+	delete T_Muon_NValidPixelHitsInTrk;
+	delete T_Muon_Chi2InTrk;
+	delete T_Muon_dofInTrk;
+	delete T_Muon_IPAbsGTrack;
+	delete T_Muon_IPAbsInTrack;
+	delete T_Muon_IPwrtAveBSInTrack;
+
+	delete T_Muon_NumOfMatches;
+	delete T_Muon_InnerTrackFound;
+	delete T_Muon_vz;
+	delete T_Muon_vy;
+	delete T_Muon_vx;
+
+	delete T_Muon_trkKink ;
+	delete T_Muon_SegmentCompatibility;
+	delete T_Muon_chargedParticleIsoR03;
+	delete T_Muon_chargedHadronIsoR03;
+	delete T_Muon_neutralHadronIsoR03;
+	delete T_Muon_photonIsoR03;
+	delete T_Muon_chargedHadronIsoR04;
+	delete T_Muon_neutralHadronIsoR04;
+	delete T_Muon_photonIsoR04;
+	delete T_Muon_sumPUPtR04;
+	delete T_Muon_sumPUPtR03;
+
+	delete T_Muon_NLayers;
     
   /*  delete T_Jet_Px;
     delete T_Jet_Py;
@@ -1248,6 +1438,134 @@ double ElecIdAnalyzer::GetRadialIsoValue(const reco::GsfElectron& electron,
     return RadialIso;
 }
 
+double ElecIdAnalyzer::GetRadialIsoValueVeto(const reco::GsfElectron& electron, 
+                                         const reco::PFCandidateCollection &PFCandidates){
+    
+    double RadialIso = 0;
+    // GsfTrackRef elecTrack = electron.gsfTrack();
+    
+    
+    if (electron.gsfTrack().isNull()) {
+        //if muon is not standalone either, then return -9999
+        return -9999;
+    }
+    
+    for (reco::PFCandidateCollection::const_iterator iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
+        //exclude the electron itself
+        if(iP->gsfTrackRef().isNonnull() && electron.gsfTrack().isNonnull() &&
+           refToPtr(iP->gsfTrackRef()) == refToPtr(electron.gsfTrack())) continue;
+        if(iP->trackRef().isNonnull() && electron.closestCtfTrackRef().isNonnull() &&
+           refToPtr(iP->trackRef()) == refToPtr(electron.closestCtfTrackRef())) continue;   
+
+        //if pf candidate lies in veto regions of the electron, then veto it
+        double tmpDR = sqrt(pow(iP->eta() - electron.eta(),2) + pow(acos(cos(iP->phi() - electron.phi())),2));
+        if(iP->trackRef().isNonnull() && fabs(electron.superCluster()->eta()) >= 1.479 
+           && tmpDR < 0.015) continue;
+        if(iP->particleId() == reco::PFCandidate::gamma && fabs(electron.superCluster()->eta()) >= 1.479 
+           && tmpDR < 0.08) continue;
+        
+        //************************************************************
+        // New Isolation Calculations
+        //************************************************************
+        double dr = sqrt(pow(iP->eta() - electron.eta(),2) + pow(acos(cos(iP->phi() - electron.phi())),2));
+        
+        if (dr > 0.3)  continue;
+        if (dr < 0.01) continue; 
+        
+        //Charged
+        if(iP->trackRef().isNonnull()) {	  	   
+            // Veto any PFmuon, or PFEle
+            if (iP->particleId() == reco::PFCandidate::e || iP->particleId() == reco::PFCandidate::mu) continue;
+            RadialIso += iP->pt() * (1 - 3*dr) / electron.pt();
+        }
+        else if (iP->pt() > 1.0) {
+            RadialIso += iP->pt() * (1 - 3*dr) / electron.pt();
+        } 
+    } //loop over PF candidate
+    
+    return RadialIso;
+}
+
+double ElecIdAnalyzer::GetRadialIsoValueVetoMore(const reco::GsfElectron& electron, 
+                                                 const reco::PFCandidateCollection &PFCandidates,
+                                                 const reco::GsfElectronCollection &IdentifiedElectrons,
+                                                 const reco::MuonCollection &IdentifiedMuons){
+    
+    double RadialIso = 0;
+    // GsfTrackRef elecTrack = electron.gsfTrack();
+    
+    
+    if (electron.gsfTrack().isNull()) {
+        //if muon is not standalone either, then return -9999
+        return -9999;
+    }
+    
+    for (reco::PFCandidateCollection::const_iterator iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
+        //exclude the electron itself
+        if(iP->gsfTrackRef().isNonnull() && electron.gsfTrack().isNonnull() &&
+           refToPtr(iP->gsfTrackRef()) == refToPtr(electron.gsfTrack())) continue;
+        if(iP->trackRef().isNonnull() && electron.closestCtfTrackRef().isNonnull() &&
+           refToPtr(iP->trackRef()) == refToPtr(electron.closestCtfTrackRef())) continue;   
+        
+        //if pf candidate lies in veto regions of the electron, then veto it
+        double tmpDR = sqrt(pow(iP->eta() - electron.eta(),2) + pow(acos(cos(iP->phi() - electron.phi())),2));
+        if(iP->trackRef().isNonnull() && fabs(electron.superCluster()->eta()) >= 1.479 
+           && tmpDR < 0.015) continue;
+        if(iP->particleId() == reco::PFCandidate::gamma && fabs(electron.superCluster()->eta()) >= 1.479 
+           && tmpDR < 0.08) continue;
+        Bool_t IsLeptonFootprint = kFALSE;
+        //************************************************************
+        // Lepton Footprint Removal
+        //************************************************************   
+        for (reco::GsfElectronCollection::const_iterator iE = IdentifiedElectrons.begin(); 
+             iE != IdentifiedElectrons.end(); ++iE) {
+            //if pf candidate matches an electron passing ID cuts, then veto it
+            if(iP->gsfTrackRef().isNonnull() && iE->gsfTrack().isNonnull() &&
+               refToPtr(iP->gsfTrackRef()) == refToPtr(iE->gsfTrack())) IsLeptonFootprint = kTRUE;
+            if(iP->trackRef().isNonnull() && iE->closestCtfTrackRef().isNonnull() &&
+               refToPtr(iP->trackRef()) == refToPtr(iE->closestCtfTrackRef())) IsLeptonFootprint = kTRUE;
+            
+            //if pf candidate lies in veto regions of electron passing ID cuts, then veto it
+            double tmpDR = sqrt(pow(iP->eta() - iE->eta(),2) + pow(acos(cos(iP->phi() - iE->phi())),2));
+            if(iP->trackRef().isNonnull() && fabs(iE->superCluster()->eta()) >= 1.479 
+               && tmpDR < 0.015) IsLeptonFootprint = kTRUE;
+            if(iP->particleId() == reco::PFCandidate::gamma && fabs(iE->superCluster()->eta()) >= 1.479 
+               && tmpDR < 0.08) IsLeptonFootprint = kTRUE;
+        }
+        for (reco::MuonCollection::const_iterator iM = IdentifiedMuons.begin(); 
+             iM != IdentifiedMuons.end(); ++iM) {
+            //if pf candidate matches an muon passing ID cuts, then veto it
+            if(iP->trackRef().isNonnull() && iM->innerTrack().isNonnull() &&
+               refToPtr(iP->trackRef()) == refToPtr(iM->innerTrack())) IsLeptonFootprint = kTRUE;
+            
+            //if pf candidate lies in veto regions of muon passing ID cuts, then veto it
+            double tmpDR = sqrt(pow(iP->eta() - iM->eta(),2) + pow(acos(cos(iP->phi() - iM->phi())),2));
+            if(iP->trackRef().isNonnull() && tmpDR < 0.01) IsLeptonFootprint = kTRUE;
+        }
+        if (IsLeptonFootprint) continue;
+        //************************************************************
+        // New Isolation Calculations
+        //************************************************************
+        double dr = sqrt(pow(iP->eta() - electron.eta(),2) + pow(acos(cos(iP->phi() - electron.phi())),2));
+        
+        if (dr > 0.3)  continue;
+        if (dr < 0.01) continue; 
+        
+        //Charged
+        if(iP->trackRef().isNonnull()) {	  	   
+            // Veto any PFmuon, or PFEle
+            if (iP->particleId() == reco::PFCandidate::e || iP->particleId() == reco::PFCandidate::mu) continue;
+            RadialIso += iP->pt() * (1 - 3*dr) / electron.pt();
+        }
+        else if (iP->pt() > 1.0) {
+            RadialIso += iP->pt() * (1 - 3*dr) / electron.pt();
+        } 
+    } //loop over PF candidate
+    
+    return RadialIso;
+}
+
+
 /*void 
 ElecIdAnalyzer::doMCtruth(reco::GsfElectronRef theElec, edm::Handle <reco::GenParticleCollection> genParts, double dR)
 {
@@ -1305,6 +1623,8 @@ ElecIdAnalyzer::doMCtruth(reco::GsfElectronRef theElec, edm::Handle <reco::GenPa
     }
     
 }*/
+
+
 void 
 ElecIdAnalyzer::doMCtruth(reco::GsfElectronRef theElec, edm::Handle <reco::GenParticleCollection> genParts, double dR)
 {

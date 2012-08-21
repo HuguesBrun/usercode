@@ -47,6 +47,10 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -116,6 +120,8 @@
 
 // class declaration
 //
+typedef std::vector<edm::InputTag> vtag;
+
 
 class ElecIdAnalyzer : public edm::EDAnalyzer {
    public:
@@ -140,6 +146,12 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
       virtual bool trainTrigPresel(const reco::GsfElectron&);
       virtual double GetRadialIsoValue(const reco::GsfElectron&, 
                                        const reco::PFCandidateCollection &);
+     virtual double GetRadialIsoValueVeto(const reco::GsfElectron&, 
+                                     const reco::PFCandidateCollection &);
+     virtual double GetRadialIsoValueVetoMore(const reco::GsfElectron&, 
+                                                     const reco::PFCandidateCollection &,
+                                                     const reco::GsfElectronCollection &,
+                                              const reco::MuonCollection &);
       virtual void doMCtruth(reco::GsfElectronRef, edm::Handle <reco::GenParticleCollection>, double);
       virtual float deltaR(float , float , float , float );
       virtual float deltaPhi(float , float);
@@ -156,6 +168,9 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
     // is DATA / MC 
     bool isMC_;
+	bool doMuons_;
+	
+	vtag muonProducers_;
     // input tags
     edm::InputTag               electronsInputTag_;
     edm::InputTag               conversionsInputTag_;
@@ -207,6 +222,12 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     int T_Event_HLT_Ele17_Ele8;
     int T_Event_HLT_Ele17_Ele8_M50_TnP;
     int T_Event_HLT_Ele20_SC4_M50_TnP;
+    int T_Event_HLT_Ele22_CaloIdL_CaloIsoVL;
+    int T_Event_HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL;
+    int T_Event_HLT_Ele30_CaloIdVT_TrkIdT;
+    int T_Event_HLT_Ele27_WP80_PFMET_MT50;
+    int T_Event_HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30;
+
     // gen info on the electron
     std::vector<float> *T_Gen_Elec_Px;
     std::vector<float> *T_Gen_Elec_Py;
@@ -288,6 +309,8 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<double> *T_Elec_MVAid_Nontrig;
     std::vector<double> *T_Elec_Mvaiso;
     std::vector<double> *T_Elec_RadialIso;
+    std::vector<double> *T_Elec_RadialIsoVeto;
+    std::vector<double> *T_Elec_RadialIsoVetoMore;
     std::vector<double> *T_Elec_ChargedIso_DR0p0To0p1;
     std::vector<double> *T_Elec_ChargedIso_DR0p1To0p2;
     std::vector<double> *T_Elec_ChargedIso_DR0p2To0p3;
@@ -330,6 +353,53 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<float>* T_Elec_dZ;
     std::vector<bool>* T_Elec_isFO;
     std::vector<float>* T_Elec_CombIsoHWW;
+	
+	
+	//now the muons ! 
+	std::vector<float>*T_Muon_Eta;
+	std::vector<bool> *T_Muon_IsGlobalMuon;
+	std::vector<bool> *T_Muon_IsGMPTMuons;
+	std::vector<bool> *T_Muon_IsAllTrackerMuons;          // checks isTrackerMuon flag
+	std::vector<bool> *T_Muon_IsTrackerMuonArbitrated;    // resolve ambiguity of sharing segments
+	std::vector<bool> *T_Muon_IsAllArbitrated;            // all muons with the tracker muon arbitrated
+
+	std::vector<float> *T_Muon_SegmentCompatibility; 
+	std::vector<float> *T_Muon_trkKink;
+	std::vector<float> *T_Muon_Px;
+	std::vector<float> *T_Muon_Py;
+	std::vector<float> *T_Muon_Pz;
+	std::vector<float> *T_Muon_Pt;
+	std::vector<float> *T_Muon_deltaPt;
+	std::vector<float> *T_Muon_Energy;
+	std::vector<int> *T_Muon_Charge;
+	std::vector<float> *T_Muon_NormChi2GTrk;
+	std::vector<int> *T_Muon_NValidHitsInTrk;
+	std::vector<int> *T_Muon_NValidPixelHitsInTrk;
+	std::vector<int> *T_Muon_NValidHitsSATrk;
+	std::vector<int> *T_Muon_NValidHitsGTrk;
+	std::vector<int> *T_Muon_NumOfMatches;
+	std::vector<int> *T_Muon_InnerTrackFound;
+	std::vector<float> *T_Muon_Chi2InTrk;
+	std::vector<float> *T_Muon_dofInTrk;
+
+	std::vector<float> *T_Muon_IPAbsGTrack;
+	std::vector<float> *T_Muon_IPAbsInTrack;
+	std::vector<float> *T_Muon_IPwrtAveBSInTrack;
+
+	std::vector<float> *T_Muon_chargedHadronIsoR04;
+	std::vector<float> *T_Muon_neutralHadronIsoR04;
+	std::vector<float> *T_Muon_photonIsoR04;
+	std::vector<float> *T_Muon_sumPUPtR04;
+	std::vector<float> *T_Muon_chargedParticleIsoR03;
+	std::vector<float> *T_Muon_chargedHadronIsoR03;
+	std::vector<float> *T_Muon_neutralHadronIsoR03;
+	std::vector<float> *T_Muon_photonIsoR03;
+	std::vector<float> *T_Muon_sumPUPtR03;
+	std::vector<float> *T_Muon_vz;
+	std::vector<float> *T_Muon_vy;
+	std::vector<float> *T_Muon_vx;
+
+	std::vector<int> *T_Muon_NLayers;
     
     
     
@@ -365,5 +435,6 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
 };
 typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepositMaps;
 typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
+
 
 

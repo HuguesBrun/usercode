@@ -8,7 +8,7 @@ process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.GlobalTag.globaltag = 'START52_V9::All'
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 #
 # the MC global Tag : START52_V9
@@ -54,17 +54,19 @@ process.theDiElecFilter = cms.EDFilter('DiElecFilter',
 
 process.theEleIdAnalyzer = cms.EDAnalyzer('ElecIdAnalyzer',
     isMC                    = cms.bool(True),
+	doMuons					= cms.bool(True),
     electronsInputTag       = cms.InputTag("gsfElectrons"),
     conversionsInputTag     = cms.InputTag("allConversions"),
     beamSpotInputTag        = cms.InputTag("offlineBeamSpot"),
     rhoIsoInputTag          = cms.InputTag("kt6PFJetsForIsolation", "rho"),
     primaryVertexInputTag   = cms.InputTag("offlinePrimaryVertices"),
-                                          isoValInputTags         = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
-                                                                                  cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
-                                                                                  cms.InputTag('elPFIsoValueNeutral03PFIdPFIso'),
-                                                                                  cms.InputTag('elPFIsoValueCharged04PFIdPFIso'),
-                                                                                  cms.InputTag('elPFIsoValueGamma04PFIdPFIso'),
-                                                                                  cms.InputTag('elPFIsoValueNeutral04PFIdPFIso')),
+	muonProducer = cms.VInputTag(cms.InputTag("muons")),
+	isoValInputTags         = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
+											cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
+											cms.InputTag('elPFIsoValueNeutral03PFIdPFIso'),
+											cms.InputTag('elPFIsoValueCharged04PFIdPFIso'),
+											cms.InputTag('elPFIsoValueGamma04PFIdPFIso'),
+											cms.InputTag('elPFIsoValueNeutral04PFIdPFIso')),
     TriggerResults          = cms.InputTag("TriggerResults", "", "HLT"),
     HLTTriggerSummaryAOD    = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
     outputFile		        = cms.string("elecIDtree.root"),
