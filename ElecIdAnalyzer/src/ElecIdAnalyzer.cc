@@ -20,6 +20,9 @@ ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
     // is DATA/MC 
     isMC_                   = iConfig.getParameter<bool>("isMC");
     doMuons_				= iConfig.getParameter<bool>("doMuons");
+    doPhotons_              = iConfig.getParameter<bool>("doPhotons");
+    savePF_                 = iConfig.getParameter<bool>("savePF");
+    saveConversions_        = iConfig.getParameter<bool>("saveConversions");
     // get input parameters
     electronsInputTag_      = iConfig.getParameter<edm::InputTag>("electronsInputTag");
     conversionsInputTag_    = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
@@ -29,7 +32,11 @@ ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
     triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("TriggerResults");
     triggerSummaryLabel_    = iConfig.getParameter<edm::InputTag>("HLTTriggerSummaryAOD");
 	muonProducers_			= iConfig.getParameter<vtag>("muonProducer");
+    photonCollection_       = iConfig.getParameter<std::string>("photonCollection");
     isoValInputTags_        = iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags");
+    
+    //parameters
+    deltaRpf_               = iConfig.getParameter<double>("deltaRsavePF");
     
     // debug
     printDebug_             = iConfig.getParameter<bool>("printDebug");
@@ -238,7 +245,10 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(triggerSummaryLabel_, triggerSummary);
     
     
-
+    // read the photon collections
+    Handle<reco::PhotonCollection> pPhotons;
+    iEvent.getByLabel(photonCollection_, pPhotons);
+    const reco::PhotonCollection* photons = pPhotons.product();
 
     
     
@@ -504,17 +514,25 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         double iso_ch =  (*(isoVals)[0])[ele];
         double iso_em = (*(isoVals)[1])[ele];
         double iso_nh = (*(isoVals)[2])[ele];
-        double iso_ch04 =  (*(isoVals)[3])[ele];
-        double iso_em04 = (*(isoVals)[4])[ele];
-        double iso_nh04 = (*(isoVals)[5])[ele];
+        double iso_chAll = (*(isoVals)[3])[ele];
+        double iso_chPU = (*(isoVals)[4])[ele];
+        double iso_ch04 =  (*(isoVals)[5])[ele];
+        double iso_em04 = (*(isoVals)[6])[ele];
+        double iso_nh04 = (*(isoVals)[7])[ele];
+        double iso_chAll04 = (*(isoVals)[8])[ele];
+        double iso_chPU04 = (*(isoVals)[9])[ele];
         T_Elec_photonIso->push_back(iso_em);
         T_Elec_neutralHadronIso->push_back(iso_nh);
         T_Elec_chargedHadronIso->push_back(iso_ch);
+        T_Elec_allChargedHadronIso->push_back(iso_chAll);
+        T_Elec_puChargedHadronIso->push_back(iso_chPU);
         
         
         T_Elec_photonIso04->push_back(iso_em04);
         T_Elec_neutralHadronIso04->push_back(iso_nh04);
         T_Elec_chargedHadronIso04->push_back(iso_ch04);
+        T_Elec_allChargedHadronIso04->push_back(iso_chAll04);
+        T_Elec_puChargedHadronIso04->push_back(iso_chPU04);
         
         float rhoPlus = std::max(0.0, Rho);
         // effective area for isolation
@@ -723,14 +741,208 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	if (doMuons_){
 		int nbMuons = recoMuons->size();
-		cout << "il y a " << nbMuons << " muons " << endl;
+		//cout << "il y a " << nbMuons << " muons " << endl;
 		//loop on the muons in the event 
 		for (int k = 0 ; k < nbMuons ; k++){
-				const reco::Muon* muon = &((*recoMuons)[k]);
-			cout << "the muon = pt " << muon->pt()  << endl;
+	
+          const reco::Muon* muon = &((*recoMuons)[k]);
+           T_Muon_Eta->push_back(muon->eta());
+            T_Muon_Phi->push_back(muon->phi());
+            T_Muon_IsGlobalMuon->push_back(muon->isGlobalMuon());
+            T_Muon_IsPFMuon->push_back(muon->isPFMuon());
+            T_Muon_IsTrackerMuon->push_back(muon->isTrackerMuon());
+            T_Muon_IsCaloMuon->push_back(muon->isCaloMuon());
+            T_Muon_IsStandAloneMuon->push_back(muon->isStandAloneMuon());
+            T_Muon_IsMuon->push_back(muon->isMuon());
+            T_Muon_Energy->push_back(muon->energy());
+            T_Muon_Et->push_back(muon->et());
+            T_Muon_Pt->push_back(muon->pt());
+            T_Muon_Px->push_back(muon->px());
+            T_Muon_Py->push_back(muon->py());
+            T_Muon_Pz->push_back(muon->pz());
+            T_Muon_Mass->push_back(muon->mass());
+            T_Muon_charge->push_back(muon->charge());
+            
+            T_Muon_numberOfChambers->push_back(muon->numberOfChambers());
+            T_Muon_numberOfChambersRPC->push_back(muon->numberOfChambersNoRPC());
+            T_Muon_numberOfMatches->push_back(muon->numberOfMatches());
+            T_Muon_numberOfMatchedStations->push_back(muon->numberOfMatchedStations());
+            bool isMatchTheStation = muon::isGoodMuon(*muon, muon::TMOneStationTight);
+            T_Muon_TMLastStationTight->push_back(isMatchTheStation);
+            if (muon->globalTrack().isNull()) T_Muon_globalTrackChi2->push_back(-1); else T_Muon_globalTrackChi2->push_back(muon->globalTrack()->normalizedChi2());
+            if (muon->globalTrack().isNull()) T_Muon_validMuonHits->push_back(-1); else T_Muon_validMuonHits->push_back(muon->globalTrack()->hitPattern().numberOfValidMuonHits());
+            T_Muon_trkKink->push_back(muon->combinedQuality().trkKink);
+            if (muon->muonBestTrack().isNull()) {
+                T_Muon_trkNbOfTrackerLayers->push_back(-1);
+                T_Muon_trkError->push_back(-1s);
+                T_Muon_dB->push_back(-1);
+                T_Muon_dzPV->push_back(-1);
+                T_Muon_trkValidPixelHits->push_back(-1);
+            }
+            else {
+                T_Muon_trkNbOfTrackerLayers->push_back(muon->muonBestTrack()->hitPattern().trackerLayersWithMeasurement());
+                T_Muon_trkError->push_back(muon->muonBestTrack()->ptError());
+                T_Muon_trkValidPixelHits->push_back(muon->muonBestTrack()->hitPattern().numberOfValidPixelHits());
+                T_Muon_dB->push_back(fabs(muon->muonBestTrack()->dxy(pv->position())));
+                T_Muon_dzPV->push_back(fabs(muon->muonBestTrack()->dz(pv->position())));
+            }
+            T_Muon_isoR03_emEt->push_back(muon->isolationR03().emEt);
+            T_Muon_isoR03_hadEt->push_back(muon->isolationR03().hadEt);
+            T_Muon_isoR03_hoEt->push_back(muon->isolationR03().hoEt);
+            T_Muon_isoR03_sumPt->push_back(muon->isolationR03().sumPt);
+            T_Muon_isoR03_nTracks->push_back(muon->isolationR03().nTracks);
+            T_Muon_isoR03_nJets->push_back(muon->isolationR03().nJets);
 		}
 	}
     
+    if (savePF_){
+        //cout << "coucou, on ets dans savePF" << inPfCands.size() << endl;
+        for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); iP != inPfCands.end(); ++iP) {
+            bool shareAtrack = false;
+            bool inAcone = false;
+            for (reco::GsfElectronCollection::const_iterator iE = IdentifiedElectrons.begin();
+                 iE != IdentifiedElectrons.end(); ++iE) {
+                 double tmpDR = sqrt(pow(iP->eta() - iE->eta(),2) + pow(acos(cos(iP->phi() - iE->phi())),2));
+                if (tmpDR<0.6){
+                    inAcone = true;
+                    if(iP->gsfTrackRef().isNonnull() && iE->gsfTrack().isNonnull() &&
+                       refToPtr(iP->gsfTrackRef()) == refToPtr(iE->gsfTrack())) shareAtrack=true;
+                }
+            }
+            for (reco::MuonCollection::const_iterator iM = IdentifiedMuons.begin();
+                 iM != IdentifiedMuons.end(); ++iM) {
+                double tmpDR = sqrt(pow(iP->eta() - iM->eta(),2) + pow(acos(cos(iP->phi() - iM->phi())),2));
+                if (tmpDR<0.6){
+                    inAcone = true;
+                    if(iP->trackRef().isNonnull() && iM->innerTrack().isNonnull() &&
+                       refToPtr(iP->trackRef()) == refToPtr(iM->innerTrack())) shareAtrack = true;
+                }
+            }
+            if (inAcone){
+                T_PF_Et->push_back(iP->eta());
+                T_PF_Pt->push_back(iP->pt());
+                T_PF_Px->push_back(iP->px());
+                T_PF_Py->push_back(iP->py());
+                T_PF_Pz->push_back(iP->pz());
+                T_PF_Eta->push_back(iP->eta());
+                T_PF_Phi->push_back(iP->phi());
+                T_PF_pdgID->push_back(iP->pdgId());
+                T_PF_particleID->push_back(iP->particleId());
+                if (shareAtrack) T_PF_hasTrack->push_back(1);
+                else T_PF_hasTrack->push_back(0);
+                int iVertex= -1; 
+                if (iP->particleId()==reco::PFCandidate::h) iVertex = PFisCommingFromVertex((*iP), vtxs);
+                if ((iVertex==-1)||(iVertex==0)) T_PF_isPU->push_back(0); else  T_PF_isPU->push_back(1);
+            }
+        }
+        
+    }
+    
+    if (doPhotons_){
+        int nbphoton = 0;
+        for(reco::PhotonCollection::const_iterator aPho = photons->begin(); aPho != photons->end(); aPho++){
+            T_Pho_Et->push_back(aPho->et());
+            T_Pho_Energy->push_back(aPho->energy());
+            T_Pho_Pt->push_back(aPho->pt());
+            T_Pho_Px->push_back(aPho->px());
+            T_Pho_Py->push_back(aPho->py());
+            T_Pho_Pz->push_back(aPho->pz());
+            
+            T_Pho_Eta->push_back(aPho->eta());
+            T_Pho_Phi->push_back(aPho->phi());
+            
+            T_Pho_r9->push_back(aPho->r9());
+            T_Pho_sigmaIetaIeta->push_back(aPho->sigmaIetaIeta());
+            
+            reco::SuperClusterRef superCluster = aPho->superCluster();
+            if ( superCluster.isNonnull() ) {
+                T_Pho_SCEt->push_back(superCluster->energy()*sin(superCluster->position().theta()));
+                T_Pho_SCEnergy->push_back(superCluster->energy());
+                T_Pho_SCEta->push_back(superCluster->position().eta());
+                T_Pho_SCPhi->push_back(superCluster->position().phi());
+                T_Pho_EtaWidth->push_back(superCluster->etaWidth());
+                T_Pho_PhiWidth->push_back(superCluster->phiWidth());
+            }
+            else {
+                T_Pho_SCEt->push_back(-1);
+                T_Pho_SCEnergy->push_back(-1);
+                T_Pho_SCEta->push_back(-1);
+                T_Pho_SCPhi->push_back(-1);
+                T_Pho_EtaWidth->push_back(-1);
+                T_Pho_PhiWidth->push_back(-1);
+            }
+            if (isMC_){
+                int nbOfGen = genParticles->size();
+                float minDiff= 100;
+                int iteDiff = -1000;
+                for (int j = 0 ; j < nbOfGen ; j++){
+                    const reco::GenParticle & p = (*genParticles)[j];
+                    float theDeltaR = deltaR(p.phi(), aPho->phi(), p.eta(), aPho->eta());
+                    if (theDeltaR < minDiff){
+                        minDiff = theDeltaR;
+                        iteDiff = j;
+                    }
+                }
+                if (iteDiff>=0){
+                    T_Pho_isMatchedWithMC->push_back(1);
+                    const reco::GenParticle & theCand = (*genParticles)[iteDiff];
+                    const reco::Candidate * mom = theCand.mother();
+                    T_Pho_Gen_PDGid->push_back(theCand.pdgId());
+                    T_Pho_Gen_Status->push_back(theCand.status());
+                    if (theCand.numberOfMothers()>0) T_Pho_Gen_MotherID->push_back(mom->pdgId());
+                    else T_Pho_Gen_MotherID->push_back(-1);
+                    
+                }
+                else {
+                    T_Pho_isMatchedWithMC->push_back(0);
+                    T_Pho_Gen_PDGid->push_back(-1);
+                    T_Pho_Gen_Status->push_back(-1);
+                    T_Pho_Gen_MotherID->push_back(-1);
+                }
+            }
+
+        }
+        
+    }
+    
+    if (saveConversions_){
+        int localIte = -1;
+        for (reco::ConversionCollection::const_iterator conv = conversions_h->begin(); conv!= conversions_h->end(); ++conv) {
+            localIte++;
+            reco::Vertex vtx = conv->conversionVertex();
+            reco::ConversionRef refConv(conversions_h,localIte);
+            if (vtx.isValid()) {
+                int iel=-1;
+                for(reco::GsfElectronCollection::const_iterator gsfEle = els_h->begin(); gsfEle!=els_h->end(); ++gsfEle) {
+                    iel++;
+                    if (ConversionTools::matchesConversion(*gsfEle, *conv)) {
+                        break;
+                    }
+                }
+                int ipho=-1;
+                for(reco::PhotonCollection::const_iterator aPho = photons->begin(); aPho != photons->end(); aPho++){
+                    ipho++;
+                    reco::SuperCluster theSC = *(aPho->superCluster());
+                    reco::ConversionRef theConv = ConversionTools::matchedConversion(theSC,conversions_h,beamSpot.position());
+                    if (refConv == theConv) break;
+                }
+                if ((ipho==-1)&&(iel==-1)) continue;
+                T_Conv_EleInd->push_back(iel);
+                T_Conv_PhoInd->push_back(ipho);
+                T_Conv_vtxProb->push_back(TMath::Prob( vtx.chi2(), vtx.ndof()));
+                math::XYZVector mom(conv->refittedPairMomentum());
+                double dbsx = vtx.x() - beamSpot.position().x();
+                double dbsy = vtx.y() - beamSpot.position().y();
+                T_Conv_lxy->push_back((mom.x()*dbsx + mom.y()*dbsy)/mom.rho());
+                int nbHitMax = 0;
+                for (std::vector<uint8_t>::const_iterator it = conv->nHitsBeforeVtx().begin(); it!=conv->nHitsBeforeVtx().end(); ++it) {
+                    if ((*it)>nbHitMax) nbHitMax = (*it);
+                }
+                T_Conv_nHitsMax->push_back(nbHitMax);
+            }
+        
+        }
+    }
     mytree_->Fill();
     endEvent();
     //cout << "on a fini cet event ;) " << endl;
@@ -812,15 +1024,17 @@ ElecIdAnalyzer::beginJob()
    mytree_->Branch("T_Elec_simpleEleId85", "std::vector<float>", &T_Elec_simpleEleId85);
    mytree_->Branch("T_Elec_simpleEleId80", "std::vector<float>", &T_Elec_simpleEleId80);
    mytree_->Branch("T_Elec_simpleEleId70", "std::vector<float>", &T_Elec_simpleEleId70);
-   mytree_->Branch("T_Elec_simpleEleId60", "std::vector<float>", &T_Elec_simpleEleId60); 
-
+   mytree_->Branch("T_Elec_simpleEleId60", "std::vector<float>", &T_Elec_simpleEleId60);
    mytree_->Branch("T_Elec_chargedHadronIso", "std::vector<float>", &T_Elec_chargedHadronIso);
    mytree_->Branch("T_Elec_neutralHadronIso", "std::vector<float>", &T_Elec_neutralHadronIso);
    mytree_->Branch("T_Elec_photonIso", "std::vector<float>", &T_Elec_photonIso);
    mytree_->Branch("T_Elec_chargedHadronIso04", "std::vector<float>", &T_Elec_chargedHadronIso04);
    mytree_->Branch("T_Elec_neutralHadronIso04", "std::vector<float>", &T_Elec_neutralHadronIso04);
    mytree_->Branch("T_Elec_photonIso04", "std::vector<float>", &T_Elec_photonIso04);
+   mytree_->Branch("T_Elec_puChargedHadronIso04", "std::vector<float>", &T_Elec_puChargedHadronIso04);
+   mytree_->Branch("T_Elec_allChargedHadronIso04", "std::vector<float>", &T_Elec_allChargedHadronIso04);
    mytree_->Branch("T_Elec_puChargedHadronIso", "std::vector<float>", &T_Elec_puChargedHadronIso);
+   mytree_->Branch("T_Elec_allChargedHadronIso", "std::vector<float>", &T_Elec_allChargedHadronIso);
 
    mytree_->Branch("T_Elec_passConversionVeto","std::vector<bool>",&T_Elec_passConversionVeto);
     
@@ -910,53 +1124,86 @@ ElecIdAnalyzer::beginJob()
 	
 	//Muons
 	if (doMuons_){
-		mytree_->Branch("T_Muon_Eta", "std::vector<float>", &T_Muon_Eta);
-		mytree_->Branch("T_Muon_IsGlobalMuon", "std::vector<bool>", &T_Muon_IsGlobalMuon);
-
-		mytree_-> Branch("T_Muon_IsAllTrackerMuons", "std::vector<bool>", &T_Muon_IsAllTrackerMuons);
-		mytree_-> Branch("T_Muon_IsTrackerMuonArbitrated", "std::vector<bool>", &T_Muon_IsTrackerMuonArbitrated);
-
-		mytree_-> Branch("T_Muon_IsGMPTMuons", "std::vector<bool>", &T_Muon_IsGMPTMuons);
-	
-		mytree_->Branch("T_Muon_SegmentCompatibility","std::vector<float>", &T_Muon_SegmentCompatibility);
-		mytree_->Branch("T_Muon_trkKink","std::vector<float>", &T_Muon_trkKink);
-		mytree_->Branch("T_Muon_Px", "std::vector<float>", &T_Muon_Px);
-		mytree_->Branch("T_Muon_Py", "std::vector<float>", &T_Muon_Py);
-		mytree_->Branch("T_Muon_Pz", "std::vector<float>", &T_Muon_Pz);
-		mytree_->Branch("T_Muon_Pt", "std::vector<float>", &T_Muon_Pt);
-		mytree_->Branch("T_Muon_deltaPt", "std::vector<float>", &T_Muon_deltaPt);
-		mytree_->Branch("T_Muon_Energy", "std::vector<float>", &T_Muon_Energy);
-		mytree_->Branch("T_Muon_Charge", "std::vector<int>", &T_Muon_Charge);
-		mytree_->Branch("T_Muon_NormChi2GTrk", "std::vector<float>", &T_Muon_NormChi2GTrk);
-		mytree_->Branch("T_Muon_NValidHitsInTrk", "std::vector<int>", &T_Muon_NValidHitsInTrk);
-		mytree_->Branch("T_Muon_NValidPixelHitsInTrk", "std::vector<int>", &T_Muon_NValidPixelHitsInTrk);
-		mytree_->Branch("T_Muon_InnerTrackFound", "std::vector<int>", &T_Muon_InnerTrackFound);
-		mytree_->Branch("T_Muon_NValidHitsSATrk", "std::vector<int>", &T_Muon_NValidHitsSATrk);
-		mytree_->Branch("T_Muon_NValidHitsGTrk", "std::vector<int>", &T_Muon_NValidHitsGTrk);
-		mytree_->Branch("T_Muon_Chi2InTrk", "std::vector<float>", &T_Muon_Chi2InTrk);
-		mytree_->Branch("T_Muon_dofInTrk", "std::vector<float>", &T_Muon_dofInTrk);
-		mytree_->Branch("T_Muon_IPAbsGTrack", "std::vector<float>", &T_Muon_IPAbsGTrack);
-		mytree_->Branch("T_Muon_IPAbsInTrack", "std::vector<float>", &T_Muon_IPAbsInTrack);
-		mytree_->Branch("T_Muon_IPwrtAveBSInTrack", "std::vector<float>", &T_Muon_IPwrtAveBSInTrack);
-
-		mytree_->Branch("T_Muon_chargedHadronIsoR04", "std::vector<float>", &T_Muon_chargedHadronIsoR04);
-		mytree_->Branch("T_Muon_neutralHadronIsoR04", "std::vector<float>", &T_Muon_neutralHadronIsoR04);
-		mytree_->Branch("T_Muon_photonIsoR04", "std::vector<float>", &T_Muon_photonIsoR04);
-		mytree_->Branch("T_Muon_chargedParticleIsoR03", "std::vector<float>", &T_Muon_chargedParticleIsoR03);
-		mytree_->Branch("T_Muon_chargedHadronIsoR03", "std::vector<float>", &T_Muon_chargedHadronIsoR03);
-		mytree_->Branch("T_Muon_neutralHadronIsoR03", "std::vector<float>", &T_Muon_neutralHadronIsoR03);
-		mytree_->Branch("T_Muon_photonIsoR03", "std::vector<float>", &T_Muon_photonIsoR03);
-		mytree_->Branch("T_Muon_sumPUPtR04", "std::vector<float>", &T_Muon_sumPUPtR04);
-		mytree_->Branch("T_Muon_sumPUPtR03", "std::vector<float>", &T_Muon_sumPUPtR03);
-		mytree_->Branch("T_Muon_vz", "std::vector<float>", &T_Muon_vz);
-		mytree_->Branch("T_Muon_vy", "std::vector<float>", &T_Muon_vy);
-		mytree_->Branch("T_Muon_vx", "std::vector<float>", &T_Muon_vx);
-		mytree_->Branch("T_Muon_NumOfMatches", "std::vector<int>", &T_Muon_NumOfMatches);
-
-		mytree_->Branch("T_Muon_NLayers","std::vector<int>", &T_Muon_NLayers);
-	
+        mytree_->Branch("T_Muon_Eta", "std::vector<float>", &T_Muon_Eta);
+        mytree_->Branch("T_Muon_Phi", "std::vector<float>", &T_Muon_Phi);
+        mytree_->Branch("T_Muon_Energy", "std::vector<float>", &T_Muon_Energy);
+        mytree_->Branch("T_Muon_Et", "std::vector<float>", &T_Muon_Et);
+        mytree_->Branch("T_Muon_Pt", "std::vector<float>", &T_Muon_Pt);
+        mytree_->Branch("T_Muon_Px", "std::vector<float>", &T_Muon_Px);
+        mytree_->Branch("T_Muon_Py", "std::vector<float>", &T_Muon_Py);
+        mytree_->Branch("T_Muon_Pz", "std::vector<float>", &T_Muon_Pz);
+        mytree_->Branch("T_Muon_Mass", "std::vector<float>", &T_Muon_Mass);
+        mytree_->Branch("T_Muon_IsGlobalMuon", "std::vector<bool>", &T_Muon_IsGlobalMuon);
+        mytree_->Branch("T_Muon_IsTrackerMuon", "std::vector<bool>", &T_Muon_IsTrackerMuon);
+        mytree_->Branch("T_Muon_IsPFMuon", "std::vector<bool>", &T_Muon_IsPFMuon);
+        mytree_->Branch("T_Muon_IsCaloMuon", "std::vector<bool>", &T_Muon_IsCaloMuon);
+        mytree_->Branch("T_Muon_IsStandAloneMuon", "std::vector<bool>", &T_Muon_IsStandAloneMuon);
+        mytree_->Branch("T_Muon_IsMuon", "std::vector<bool>", &T_Muon_IsMuon);
+        mytree_->Branch("T_Muon_numberOfChambers", "std::vector<int>", &T_Muon_numberOfChambers);
+        mytree_->Branch("T_Muon_numberOfChambersRPC", "std::vector<int>", &T_Muon_numberOfChambersRPC);
+        mytree_->Branch("T_Muon_numberOfMatches", "std::vector<int>", &T_Muon_numberOfMatches);
+        mytree_->Branch("T_Muon_numberOfMatchedStations", "std::vector<int>", &T_Muon_numberOfMatchedStations);
+        mytree_->Branch("T_Muon_charge", "std::vector<int>", &T_Muon_charge);
+        mytree_->Branch("T_Muon_TMLastStationTight", "std::vector<bool>", &T_Muon_TMLastStationTight);
+        mytree_->Branch("T_Muon_globalTrackChi2", "std::vector<float>", &T_Muon_globalTrackChi2);
+        mytree_->Branch("T_Muon_validMuonHits", "std::vector<int>", &T_Muon_validMuonHits);
+        mytree_->Branch("T_Muon_trkKink", "std::vector<float>", &T_Muon_trkKink);
+        mytree_->Branch("T_Muon_trkNbOfTrackerLayers", "std::vector<int>", &T_Muon_trkNbOfTrackerLayers);
+        mytree_->Branch("T_Muon_trkValidPixelHits", "std::vector<int>", &T_Muon_trkValidPixelHits);
+        mytree_->Branch("T_Muon_trkError", "std::vector<float>", &T_Muon_trkError);
+        mytree_->Branch("T_Muon_dB", "std::vector<float>", &T_Muon_dB);
+        mytree_->Branch("T_Muon_dzPV", "std::vector<float>", &T_Muon_dzPV);
+        mytree_->Branch("T_Muon_isoR03_emEt", "std::vector<float>", &T_Muon_isoR03_emEt);
+        mytree_->Branch("T_Muon_isoR03_hadEt", "std::vector<float>", &T_Muon_isoR03_hadEt);
+        mytree_->Branch("T_Muon_isoR03_hoEt", "std::vector<float>", &T_Muon_isoR03_hoEt);
+        mytree_->Branch("T_Muon_isoR03_sumPt", "std::vector<float>", &T_Muon_isoR03_sumPt);
+        mytree_->Branch("T_Muon_isoR03_nTracks", "std::vector<int>", &T_Muon_isoR03_nTracks);
+        mytree_->Branch("T_Muon_isoR03_nJets", "std::vector<int>", &T_Muon_isoR03_nJets);
     }
     
+    if (savePF_){
+        mytree_->Branch("T_PF_Et", "std::vector<float>", &T_PF_Et);
+        mytree_->Branch("T_PF_Pt", "std::vector<float>", &T_PF_Pt);
+        mytree_->Branch("T_PF_Px", "std::vector<float>", &T_PF_Px);
+        mytree_->Branch("T_PF_Py", "std::vector<float>", &T_PF_Py);
+        mytree_->Branch("T_PF_Pz", "std::vector<float>", &T_PF_Pz);
+        mytree_->Branch("T_PF_Eta", "std::vector<float>", &T_PF_Eta);
+        mytree_->Branch("T_PF_Phi", "std::vector<float>", &T_PF_Phi);
+        mytree_->Branch("T_PF_pdgID", "std::vector<int>", &T_PF_pdgID);
+        mytree_->Branch("T_PF_particleID", "std::vector<int>", &T_PF_particleID);
+        mytree_->Branch("T_PF_hasTrack", "std::vector<int>", &T_PF_hasTrack);
+        mytree_->Branch("T_PF_isPU", "std::vector<int>", &T_PF_isPU);
+    }
+    
+    if (doPhotons_){
+        mytree_->Branch("T_Pho_Et", "std::vector<float>", &T_Pho_Et);
+        mytree_->Branch("T_Pho_Energy", "std::vector<float>", &T_Pho_Energy);
+        mytree_->Branch("T_Pho_Pt", "std::vector<float>", &T_Pho_Pt);
+        mytree_->Branch("T_Pho_Px", "std::vector<float>", &T_Pho_Px);
+        mytree_->Branch("T_Pho_Py", "std::vector<float>", &T_Pho_Py);
+        mytree_->Branch("T_Pho_Pz", "std::vector<float>", &T_Pho_Pz);
+        mytree_->Branch("T_Pho_Eta", "std::vector<float>", &T_Pho_Eta);
+        mytree_->Branch("T_Pho_Phi", "std::vector<float>", &T_Pho_Phi);
+        mytree_->Branch("T_Pho_r9", "std::vector<float>", &T_Pho_r9);
+        mytree_->Branch("T_Pho_EtaWidth", "std::vector<float>", &T_Pho_EtaWidth);
+        mytree_->Branch("T_Pho_PhiWidth", "std::vector<float>", &T_Pho_PhiWidth);
+        mytree_->Branch("T_Pho_sigmaIetaIeta", "std::vector<float>", &T_Pho_sigmaIetaIeta);
+        mytree_->Branch("T_Pho_SCEt", "std::vector<float>", &T_Pho_SCEt);
+        mytree_->Branch("T_Pho_SCEnergy", "std::vector<float>", &T_Pho_SCEnergy);
+        mytree_->Branch("T_Pho_SCEta", "std::vector<float>", &T_Pho_SCEta);
+        mytree_->Branch("T_Pho_SCPhi", "std::vector<float>", &T_Pho_SCPhi);
+        mytree_->Branch("T_Pho_isMatchedWithMC", "std::vector<int>", &T_Pho_isMatchedWithMC);
+        mytree_->Branch("T_Pho_Gen_PDGid", "std::vector<int>", &T_Pho_Gen_PDGid);
+        mytree_->Branch("T_Pho_Gen_Status", "std::vector<int>", &T_Pho_Gen_Status);
+        mytree_->Branch("T_Pho_Gen_MotherID", "std::vector<int>", &T_Pho_Gen_MotherID);
+    }
+    if (saveConversions_){
+        mytree_->Branch("T_Conv_EleInd", "std::vector<int>", &T_Conv_EleInd);
+        mytree_->Branch("T_Conv_PhoInd", "std::vector<int>", &T_Conv_PhoInd);
+        mytree_->Branch("T_Conv_vtxProb", "std::vector<float>", &T_Conv_vtxProb);
+        mytree_->Branch("T_Conv_lxy", "std::vector<float>", &T_Conv_lxy);
+        mytree_->Branch("T_Conv_nHitsMax", "std::vector<int>", &T_Conv_nHitsMax);
+    }
 /*    mytree_->Branch("T_Jet_Px" , "std::vector<float>", &T_Jet_Px);
     mytree_->Branch("T_Jet_Py", "std::vector<float>", &T_Jet_Py);
     mytree_->Branch("T_Jet_Pz", "std::vector<float>", &T_Jet_Pz);
@@ -1064,12 +1311,18 @@ ElecIdAnalyzer::beginEvent()
     T_Elec_HtoE = new std::vector<float>;
     T_Elec_chargedHadronIso= new std::vector<float>;
     T_Elec_neutralHadronIso= new std::vector<float>;
+    T_Elec_puChargedHadronIso = new std::vector<float>;
+    T_Elec_allChargedHadronIso = new std::vector<float>;
+    T_Elec_allChargedHadronIso = new std::vector<float>;
     T_Elec_photonIso= new std::vector<float>;
     T_Elec_chargedHadronIso04= new std::vector<float>;
     T_Elec_neutralHadronIso04= new std::vector<float>;
     T_Elec_photonIso04= new std::vector<float>;
-    T_Elec_puChargedHadronIso = new std::vector<float>;
-    
+    T_Elec_puChargedHadronIso04 = new std::vector<float>;
+    T_Elec_allChargedHadronIso04 = new std::vector<float>;
+    T_Elec_allChargedHadronIso04 = new std::vector<float>;
+    T_Elec_photonIso= new std::vector<float>;
+
     T_Elec_passVeto= new std::vector<bool>;
     T_Elec_passLoose= new std::vector<bool>;
     T_Elec_passMedium= new std::vector<bool>;
@@ -1132,53 +1385,90 @@ ElecIdAnalyzer::beginEvent()
     T_Elec_isFO = new std::vector<bool>;
     T_Elec_CombIsoHWW = new std::vector<float>;
     
-	T_Muon_Eta = new std::vector<float>;
-	T_Muon_IsGlobalMuon = new std::vector<bool>;
-	T_Muon_IsGMPTMuons = new std::vector<bool>;
-	T_Muon_IsAllTrackerMuons = new std::vector<bool>;
-	T_Muon_IsTrackerMuonArbitrated = new std::vector<bool>;
-	T_Muon_IsAllArbitrated = new std::vector<bool>;
-	T_Muon_SegmentCompatibility= new std::vector<float>;
-	T_Muon_trkKink  = new std::vector<float>;
-	T_Muon_Px = new std::vector<float>;
-	T_Muon_Py = new std::vector<float>;
-	T_Muon_Pz = new std::vector<float>;
-	T_Muon_Pt = new std::vector<float>;
-	T_Muon_deltaPt = new std::vector<float>;
-	T_Muon_Energy = new std::vector<float>;
-	T_Muon_Charge = new std::vector<int>;
-	T_Muon_NormChi2GTrk = new std::vector<float>;
-	T_Muon_NValidHitsInTrk = new std::vector<int>;
-	T_Muon_NValidPixelHitsInTrk = new std::vector<int>;
-	T_Muon_NValidHitsSATrk = new std::vector<int>;
-	T_Muon_NValidHitsGTrk = new std::vector<int>;
-	T_Muon_NumOfMatches = new std::vector<int>;
-	T_Muon_Chi2InTrk = new std::vector<float>;
-	T_Muon_dofInTrk = new std::vector<float>;
-	T_Muon_IPAbsGTrack = new std::vector<float>;
-	T_Muon_IPAbsInTrack = new std::vector<float>;
-	T_Muon_IPwrtAveBSInTrack =  new std::vector<float>;
-	T_Muon_InnerTrackFound=new std::vector<int>;
-	T_Muon_chargedHadronIsoR04 = new std::vector<float>;
-	T_Muon_neutralHadronIsoR04 = new std::vector<float>;
-	T_Muon_photonIsoR04 = new std::vector<float>;
-	T_Muon_sumPUPtR04 = new std::vector<float>;
-	T_Muon_chargedParticleIsoR03 = new std::vector<float>;
-	T_Muon_chargedHadronIsoR03 = new std::vector<float>;
-	T_Muon_neutralHadronIsoR03 = new std::vector<float>;
-	T_Muon_photonIsoR03 = new std::vector<float>;
-	T_Muon_sumPUPtR03 = new std::vector<float>;
-	T_Muon_vz = new std::vector<float>;
-	T_Muon_vy = new std::vector<float>;  
-	T_Muon_vx = new std::vector<float>;
-	T_Muon_NLayers =  new std::vector<int>;
-	
-	
+
 	
     T_Gen_Elec_Px = new std::vector<float>;
     T_Gen_Elec_Py = new std::vector<float>;
     T_Gen_Elec_Pz = new std::vector<float>;
     T_Gen_Elec_Energy = new std::vector<float>;
+    
+	T_Muon_Eta = new std::vector<float>;
+	T_Muon_Phi = new std::vector<float>;
+	T_Muon_Energy = new std::vector<float>;
+	T_Muon_Et = new std::vector<float>;
+	T_Muon_Pt = new std::vector<float>;
+	T_Muon_Px = new std::vector<float>;
+	T_Muon_Py = new std::vector<float>;
+	T_Muon_Pz = new std::vector<float>;
+	T_Muon_Mass = new std::vector<float>;
+	T_Muon_IsGlobalMuon = new std::vector<bool>;
+	T_Muon_IsTrackerMuon = new std::vector<bool>;
+	T_Muon_IsPFMuon = new std::vector<bool>;
+	T_Muon_IsCaloMuon = new std::vector<bool>;
+	T_Muon_IsStandAloneMuon = new std::vector<bool>;
+	T_Muon_IsMuon = new std::vector<bool>;
+	T_Muon_numberOfChambers = new std::vector<int>;
+	T_Muon_numberOfChambersRPC = new std::vector<int>;
+	T_Muon_numberOfMatches = new std::vector<int>;
+	T_Muon_numberOfMatchedStations = new std::vector<int>;
+	T_Muon_charge = new std::vector<int>;
+	T_Muon_TMLastStationTight = new std::vector<bool>;
+	T_Muon_globalTrackChi2 = new std::vector<float>;
+	T_Muon_validMuonHits = new std::vector<int>;
+	T_Muon_trkKink = new std::vector<float>;
+	T_Muon_trkNbOfTrackerLayers = new std::vector<int>;
+	T_Muon_trkValidPixelHits = new std::vector<int>;
+	T_Muon_trkError = new std::vector<float>;
+	T_Muon_dB = new std::vector<float>;
+	T_Muon_dzPV = new std::vector<float>;
+	T_Muon_isoR03_emEt = new std::vector<float>;
+	T_Muon_isoR03_hadEt = new std::vector<float>;
+	T_Muon_isoR03_hoEt = new std::vector<float>;
+	T_Muon_isoR03_sumPt = new std::vector<float>;
+	T_Muon_isoR03_nTracks = new std::vector<int>;
+	T_Muon_isoR03_nJets = new std::vector<int>;
+    
+    
+    T_PF_Et = new std::vector<float>;
+    T_PF_Pt = new std::vector<float>;
+    T_PF_Px = new std::vector<float>;
+    T_PF_Py = new std::vector<float>;
+    T_PF_Pz = new std::vector<float>;
+    T_PF_Eta = new std::vector<float>;
+    T_PF_Phi = new std::vector<float>;
+    T_PF_pdgID = new std::vector<int>;
+    T_PF_particleID = new std::vector<int>;
+    T_PF_hasTrack = new std::vector<int>;
+    T_PF_isPU  = new std::vector<int>;
+    
+    T_Pho_Et = new std::vector<float>;
+	T_Pho_Energy = new std::vector<float>;
+	T_Pho_Pt = new std::vector<float>;
+	T_Pho_Px = new std::vector<float>;
+	T_Pho_Py = new std::vector<float>;
+	T_Pho_Pz = new std::vector<float>;
+	T_Pho_Eta = new std::vector<float>;
+	T_Pho_Phi = new std::vector<float>;
+	T_Pho_r9 = new std::vector<float>;
+	T_Pho_EtaWidth = new std::vector<float>;
+	T_Pho_PhiWidth = new std::vector<float>;
+	T_Pho_sigmaIetaIeta = new std::vector<float>;
+	T_Pho_SCEt = new std::vector<float>;
+	T_Pho_SCEnergy = new std::vector<float>;
+	T_Pho_SCEta = new std::vector<float>;
+	T_Pho_SCPhi = new std::vector<float>;
+    
+    T_Pho_isMatchedWithMC = new std::vector<int>;
+	T_Pho_Gen_PDGid = new std::vector<int>;
+	T_Pho_Gen_Status = new std::vector<int>;
+	T_Pho_Gen_MotherID = new std::vector<int>;
+
+	
+    T_Conv_EleInd = new std::vector<int>;
+	T_Conv_PhoInd = new std::vector<int>;
+	T_Conv_vtxProb = new std::vector<float>;
+	T_Conv_lxy = new std::vector<float>;
+	T_Conv_nHitsMax = new std::vector<int>;
     
     
     
@@ -1240,12 +1530,15 @@ void ElecIdAnalyzer::endEvent(){
     delete T_Elec_isEcalDriven;
     delete T_Elec_HtoE;
     delete T_Elec_chargedHadronIso;
+    delete T_Elec_puChargedHadronIso04;
+    delete T_Elec_allChargedHadronIso04;
     delete T_Elec_neutralHadronIso;
     delete T_Elec_photonIso;
     delete T_Elec_chargedHadronIso04;
     delete T_Elec_neutralHadronIso04;
     delete T_Elec_photonIso04;
     delete T_Elec_puChargedHadronIso;
+    delete T_Elec_allChargedHadronIso;
     delete T_Elec_passConversionVeto;
     delete T_Elec_passVeto;
     delete T_Elec_passLoose;
@@ -1320,51 +1613,82 @@ void ElecIdAnalyzer::endEvent(){
 	
 	//Muons
 	delete T_Muon_Eta;
-	delete T_Muon_IsGlobalMuon;
-
-	delete T_Muon_IsGMPTMuons;
-	delete T_Muon_IsAllTrackerMuons;
-	delete T_Muon_IsTrackerMuonArbitrated;
-	delete T_Muon_IsAllArbitrated;
-
+	delete T_Muon_Phi;
+	delete T_Muon_Energy;
+	delete T_Muon_Et;
+	delete T_Muon_Pt;
 	delete T_Muon_Px;
 	delete T_Muon_Py;
 	delete T_Muon_Pz;
-	delete T_Muon_Pt;
-	delete T_Muon_deltaPt;
-	delete T_Muon_Energy;
-	delete T_Muon_Charge;
-	delete T_Muon_NormChi2GTrk;
-	delete T_Muon_NValidHitsInTrk;
-	delete T_Muon_NValidHitsSATrk;
-	delete T_Muon_NValidHitsGTrk;
-	delete T_Muon_NValidPixelHitsInTrk;
-	delete T_Muon_Chi2InTrk;
-	delete T_Muon_dofInTrk;
-	delete T_Muon_IPAbsGTrack;
-	delete T_Muon_IPAbsInTrack;
-	delete T_Muon_IPwrtAveBSInTrack;
-
-	delete T_Muon_NumOfMatches;
-	delete T_Muon_InnerTrackFound;
-	delete T_Muon_vz;
-	delete T_Muon_vy;
-	delete T_Muon_vx;
-
-	delete T_Muon_trkKink ;
-	delete T_Muon_SegmentCompatibility;
-	delete T_Muon_chargedParticleIsoR03;
-	delete T_Muon_chargedHadronIsoR03;
-	delete T_Muon_neutralHadronIsoR03;
-	delete T_Muon_photonIsoR03;
-	delete T_Muon_chargedHadronIsoR04;
-	delete T_Muon_neutralHadronIsoR04;
-	delete T_Muon_photonIsoR04;
-	delete T_Muon_sumPUPtR04;
-	delete T_Muon_sumPUPtR03;
-
-	delete T_Muon_NLayers;
+	delete T_Muon_Mass;
+	delete T_Muon_IsGlobalMuon;
+	delete T_Muon_IsTrackerMuon;
+	delete T_Muon_IsPFMuon;
+	delete T_Muon_IsCaloMuon;
+	delete T_Muon_IsStandAloneMuon;
+	delete T_Muon_IsMuon;
+	delete T_Muon_numberOfChambers;
+	delete T_Muon_numberOfChambersRPC;
+	delete T_Muon_numberOfMatches;
+	delete T_Muon_numberOfMatchedStations;
+	delete T_Muon_charge;
+	delete T_Muon_TMLastStationTight;
+	delete T_Muon_globalTrackChi2;
+	delete T_Muon_validMuonHits;
+	delete T_Muon_trkKink;
+	delete T_Muon_trkNbOfTrackerLayers;
+	delete T_Muon_trkValidPixelHits;
+	delete T_Muon_trkError;
+	delete T_Muon_dB;
+	delete T_Muon_dzPV;
+	delete T_Muon_isoR03_emEt;
+	delete T_Muon_isoR03_hadEt;
+	delete T_Muon_isoR03_hoEt;
+	delete T_Muon_isoR03_sumPt;
+	delete T_Muon_isoR03_nTracks;
+	delete T_Muon_isoR03_nJets;
     
+    
+    
+    delete T_PF_Et;
+    delete T_PF_Pt;
+    delete T_PF_Px;
+    delete T_PF_Py;
+    delete T_PF_Pz;
+    delete T_PF_Eta; 
+    delete T_PF_Phi;
+    delete T_PF_pdgID;
+    delete T_PF_particleID;
+    delete T_PF_hasTrack;
+    delete T_PF_isPU;
+    
+    delete T_Pho_Et;
+	delete T_Pho_Energy;
+	delete T_Pho_Pt;
+	delete T_Pho_Px;
+	delete T_Pho_Py;
+	delete T_Pho_Pz;
+	delete T_Pho_Eta;
+	delete T_Pho_Phi;
+	delete T_Pho_r9;
+	delete T_Pho_EtaWidth;
+	delete T_Pho_PhiWidth;
+	delete T_Pho_sigmaIetaIeta;
+	delete T_Pho_SCEt;
+	delete T_Pho_SCEnergy;
+	delete T_Pho_SCEta;
+	delete T_Pho_SCPhi;
+    delete T_Pho_isMatchedWithMC;
+	delete T_Pho_Gen_PDGid;
+	delete T_Pho_Gen_Status;
+	delete T_Pho_Gen_MotherID;
+    
+	delete T_Conv_EleInd;
+	delete T_Conv_PhoInd;
+	delete T_Conv_vtxProb;
+	delete T_Conv_lxy;
+	delete T_Conv_nHitsMax;
+   
   /*  delete T_Jet_Px;
     delete T_Jet_Py;
     delete T_Jet_Pz;
@@ -1900,6 +2224,65 @@ ElecIdAnalyzer::passFOcuts(const reco::GsfElectron &electron,const reco::Vertex&
     
     return true;
     
+}
+
+int
+ElecIdAnalyzer::PFisCommingFromVertex(const reco::PFCandidate &thePF, const reco::VertexCollection& vertices){
+    reco::TrackBaseRef trackBaseRef( thePF.trackRef() );
+    
+    size_t  iVertex = 0;
+    unsigned index=0;
+    unsigned nFoundVertex = 0;
+    typedef reco::VertexCollection::const_iterator IV;
+    typedef reco::Vertex::trackRef_iterator IT;
+    float bestweight=0;
+    for(IV iv=vertices.begin(); iv!=vertices.end(); ++iv, ++index) {
+        
+        const reco::Vertex& vtx = *iv;
+        
+        // loop on tracks in vertices
+        for(IT iTrack=vtx.tracks_begin();
+            iTrack!=vtx.tracks_end(); ++iTrack) {
+            
+            const reco::TrackBaseRef& baseRef = *iTrack;
+            
+            // one of the tracks in the vertex is the same as
+            // the track considered in the function
+            if(baseRef == trackBaseRef ) {
+                float w = vtx.trackWeight(baseRef);
+                //select the vertex for which the track has the highest weight
+                if (w > bestweight){
+                    bestweight=w;
+                    iVertex=index;
+                    nFoundVertex++;
+                }
+            }
+        }
+    }
+    
+    if (nFoundVertex>0){
+        if (nFoundVertex!=1)
+            cout << "TrackOnTwoVertex" <<"a track is shared by at least two verteces. Used to be an assert" << endl;
+        return iVertex;
+    }
+    // no vertex found with this track.
+    double dzmin = 10000;
+    double ztrack = thePF.vertex().z();
+    bool foundVertex = false;
+    index = 0;
+    for(IV iv=vertices.begin(); iv!=vertices.end(); ++iv, ++index) {
+        
+        double dz = fabs(ztrack - iv->z());
+        if(dz<dzmin) {
+            dzmin = dz;
+            iVertex = index;
+            foundVertex = true;
+        }
+    }
+    
+    if( foundVertex ) 
+        return iVertex;
+    return -1;
 }
 
 

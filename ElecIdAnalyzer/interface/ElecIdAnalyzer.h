@@ -92,6 +92,9 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -164,11 +167,15 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
                               const reco::MuonCollection &);
       virtual bool passMVAcuts(const reco::GsfElectron&, double );
       virtual bool passFOcuts(const reco::GsfElectron&, const reco::Vertex&, bool);
+      virtual int PFisCommingFromVertex(const reco::PFCandidate&, const reco::VertexCollection&);
     
       // ----------member data ---------------------------
     // is DATA / MC 
     bool isMC_;
 	bool doMuons_;
+    bool doPhotons_;
+    bool savePF_;
+    bool saveConversions_;
 	
 	vtag muonProducers_;
     // input tags
@@ -179,7 +186,11 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     edm::InputTag               primaryVertexInputTag_;
     edm::InputTag               triggerResultsLabel_;
     edm::InputTag               triggerSummaryLabel_;
+    std::string                 photonCollection_;
     std::vector<edm::InputTag>  isoValInputTags_;
+    
+    //parameters
+    double deltaRpf_;
     
     // debug
     bool printDebug_;
@@ -261,9 +272,12 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<float> *T_Elec_Energy;
     std::vector<int> *T_Elec_Charge;
     std::vector<float> *T_Elec_puChargedHadronIso;
+    std::vector<float> *T_Elec_allChargedHadronIso;
     std::vector<float> *T_Elec_chargedHadronIso;
     std::vector<float> *T_Elec_neutralHadronIso;
     std::vector<float> *T_Elec_photonIso;
+    std::vector<float> *T_Elec_puChargedHadronIso04;
+    std::vector<float> *T_Elec_allChargedHadronIso04;
     std::vector<float> *T_Elec_chargedHadronIso04;
     std::vector<float> *T_Elec_neutralHadronIso04;
     std::vector<float> *T_Elec_photonIso04;
@@ -357,50 +371,59 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
 	
 	//now the muons ! 
 	std::vector<float>*T_Muon_Eta;
-	std::vector<bool> *T_Muon_IsGlobalMuon;
-	std::vector<bool> *T_Muon_IsGMPTMuons;
-	std::vector<bool> *T_Muon_IsAllTrackerMuons;          // checks isTrackerMuon flag
-	std::vector<bool> *T_Muon_IsTrackerMuonArbitrated;    // resolve ambiguity of sharing segments
-	std::vector<bool> *T_Muon_IsAllArbitrated;            // all muons with the tracker muon arbitrated
+ 	std::vector<float>*T_Muon_Phi;
+	std::vector<float>*T_Muon_Energy;
+	std::vector<float>*T_Muon_Et;
+	std::vector<float>*T_Muon_Pt;
+	std::vector<float>*T_Muon_Px;
+	std::vector<float>*T_Muon_Py;
+	std::vector<float>*T_Muon_Pz;
+	std::vector<float>*T_Muon_Mass;
 
-	std::vector<float> *T_Muon_SegmentCompatibility; 
-	std::vector<float> *T_Muon_trkKink;
-	std::vector<float> *T_Muon_Px;
-	std::vector<float> *T_Muon_Py;
-	std::vector<float> *T_Muon_Pz;
-	std::vector<float> *T_Muon_Pt;
-	std::vector<float> *T_Muon_deltaPt;
-	std::vector<float> *T_Muon_Energy;
-	std::vector<int> *T_Muon_Charge;
-	std::vector<float> *T_Muon_NormChi2GTrk;
-	std::vector<int> *T_Muon_NValidHitsInTrk;
-	std::vector<int> *T_Muon_NValidPixelHitsInTrk;
-	std::vector<int> *T_Muon_NValidHitsSATrk;
-	std::vector<int> *T_Muon_NValidHitsGTrk;
-	std::vector<int> *T_Muon_NumOfMatches;
-	std::vector<int> *T_Muon_InnerTrackFound;
-	std::vector<float> *T_Muon_Chi2InTrk;
-	std::vector<float> *T_Muon_dofInTrk;
-
-	std::vector<float> *T_Muon_IPAbsGTrack;
-	std::vector<float> *T_Muon_IPAbsInTrack;
-	std::vector<float> *T_Muon_IPwrtAveBSInTrack;
-
-	std::vector<float> *T_Muon_chargedHadronIsoR04;
-	std::vector<float> *T_Muon_neutralHadronIsoR04;
-	std::vector<float> *T_Muon_photonIsoR04;
-	std::vector<float> *T_Muon_sumPUPtR04;
-	std::vector<float> *T_Muon_chargedParticleIsoR03;
-	std::vector<float> *T_Muon_chargedHadronIsoR03;
-	std::vector<float> *T_Muon_neutralHadronIsoR03;
-	std::vector<float> *T_Muon_photonIsoR03;
-	std::vector<float> *T_Muon_sumPUPtR03;
-	std::vector<float> *T_Muon_vz;
-	std::vector<float> *T_Muon_vy;
-	std::vector<float> *T_Muon_vx;
-
-	std::vector<int> *T_Muon_NLayers;
     
+	std::vector<bool> *T_Muon_IsGlobalMuon;
+    std::vector<bool> *T_Muon_IsTrackerMuon;
+    std::vector<bool> *T_Muon_IsPFMuon;
+    std::vector<bool> *T_Muon_IsCaloMuon;
+    std::vector<bool> *T_Muon_IsStandAloneMuon;
+    std::vector<bool> *T_Muon_IsMuon;
+    std::vector<int>  *T_Muon_numberOfChambers;
+    std::vector<int>  *T_Muon_numberOfChambersRPC;
+    std::vector<int>  *T_Muon_numberOfMatches;
+    std::vector<int>  *T_Muon_numberOfMatchedStations;
+    std::vector<int>  *T_Muon_charge;
+    
+    std::vector<bool> *T_Muon_TMLastStationTight;
+    std::vector<float> *T_Muon_globalTrackChi2;
+    std::vector<int>  *T_Muon_validMuonHits;
+    std::vector<float> *T_Muon_trkKink;
+    std::vector<int>  *T_Muon_trkNbOfTrackerLayers;
+    std::vector<int>  *T_Muon_trkValidPixelHits;
+    std::vector<float> *T_Muon_trkError;
+    std::vector<float> *T_Muon_dB;
+    std::vector<float> *T_Muon_dzPV;
+    
+    std::vector<float> *T_Muon_isoR03_emEt;
+    std::vector<float> *T_Muon_isoR03_hadEt;
+    std::vector<float> *T_Muon_isoR03_hoEt;
+    std::vector<float> *T_Muon_isoR03_sumPt;
+    std::vector<int> *T_Muon_isoR03_nTracks;
+    std::vector<int> *T_Muon_isoR03_nJets;
+    
+    
+    
+    //PF particles
+    std::vector<float> *T_PF_Et;
+    std::vector<float> *T_PF_Pt;
+    std::vector<float> *T_PF_Px;
+    std::vector<float> *T_PF_Py;
+    std::vector<float> *T_PF_Pz;
+    std::vector<float> *T_PF_Eta;
+    std::vector<float> *T_PF_Phi;
+    std::vector<int>   *T_PF_pdgID;
+    std::vector<int>   *T_PF_particleID;    
+    std::vector<int>   *T_PF_hasTrack;
+    std::vector<int>   *T_PF_isPU;
     
     
     
@@ -413,7 +436,48 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<float> *T_Jet_Energy;
     std::vector<float> *T_Jet_Phi;
     std::vector<float> *T_Jet_Corr;*/
-   
+    
+    
+    // gamma
+    
+    std::vector<float> *T_Pho_Et;
+    std::vector<float> *T_Pho_Energy;
+    std::vector<float> *T_Pho_Pt;
+    std::vector<float> *T_Pho_Px;
+    std::vector<float> *T_Pho_Py;
+    std::vector<float> *T_Pho_Pz;
+    
+    std::vector<float> *T_Pho_Eta;
+    std::vector<float> *T_Pho_Phi;
+    
+    std::vector<float> *T_Pho_r9;
+    std::vector<float> *T_Pho_EtaWidth;
+    std::vector<float> *T_Pho_PhiWidth;
+    std::vector<float> *T_Pho_sigmaIetaIeta;
+    
+    std::vector<float> *T_Pho_SCEt;
+    std::vector<float> *T_Pho_SCEnergy;
+    std::vector<float> *T_Pho_SCEta;
+    std::vector<float> *T_Pho_SCPhi;
+    
+    std::vector<int> *T_Pho_isMatchedWithMC;
+    std::vector<int> *T_Pho_Gen_PDGid;
+    std::vector<int> *T_Pho_Gen_Status;
+    std::vector<int> *T_Pho_Gen_MotherID;
+
+    
+    
+    //conversions
+    std::vector<int> *T_Conv_EleInd;
+    std::vector<int> *T_Conv_PhoInd;
+    std::vector<float> *T_Conv_vtxProb;
+    std::vector<float> *T_Conv_lxy;
+    std::vector<int  > *T_Conv_nHitsMax;
+    
+
+
+
+  
     
     //met of the event
     float T_METPF_ET;
