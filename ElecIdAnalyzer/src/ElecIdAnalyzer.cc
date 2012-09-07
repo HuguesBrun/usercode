@@ -774,7 +774,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             T_Muon_trkKink->push_back(muon->combinedQuality().trkKink);
             if (muon->muonBestTrack().isNull()) {
                 T_Muon_trkNbOfTrackerLayers->push_back(-1);
-                T_Muon_trkError->push_back(-1s);
+                T_Muon_trkError->push_back(-1);
                 T_Muon_dB->push_back(-1);
                 T_Muon_dzPV->push_back(-1);
                 T_Muon_trkValidPixelHits->push_back(-1);
