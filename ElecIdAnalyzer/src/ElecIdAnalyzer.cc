@@ -284,6 +284,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     reco::MuonCollection IdentifiedMuons;
     reco::GsfElectronCollection IdentifiedElectrons;
+    reco::GsfElectronCollection FOelectrons;
     
     
     
@@ -323,6 +324,10 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
         }
         IdentifiedElectrons.push_back(*iE);
+        bool vtxFitConversion = ConversionTools::hasMatchedConversion(*iE, conversions_h, beamSpot.position());
+        bool isAnFOelectron = passFOcuts((*iE), vtx_h->at(0), vtxFitConversion);
+        if (isAnFOelectron) FOelectrons.push_back(*iE);
+        
     }
 
     for (reco::MuonCollection::const_iterator iM = inMuons.begin(); 
@@ -645,6 +650,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         T_Elec_IoEmIoP->push_back((1.0/ele->ecalEnergy()) - (1.0 / ele->p()));
         T_Elec_eleEoPout->push_back(ele->eEleClusterOverPout());
         T_Elec_PreShowerOverRaw->push_back(ele->superCluster()->preshowerEnergy() / ele->superCluster()->rawEnergy());
+        T_Elec_EcalEnergy->push_back(ele->ecalEnergy());
         
         bool isPassingMVA = passMVAcuts((*ele), myMVATrigMethod);
         T_Elec_passMVA->push_back(isPassingMVA);
@@ -778,6 +784,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 T_Muon_dB->push_back(-1);
                 T_Muon_dzPV->push_back(-1);
                 T_Muon_trkValidPixelHits->push_back(-1);
+                T_Muon_trkNbOfValidTrackeHits->push_back(-1);
             }
             else {
                 T_Muon_trkNbOfTrackerLayers->push_back(muon->muonBestTrack()->hitPattern().trackerLayersWithMeasurement());
@@ -785,6 +792,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 T_Muon_trkValidPixelHits->push_back(muon->muonBestTrack()->hitPattern().numberOfValidPixelHits());
                 T_Muon_dB->push_back(fabs(muon->muonBestTrack()->dxy(pv->position())));
                 T_Muon_dzPV->push_back(fabs(muon->muonBestTrack()->dz(pv->position())));
+                T_Muon_trkNbOfValidTrackeHits->push_back(muon->muonBestTrack()->hitPattern().numberOfValidTrackerHits());
             }
             T_Muon_isoR03_emEt->push_back(muon->isolationR03().emEt);
             T_Muon_isoR03_hadEt->push_back(muon->isolationR03().hadEt);
@@ -799,17 +807,28 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         //cout << "coucou, on ets dans savePF" << inPfCands.size() << endl;
         for (reco::PFCandidateCollection::const_iterator iP = inPfCands.begin(); iP != inPfCands.end(); ++iP) {
             bool shareAtrack = false;
+            bool gammaWithElecMissHit = false;
             bool inAcone = false;
-            for (reco::GsfElectronCollection::const_iterator iE = IdentifiedElectrons.begin();
-                 iE != IdentifiedElectrons.end(); ++iE) {
+            reco::SuperClusterRef superClusterRefofPF;
+            if (iP->pdgId()==22) superClusterRefofPF = iP->superClusterRef();
+            for (reco::GsfElectronCollection::const_iterator iE = FOelectrons.begin();
+                 iE != FOelectrons.end(); ++iE) {
                  double tmpDR = sqrt(pow(iP->eta() - iE->eta(),2) + pow(acos(cos(iP->phi() - iE->phi())),2));
                 if (tmpDR<0.6){
                     inAcone = true;
                     if(iP->gsfTrackRef().isNonnull() && iE->gsfTrack().isNonnull() &&
                        refToPtr(iP->gsfTrackRef()) == refToPtr(iE->gsfTrack())) shareAtrack=true;
+                    reco::SuperClusterRef superClusterRefofElectron = iE->superCluster();
+                    if ((superClusterRefofPF.isNonnull())&&(superClusterRefofElectron.isNonnull())){
+                        if (superClusterRefofPF==superClusterRefofElectron){
+                            if (iE->gsfTrack().isNonnull()) {
+                                if (iE->gsfTrack()->trackerExpectedHitsInner().numberOfHits() > 0 ) {gammaWithElecMissHit=true; cout << "bad PF photon" << endl;}
+                            }
+                        }
+                    }
                 }
             }
-            for (reco::MuonCollection::const_iterator iM = IdentifiedMuons.begin();
+      /*      for (reco::MuonCollection::const_iterator iM = IdentifiedMuons.begin();
                  iM != IdentifiedMuons.end(); ++iM) {
                 double tmpDR = sqrt(pow(iP->eta() - iM->eta(),2) + pow(acos(cos(iP->phi() - iM->phi())),2));
                 if (tmpDR<0.6){
@@ -817,7 +836,8 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     if(iP->trackRef().isNonnull() && iM->innerTrack().isNonnull() &&
                        refToPtr(iP->trackRef()) == refToPtr(iM->innerTrack())) shareAtrack = true;
                 }
-            }
+            }*/
+	    //inAcone=true;
             if (inAcone){
                 T_PF_Et->push_back(iP->eta());
                 T_PF_Pt->push_back(iP->pt());
@@ -833,6 +853,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 int iVertex= -1; 
                 if (iP->particleId()==reco::PFCandidate::h) iVertex = PFisCommingFromVertex((*iP), vtxs);
                 if ((iVertex==-1)||(iVertex==0)) T_PF_isPU->push_back(0); else  T_PF_isPU->push_back(1);
+                if (gammaWithElecMissHit) T_PF_hasTrackWithMissingHits->push_back(1); else T_PF_hasTrackWithMissingHits->push_back(0);
             }
         }
         
@@ -900,7 +921,16 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     T_Pho_Gen_MotherID->push_back(-1);
                 }
             }
-
+            int itElectron = -1;
+            bool SCfound  = false;
+            for(reco::GsfElectronCollection::const_iterator gsfEle = els_h->begin(); gsfEle!=els_h->end(); ++gsfEle) {
+                itElectron++;
+               reco::SuperClusterRef SuperClusterElec = gsfEle->superCluster();
+             //   cout << "electron " << itElectron << endl;
+                if (SuperClusterElec == superCluster ) {  SCfound = true; break;}
+            }
+            if (!SCfound) itElectron = -1;
+            T_Pho_indOfTheElec->push_back(itElectron);
         }
         
     }
@@ -913,19 +943,24 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             reco::ConversionRef refConv(conversions_h,localIte);
             if (vtx.isValid()) {
                 int iel=-1;
+                bool foundAnElec = false;
                 for(reco::GsfElectronCollection::const_iterator gsfEle = els_h->begin(); gsfEle!=els_h->end(); ++gsfEle) {
                     iel++;
                     if (ConversionTools::matchesConversion(*gsfEle, *conv)) {
+                        foundAnElec = true;
                         break;
                     }
                 }
+                if (!foundAnElec) iel=-1;
                 int ipho=-1;
+                bool foundAPhoton = false;
                 for(reco::PhotonCollection::const_iterator aPho = photons->begin(); aPho != photons->end(); aPho++){
                     ipho++;
                     reco::SuperCluster theSC = *(aPho->superCluster());
                     reco::ConversionRef theConv = ConversionTools::matchedConversion(theSC,conversions_h,beamSpot.position());
-                    if (refConv == theConv) break;
+                    if (refConv == theConv) { foundAPhoton=true; break;}
                 }
+                if (!foundAPhoton) ipho=-1;
                 if ((ipho==-1)&&(iel==-1)) continue;
                 T_Conv_EleInd->push_back(iel);
                 T_Conv_PhoInd->push_back(ipho);
@@ -1106,8 +1141,9 @@ ElecIdAnalyzer::beginJob()
     mytree_->Branch("T_Elec_R9","std::vector<float>", &T_Elec_R9); 
     mytree_->Branch("T_Elec_EoP","std::vector<float>", &T_Elec_EoP); 
     mytree_->Branch("T_Elec_IoEmIoP","std::vector<float>", &T_Elec_IoEmIoP); 
-    mytree_->Branch("T_Elec_eleEoPout","std::vector<float>", &T_Elec_eleEoPout); 
-    mytree_->Branch("T_Elec_PreShowerOverRaw","std::vector<float>", &T_Elec_PreShowerOverRaw); 
+    mytree_->Branch("T_Elec_eleEoPout","std::vector<float>", &T_Elec_eleEoPout);
+    mytree_->Branch("T_Elec_EcalEnergy","std::vector<float>", &T_Elec_EcalEnergy);
+    mytree_->Branch("T_Elec_PreShowerOverRaw","std::vector<float>", &T_Elec_PreShowerOverRaw);
     mytree_->Branch("T_Elec_d0","std::vector<float>", &T_Elec_d0); 
     mytree_->Branch("T_Elec_IP3D","std::vector<float>", &T_Elec_IP3D); 
     mytree_->Branch("T_Elec_dZ","std::vector<float>", &T_Elec_dZ);
@@ -1149,6 +1185,7 @@ ElecIdAnalyzer::beginJob()
         mytree_->Branch("T_Muon_validMuonHits", "std::vector<int>", &T_Muon_validMuonHits);
         mytree_->Branch("T_Muon_trkKink", "std::vector<float>", &T_Muon_trkKink);
         mytree_->Branch("T_Muon_trkNbOfTrackerLayers", "std::vector<int>", &T_Muon_trkNbOfTrackerLayers);
+        mytree_->Branch("T_Muon_trkNbOfValidTrackeHits", "std::vector<int>", &T_Muon_trkNbOfValidTrackeHits);
         mytree_->Branch("T_Muon_trkValidPixelHits", "std::vector<int>", &T_Muon_trkValidPixelHits);
         mytree_->Branch("T_Muon_trkError", "std::vector<float>", &T_Muon_trkError);
         mytree_->Branch("T_Muon_dB", "std::vector<float>", &T_Muon_dB);
@@ -1172,6 +1209,7 @@ ElecIdAnalyzer::beginJob()
         mytree_->Branch("T_PF_pdgID", "std::vector<int>", &T_PF_pdgID);
         mytree_->Branch("T_PF_particleID", "std::vector<int>", &T_PF_particleID);
         mytree_->Branch("T_PF_hasTrack", "std::vector<int>", &T_PF_hasTrack);
+        mytree_->Branch("T_PF_hasTrackWithMissingHits", "std::vector<int>", &T_PF_hasTrackWithMissingHits);
         mytree_->Branch("T_PF_isPU", "std::vector<int>", &T_PF_isPU);
     }
     
@@ -1188,6 +1226,7 @@ ElecIdAnalyzer::beginJob()
         mytree_->Branch("T_Pho_EtaWidth", "std::vector<float>", &T_Pho_EtaWidth);
         mytree_->Branch("T_Pho_PhiWidth", "std::vector<float>", &T_Pho_PhiWidth);
         mytree_->Branch("T_Pho_sigmaIetaIeta", "std::vector<float>", &T_Pho_sigmaIetaIeta);
+        mytree_->Branch("T_Pho_indOfTheElec", "std::vector<int>", &T_Pho_indOfTheElec);
         mytree_->Branch("T_Pho_SCEt", "std::vector<float>", &T_Pho_SCEt);
         mytree_->Branch("T_Pho_SCEnergy", "std::vector<float>", &T_Pho_SCEnergy);
         mytree_->Branch("T_Pho_SCEta", "std::vector<float>", &T_Pho_SCEta);
@@ -1378,6 +1417,7 @@ ElecIdAnalyzer::beginEvent()
     T_Elec_EoP = new std::vector<float>;
     T_Elec_IoEmIoP = new std::vector<float>;
     T_Elec_eleEoPout = new std::vector<float>;
+    T_Elec_EcalEnergy = new std::vector<float>;
     T_Elec_PreShowerOverRaw = new std::vector<float>;
     T_Elec_d0 = new std::vector<float>;
     T_Elec_IP3D = new std::vector<float>;
@@ -1416,6 +1456,7 @@ ElecIdAnalyzer::beginEvent()
 	T_Muon_globalTrackChi2 = new std::vector<float>;
 	T_Muon_validMuonHits = new std::vector<int>;
 	T_Muon_trkKink = new std::vector<float>;
+	T_Muon_trkNbOfValidTrackeHits = new std::vector<int>;
 	T_Muon_trkNbOfTrackerLayers = new std::vector<int>;
 	T_Muon_trkValidPixelHits = new std::vector<int>;
 	T_Muon_trkError = new std::vector<float>;
@@ -1439,6 +1480,7 @@ ElecIdAnalyzer::beginEvent()
     T_PF_pdgID = new std::vector<int>;
     T_PF_particleID = new std::vector<int>;
     T_PF_hasTrack = new std::vector<int>;
+    T_PF_hasTrackWithMissingHits = new std::vector<int>;
     T_PF_isPU  = new std::vector<int>;
     
     T_Pho_Et = new std::vector<float>;
@@ -1453,6 +1495,7 @@ ElecIdAnalyzer::beginEvent()
 	T_Pho_EtaWidth = new std::vector<float>;
 	T_Pho_PhiWidth = new std::vector<float>;
 	T_Pho_sigmaIetaIeta = new std::vector<float>;
+    T_Pho_indOfTheElec = new std::vector<int>;
 	T_Pho_SCEt = new std::vector<float>;
 	T_Pho_SCEnergy = new std::vector<float>;
 	T_Pho_SCEta = new std::vector<float>;
@@ -1593,6 +1636,7 @@ void ElecIdAnalyzer::endEvent(){
     delete T_Elec_EoP;
     delete T_Elec_IoEmIoP;
     delete T_Elec_eleEoPout;
+    delete T_Elec_EcalEnergy;
     delete T_Elec_PreShowerOverRaw;
     delete T_Elec_d0;
     delete T_Elec_IP3D;
@@ -1637,6 +1681,7 @@ void ElecIdAnalyzer::endEvent(){
 	delete T_Muon_validMuonHits;
 	delete T_Muon_trkKink;
 	delete T_Muon_trkNbOfTrackerLayers;
+    delete T_Muon_trkNbOfValidTrackeHits;
 	delete T_Muon_trkValidPixelHits;
 	delete T_Muon_trkError;
 	delete T_Muon_dB;
@@ -1659,6 +1704,7 @@ void ElecIdAnalyzer::endEvent(){
     delete T_PF_Phi;
     delete T_PF_pdgID;
     delete T_PF_particleID;
+    delete T_PF_hasTrackWithMissingHits;
     delete T_PF_hasTrack;
     delete T_PF_isPU;
     
@@ -1674,6 +1720,7 @@ void ElecIdAnalyzer::endEvent(){
 	delete T_Pho_EtaWidth;
 	delete T_Pho_PhiWidth;
 	delete T_Pho_sigmaIetaIeta;
+    delete T_Pho_indOfTheElec;
 	delete T_Pho_SCEt;
 	delete T_Pho_SCEnergy;
 	delete T_Pho_SCEta;

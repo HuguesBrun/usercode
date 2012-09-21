@@ -362,6 +362,7 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<float>* T_Elec_IoEmIoP;
     std::vector<float>* T_Elec_eleEoPout;
     std::vector<float>* T_Elec_PreShowerOverRaw;
+    std::vector<float>* T_Elec_EcalEnergy;
     std::vector<float>* T_Elec_d0;
     std::vector<float>* T_Elec_IP3D;
     std::vector<float>* T_Elec_dZ;
@@ -398,6 +399,7 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<int>  *T_Muon_validMuonHits;
     std::vector<float> *T_Muon_trkKink;
     std::vector<int>  *T_Muon_trkNbOfTrackerLayers;
+    std::vector<int>  *T_Muon_trkNbOfValidTrackeHits;
     std::vector<int>  *T_Muon_trkValidPixelHits;
     std::vector<float> *T_Muon_trkError;
     std::vector<float> *T_Muon_dB;
@@ -423,6 +425,7 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<int>   *T_PF_pdgID;
     std::vector<int>   *T_PF_particleID;    
     std::vector<int>   *T_PF_hasTrack;
+    std::vector<int>   *T_PF_hasTrackWithMissingHits;
     std::vector<int>   *T_PF_isPU;
     
     
@@ -454,6 +457,8 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<float> *T_Pho_EtaWidth;
     std::vector<float> *T_Pho_PhiWidth;
     std::vector<float> *T_Pho_sigmaIetaIeta;
+    
+    std::vector<int>   *T_Pho_indOfTheElec;
     
     std::vector<float> *T_Pho_SCEt;
     std::vector<float> *T_Pho_SCEnergy;
