@@ -15,7 +15,7 @@
 //
 // Original Author:  Hugues Brun
 //         Created:  Mon Jul  2 10:05:53 CEST 2012
-// $Id$
+// $Id: ElecIdAnalyzer.h,v 1.4 2012/09/21 15:50:49 hbrun Exp $
 //
 //
 
@@ -44,7 +44,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -99,6 +100,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 
 
 
@@ -124,6 +128,9 @@
 // class declaration
 //
 typedef std::vector<edm::InputTag> vtag;
+/*namespace reco {
+    typedef edm::AssociationMap<edm::OneToOne<reco::CandidateCollection, reco::CandidateCollection>> CandMatchMap;
+}*/
 
 
 class ElecIdAnalyzer : public edm::EDAnalyzer {
@@ -174,6 +181,7 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     bool isMC_;
 	bool doMuons_;
     bool doPhotons_;
+    bool doMuMuGammaMCtruth_;
     bool savePF_;
     bool saveConversions_;
 	
@@ -363,6 +371,7 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<float>* T_Elec_eleEoPout;
     std::vector<float>* T_Elec_PreShowerOverRaw;
     std::vector<float>* T_Elec_EcalEnergy;
+    std::vector<float>* T_Elec_TrackPatVtx;
     std::vector<float>* T_Elec_d0;
     std::vector<float>* T_Elec_IP3D;
     std::vector<float>* T_Elec_dZ;
@@ -504,6 +513,8 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
 };
 typedef std::vector< edm::Handle< edm::ValueMap<reco::IsoDeposit> > >   IsoDepositMaps;
 typedef std::vector< edm::Handle< edm::ValueMap<double> > >             IsoDepositVals;
+
+//}
 
 
 

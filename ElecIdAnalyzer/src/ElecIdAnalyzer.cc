@@ -23,6 +23,8 @@ ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
     doPhotons_              = iConfig.getParameter<bool>("doPhotons");
     savePF_                 = iConfig.getParameter<bool>("savePF");
     saveConversions_        = iConfig.getParameter<bool>("saveConversions");
+    doMuMuGammaMCtruth_     = iConfig.getParameter<bool>("doMuMuGammaMC");
+    
     // get input parameters
     electronsInputTag_      = iConfig.getParameter<edm::InputTag>("electronsInputTag");
     conversionsInputTag_    = iConfig.getParameter<edm::InputTag>("conversionsInputTag");
@@ -86,7 +88,7 @@ ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
                                 EGammaMvaEleEstimator::kIsoRings,
                                 kTRUE,
                                 eleiso_weightfilesReal);
-    fElectronIsoMVA->SetPrintMVADebug(kTRUE);
+    fElectronIsoMVA->SetPrintMVADebug(kFALSE);
     
     myMVANonTrig = new EGammaMvaEleEstimator();
     
@@ -250,6 +252,9 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(photonCollection_, pPhotons);
     const reco::PhotonCollection* photons = pPhotons.product();
 
+    //map for MC matching
+   // Handle<CandMatchMap> match;
+   // iEvent.getByLabel( "electronsMCmatch", match );
     
     
     
@@ -449,7 +454,58 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 truePu += PVI->getTrueNumInteractions();
             }
         } catch (...) {}
-        
+        if (doMuMuGammaMCtruth_){
+       /*     const reco::GenParticle candidatePhoton;
+            const reco::GenParticle candidateMuonNear;
+            const reco::GenParticle candidateMuonFar;
+            
+            int theNbOfGen = genParticles->size();
+            for (int j=0 ; j < theNbOfGen; j++){
+                const reco::GenParticle & p = (*genParticles)[j];
+                //
+               if ((fabs(p.pdgId())==13)){
+                    cout << "find muon " ;
+                    const reco::Candidate * mom = p.mother();
+                    cout << "muon status=" << p.status();
+                    cout << " phi=" << p.phi() << " eta=" << p.eta();
+                    cout << " muon mother type="<< mom->pdgId();
+                    cout << " status=" << mom->status();
+                    cout << " phi=" <<  mom->phi() << " eta=" <<  mom->eta() << endl;
+                    //if ((fabs(mom->pdgId())==13)&&(mom->status()==3)){
+                    //    cout <
+                    //}
+                }
+                if ((fabs(p.pdgId())==22)&&(p.status()==1)){
+                    const reco::Candidate * mom = p.mother();
+                    if (fabs(mom->pdgId())==13){
+                        cout << "find photon " ;
+                        cout << "photon status=" << p.status();
+                        cout << " phi=" << p.phi() << " eta=" << p.eta();
+                        cout << " photon  mother type="<< mom->pdgId();
+                        cout << " status=" << mom->status();
+                        cout << " phi=" <<  mom->phi() << " eta=" <<  mom->eta() << endl;
+                        const reco::Candidate *theCand = &p;
+                        while (theCand->numberOfMothers()>0){
+                            const reco::Candidate *proviCand = theCand->mother();
+                            *theCand = *proviCand;
+                        }
+                        
+                    }
+                    //if ((fabs(mom->pdgId())==13)&&(mom->status()==3)){
+                    //    cout <
+                    //}
+                }*/
+/*                int nbOfCandPhotons = photonCandidate.size();
+                for (int k=0 ; k<nbOfCandPhotons ; k++){
+                    for (int j=0 ; j < theNbOfGen; j++){
+                        const reco::GenParticle & p = (*genParticles)[j];
+                        const reco::Candidate * mom = photonCandidate[j].mother();
+                        cout << "the part it " << p.pdgId() << endl;
+                        cout << "the mother it " << mom->pdgId() << endl;
+                    }
+                }*/
+         //   }
+        }
     }
     T_Event_AveNTruePU=truePu/3.;
     
@@ -479,6 +535,8 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         reco::GsfElectronRef ele(els_h, i);
         
         if (isMC_) doMCtruth(ele, genParticles, 0.3);
+        
+        
         
         T_Elec_Eta->push_back(ele->eta());
         T_Elec_Pt->push_back(ele->pt());
@@ -651,6 +709,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         T_Elec_eleEoPout->push_back(ele->eEleClusterOverPout());
         T_Elec_PreShowerOverRaw->push_back(ele->superCluster()->preshowerEnergy() / ele->superCluster()->rawEnergy());
         T_Elec_EcalEnergy->push_back(ele->ecalEnergy());
+        T_Elec_TrackPatVtx->push_back(ele->trackMomentumAtVtx().R());
         
         bool isPassingMVA = passMVAcuts((*ele), myMVATrigMethod);
         T_Elec_passMVA->push_back(isPassingMVA);
@@ -1143,6 +1202,7 @@ ElecIdAnalyzer::beginJob()
     mytree_->Branch("T_Elec_IoEmIoP","std::vector<float>", &T_Elec_IoEmIoP); 
     mytree_->Branch("T_Elec_eleEoPout","std::vector<float>", &T_Elec_eleEoPout);
     mytree_->Branch("T_Elec_EcalEnergy","std::vector<float>", &T_Elec_EcalEnergy);
+    mytree_->Branch("T_Elec_TrackPatVtx","std::vector<float>", &T_Elec_TrackPatVtx);
     mytree_->Branch("T_Elec_PreShowerOverRaw","std::vector<float>", &T_Elec_PreShowerOverRaw);
     mytree_->Branch("T_Elec_d0","std::vector<float>", &T_Elec_d0); 
     mytree_->Branch("T_Elec_IP3D","std::vector<float>", &T_Elec_IP3D); 
@@ -1418,6 +1478,7 @@ ElecIdAnalyzer::beginEvent()
     T_Elec_IoEmIoP = new std::vector<float>;
     T_Elec_eleEoPout = new std::vector<float>;
     T_Elec_EcalEnergy = new std::vector<float>;
+    T_Elec_TrackPatVtx = new std::vector<float>;
     T_Elec_PreShowerOverRaw = new std::vector<float>;
     T_Elec_d0 = new std::vector<float>;
     T_Elec_IP3D = new std::vector<float>;
@@ -1637,6 +1698,7 @@ void ElecIdAnalyzer::endEvent(){
     delete T_Elec_IoEmIoP;
     delete T_Elec_eleEoPout;
     delete T_Elec_EcalEnergy;
+    delete T_Elec_TrackPatVtx;
     delete T_Elec_PreShowerOverRaw;
     delete T_Elec_d0;
     delete T_Elec_IP3D;
@@ -2002,18 +2064,33 @@ ElecIdAnalyzer::doMCtruth(reco::GsfElectronRef theElec, edm::Handle <reco::GenPa
     int nbOfGen = genParts->size();
     // cout << "electron pt=" << theElec->pt() << " eta=" << theElec->eta() << " phi=" << theElec->phi() << endl;
     float minDiff= 100; 
-    int iteDiff = -1000; 
+    int iteDiff = -1000;
+    int motherID = 0;
     //reco::GenParticle & theCand = (*genParts)[0];
     for (int j = 0 ; j < nbOfGen ; j++){
         const reco::GenParticle & p = (*genParts)[j];
         float theDeltaR = deltaR(p.phi(), theElec->phi(), p.eta(), theElec->eta());
-  //      if (theDeltaR  dR) continue;
-  //      if (!(p.status()==1)) continue;
+        if (theDeltaR > 0.2) continue;
+        if (!(p.status()==1)) continue;
+        if (fabs(p.pdgId())!=11) continue;
+        // find the mother of the particle !
+        const reco::Candidate * theLocalCandidate = &p;
+        bool hasMother = (theLocalCandidate->numberOfMothers()>0);
+        const reco::Candidate * theMother;
+        while (hasMother) {
+            theMother = theLocalCandidate->mother();
+        //    cout << "mum PDGid = " << theMother->pdgId() << endl;
+            theLocalCandidate = theMother;
+            hasMother = (theLocalCandidate->numberOfMothers()>0);
+            motherID = theMother->pdgId();
+            if ((theMother->pdgId()==23)||(theMother->pdgId()==22)) break;
+        }
+      //  cout << "fin " << endl;
    //     float theDiff = fabs(p.pt()-theElec->pt())/p.pt();
-        if (theDeltaR < minDiff){
+   //     if (theDeltaR < minDiff){
             minDiff = theDeltaR;
             iteDiff = j;            
-        }
+      //  }
     }
 
     
@@ -2031,8 +2108,9 @@ ElecIdAnalyzer::doMCtruth(reco::GsfElectronRef theElec, edm::Handle <reco::GenPa
         T_Gen_Elec_MCpart->push_back(1);
         T_Gen_Elec_PDGid->push_back(theCand.pdgId());
         T_Gen_Elec_status->push_back(theCand.status());
-        if (theCand.numberOfMothers()>0) T_Gen_Elec_MotherID->push_back(mom->pdgId());  
-        else T_Gen_Elec_MotherID->push_back(-1); 
+        //if (theCand.numberOfMothers()>0) T_Gen_Elec_MotherID->push_back(mom->pdgId());
+        if (theCand.numberOfMothers()>0) T_Gen_Elec_MotherID->push_back(motherID);
+        else T_Gen_Elec_MotherID->push_back(-1);
         T_Gen_Elec_deltaR->push_back(minDiff);
     }
     else{
@@ -2049,6 +2127,7 @@ ElecIdAnalyzer::doMCtruth(reco::GsfElectronRef theElec, edm::Handle <reco::GenPa
     }
     
 }
+
 
 float ElecIdAnalyzer::deltaR(float phi1, float phi2, float eta1, float eta2)
 {
