@@ -15,7 +15,7 @@
 //
 // Original Author:  Hugues Brun
 //         Created:  Mon Jul  2 10:05:53 CEST 2012
-// $Id: ElecIdAnalyzer.h,v 1.4 2012/09/21 15:50:49 hbrun Exp $
+// $Id: ElecIdAnalyzer.h,v 1.4.2.1 2013/01/04 13:56:08 hbrun Exp $
 //
 //
 
@@ -246,6 +246,12 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     int T_Event_HLT_Ele30_CaloIdVT_TrkIdT;
     int T_Event_HLT_Ele27_WP80_PFMET_MT50;
     int T_Event_HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30;
+    int T_Event_HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL;
+    int T_Event_HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL;
+    int T_Event_HLT_Mu17_Mu8;
+    int T_Event_HLT_Mu17_TkMu8;
+    int T_Event_HLT_Mu17;
+    int T_Event_HLT_Mu8;
 
     // gen info on the electron
     std::vector<float> *T_Gen_Elec_Px;
@@ -349,6 +355,8 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<double> *T_Elec_NeutralHadronIso_DR0p3To0p4;
     std::vector<double> *T_Elec_NeutralHadronIso_DR0p4To0p5;
     std::vector<int>    *T_Elec_HLT_Elec27_WP80;
+    std::vector<int>    *T_Elec_HLT_Ele17TightID_Ele8_Ele8Leg;
+    std::vector<int>    *T_Elec_HLT_Ele17TightID_Ele8_Ele17Leg;
     std::vector<int>    *T_Elec_HLT_Ele17_Ele8_Ele8Leg;
     std::vector<int>    *T_Elec_HLT_Ele17_Ele8_Ele17Leg;
     std::vector<int>    *T_Elec_HLT_Ele17_Ele8_TnP_Ele8Leg;
@@ -421,6 +429,13 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<int> *T_Muon_isoR03_nTracks;
     std::vector<int> *T_Muon_isoR03_nJets;
     
+    //trigger matching 
+    std::vector<int> *T_Muon_HLT_Mu17_TkMu8_Mu17Leg;
+    std::vector<int> *T_Muon_HLT_Mu17_TkMu8_Mu8Leg;
+    std::vector<int> *T_Muon_HLT_Mu17_Mu8_Mu17Leg;
+    std::vector<int> *T_Muon_HLT_Mu17_Mu8_Mu8Leg;
+    std::vector<int> *T_Muon_HLT_Mu17_obj;
+    std::vector<int> *T_Muon_HLT_Mu8_obj;
     
     
     //PF particles
@@ -440,14 +455,14 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     
     
     //Jets vector
-/*    std::vector<float> *T_Jet_Px;
+    std::vector<float> *T_Jet_Px;
     std::vector<float> *T_Jet_Py;
     std::vector<float> *T_Jet_Pz;
     std::vector<float> *T_Jet_Et;
     std::vector<float> *T_Jet_Eta;
     std::vector<float> *T_Jet_Energy;
     std::vector<float> *T_Jet_Phi;
-    std::vector<float> *T_Jet_Corr;*/
+    std::vector<float> *T_Jet_Corr;
     
     
     // gamma
