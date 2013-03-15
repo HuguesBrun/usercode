@@ -6,14 +6,10 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-<<<<<<< elecidanalyzer_cfi.py
 process.GlobalTag.globaltag = 'GR_P_V42::All'
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-=======
-process.GlobalTag.globaltag = 'START53_V6::All'
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
->>>>>>> 1.4.2.1
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
+
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #
 # the MC global Tag : START52_V9
 # the DATA gloval Tag : GR_P_V32
@@ -24,24 +20,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-<<<<<<< elecidanalyzer_cfi.py
-	'file:/sps/cms/hbrun/CMSSW_5_3_6_recup/src/recupRunD/fichier_dataD.root',
-	'file:/sps/cms/hbrun/CMSSW_5_3_6_recup/src/recupRunD/fichier_dataD2.root'
-=======
-	#'file:/sps/cms/hbrun/CMSSW_5_3_2_myCode/src/files/RelValZEE.root'
-	#'file:/sps/cms/hbrun/CMSSW_5_3_2_myCode/src/files/DYJetsToLLM50.root'
-    #'file:/sps/cms/hbrun/CMSSW_5_3_2_myCode/src/files/mumuFiles/mumugamma_0.root'
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_1_1_5Q6.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_2_1_gpy.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_3_1_lfX.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_4_1_eOA.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_5_1_Boi.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_6_1_KgO.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_7_1_YG7.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_8_1_GeK.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_9_1_5fE.root',
-                                      'file:/sps/cms/hbrun/CMSSW_5_2_5_recup/src/files/MYCOPY_10_1_bd2.root'
->>>>>>> 1.4.2.1
+	#'file:/sps/cms/hbrun/CMSSW_5_3_6_recup/src/recupRunD/fichier_dataD.root',
+	#'file:/sps/cms/hbrun/CMSSW_5_3_6_recup/src/recupRunD/fichier_dataD2.root'
+	#'file:/sps/cms/hbrun/CMSSW_5_3_6_recup/src/recupTrigger/diMu/theFileTrigger.root'
+	'file:/sps/cms/hbrun/CMSSW_5_3_6_recup/src/recupTrigger/EGmu/theFileTrigger.root'
     ),
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
@@ -65,13 +47,9 @@ process.theDiElecFilter = cms.EDFilter('DiElecFilter',
                                     
 
 process.theEleIdAnalyzer = cms.EDAnalyzer('ElecIdAnalyzer',
-<<<<<<< elecidanalyzer_cfi.py
-        isMC                                    = cms.bool(False),
+    isMC                                    = cms.bool(False),
 	doMuons					= cms.bool(True),
-=======
-    isMC                    = cms.bool(True),
-	doMuons					= cms.bool(False),
->>>>>>> 1.4.2.1
+
 	doPhotons				= cms.bool(False),
 	savePF					= cms.bool(True),
 	saveConversions			= cms.bool(False),
@@ -115,20 +93,7 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
                                   thresh = cms.untracked.double(0.25)
                                   )
 
-<<<<<<< elecidanalyzer_cfi.py
-#process.load("hugues.ElecIdAnalyzer.ZmmgSkim_cfi")
-#process.myZmmgSkimSeq = cms.Sequence(process.ZmmgSkimSeq)
-=======
-process.electronsMCmatch = cms.EDProducer("MCTruthDeltaRMatcherNew",
-                                     src = cms.InputTag("gsfElectrons"),
-                                     matched = cms.InputTag("genParticles"),
-                                     distMin = cms.double(0.15),
-                                     matchPDGId = cms.vint32( 11 ) # electrons
-                                     )
 
-#process.load("hugues.ElecIdAnalyzer.ZmmgSkim_cfi")
-#process.myZmmgSkimSeq = cms.Sequence(process.ZmmgSkimSeq)
->>>>>>> 1.4.2.1
 
 
 

@@ -15,7 +15,7 @@
 //
 // Original Author:  Hugues Brun
 //         Created:  Mon Jul  2 10:05:53 CEST 2012
-// $Id: ElecIdAnalyzer.h,v 1.4.2.1 2013/01/04 13:56:08 hbrun Exp $
+// $Id: ElecIdAnalyzer.h,v 1.4.2.2 2013/03/07 15:26:20 hbrun Exp $
 //
 //
 
@@ -103,6 +103,10 @@
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
+#include "Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h"
+#include "Muon/MuonAnalysisTools/interface/MuonMVAEstimator.h"
+#include "Muon/MuonAnalysisTools/src/MuonMVAEstimator.cc"
+
 
 
 
@@ -175,6 +179,8 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
       virtual bool passMVAcuts(const reco::GsfElectron&, double );
       virtual bool passFOcuts(const reco::GsfElectron&, const reco::Vertex&, bool);
       virtual int PFisCommingFromVertex(const reco::PFCandidate&, const reco::VertexCollection&);
+    virtual double PFisolationMVA(const reco::Muon*, const reco::PFCandidateCollection &, const reco::Vertex*, float);
+
     
       // ----------member data ---------------------------
     // is DATA / MC 
@@ -215,6 +221,9 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     EGammaMvaEleEstimator* myMVANonTrig;
     EGammaMvaEleEstimator* myMVATrig;
 	EGammaMvaEleEstimator *fElectronIsoMVA;
+    
+    MuonMVAEstimator *muMVANonTrig;
+    MuonEffectiveArea::MuonEffectiveAreaTarget effAreaTarget;
 
 
     HLTConfigProvider hltConfig;
@@ -252,6 +261,8 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     int T_Event_HLT_Mu17_TkMu8;
     int T_Event_HLT_Mu17;
     int T_Event_HLT_Mu8;
+    int T_Event_HLT_Mu8_Ele17;
+    int T_Event_HLT_Ele8_Mu17;
 
     // gen info on the electron
     std::vector<float> *T_Gen_Elec_Px;
@@ -363,6 +374,8 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<int>    *T_Elec_HLT_Ele17_Ele8_TnP_Ele17Leg;
     std::vector<int>    *T_Elec_HLT_Ele20_SC4_TnP_SC4Leg;
     std::vector<int>    *T_Elec_HLT_Ele20_SC4_TnP_Ele20Leg;
+    std::vector<int>    *T_Elec_HLT_Mu8_Ele17_Ele17Leg;
+    std::vector<int>    *T_Elec_HLT_Ele8_Mu17_Ele8Leg;
     std::vector<bool>* T_Elec_passMVA;
     std::vector<float>* T_Elec_kfchi2;
     std::vector<float>* T_Elec_kfhits;
@@ -428,6 +441,7 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<float> *T_Muon_isoR03_sumPt;
     std::vector<int> *T_Muon_isoR03_nTracks;
     std::vector<int> *T_Muon_isoR03_nJets;
+    std::vector<float> *T_Muon_isoRingsMVA;
     
     //trigger matching 
     std::vector<int> *T_Muon_HLT_Mu17_TkMu8_Mu17Leg;
@@ -436,6 +450,8 @@ class ElecIdAnalyzer : public edm::EDAnalyzer {
     std::vector<int> *T_Muon_HLT_Mu17_Mu8_Mu8Leg;
     std::vector<int> *T_Muon_HLT_Mu17_obj;
     std::vector<int> *T_Muon_HLT_Mu8_obj;
+    std::vector<int> *T_Muon_HLT_Mu8_Ele17_Mu8Leg;
+    std::vector<int> *T_Muon_HLT_Ele8_Mu17_Mu17Leg;
     
     
     //PF particles
