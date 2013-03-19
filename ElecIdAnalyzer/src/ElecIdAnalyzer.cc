@@ -949,7 +949,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             for (size_t t = 0 ; t < selectedObjects.size() ; t++){
                // cout << "eta = " << selectedObjects[t].eta() << " phi = " << selectedObjects[t].phi() << "filter = " << HLT_triggerObjects[theHLTcorr[t]] << endl;
                 float HLTdeltaR = deltaR(muon->phi(), selectedObjects[t].phi(), muon->eta(), selectedObjects[t].eta());
-		float relatDeltaPt = (selectedObjects[t].pt()-muon->pt())/muon->pt();
+		float relatDeltaPt = fabs(selectedObjects[t].pt()-muon->pt())/muon->pt();
                // cout << "delta R =" << HLTdeltaR << endl;
                 //if (HLTdeltaR < 0.3){
                 if ((HLTdeltaR < 0.5)&&(relatDeltaPt<0.5)){
