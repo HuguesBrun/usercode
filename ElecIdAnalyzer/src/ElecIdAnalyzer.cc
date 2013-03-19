@@ -65,25 +65,25 @@ ElecIdAnalyzer::ElecIdAnalyzer(const edm::ParameterSet& iConfig)
     HLT_name.push_back("HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v");
     
     
-    HLT_triggerObjects.push_back("hltEle27WP80TrackIsoFilter");
-    HLT_triggerObjects.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter");
-    HLT_triggerObjects.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter");
-    HLT_triggerObjects.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8PMMassFilter");
-    HLT_triggerObjects.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8TrackIsoFilter");
-    HLT_triggerObjects.push_back("hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4PMMassFilter");
-    HLT_triggerObjects.push_back("hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4TrackIsoFilter");
-    HLT_triggerObjects.push_back("hltEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter");
-    HLT_triggerObjects.push_back("hltEle8TightIdLooseIsoTrackIsoFilter");
-    HLT_triggerObjects.push_back("hltL3fL1sMu10MuOpenOR3p5L1f0L2f10L3Filtered17");
-    HLT_triggerObjects.push_back("hltDiMuonGlbFiltered17TrkFiltered8");
-    HLT_triggerObjects.push_back("hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8");
-    HLT_triggerObjects.push_back("hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered17");
-    HLT_triggerObjects.push_back("hltL3fL1sMu12L3Filtered17");
-    HLT_triggerObjects.push_back("hltL3fL1sMu3L3Filtered8");
-    HLT_triggerObjects.push_back("hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter");
-    HLT_triggerObjects.push_back("hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8");
-    HLT_triggerObjects.push_back("hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter");
-    HLT_triggerObjects.push_back("hltL1Mu12EG7L3MuFiltered17");
+    HLT_triggerObjects.push_back("hltEle27WP80TrackIsoFilter");//0
+    HLT_triggerObjects.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter");//1
+    HLT_triggerObjects.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter");//2
+    HLT_triggerObjects.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8PMMassFilter");//3
+    HLT_triggerObjects.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8TrackIsoFilter");//4
+    HLT_triggerObjects.push_back("hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4PMMassFilter");//5
+    HLT_triggerObjects.push_back("hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4TrackIsoFilter");//6
+    HLT_triggerObjects.push_back("hltEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter");//7
+    HLT_triggerObjects.push_back("hltEle8TightIdLooseIsoTrackIsoFilter");//8
+    HLT_triggerObjects.push_back("hltL3fL1sMu10MuOpenOR3p5L1f0L2f10L3Filtered17");//9
+    HLT_triggerObjects.push_back("hltDiMuonGlbFiltered17TrkFiltered8");//10
+    HLT_triggerObjects.push_back("hltL3pfL1DoubleMu10MuOpenOR3p5L1f0L2pf0L3PreFiltered8");//11
+    HLT_triggerObjects.push_back("hltL3fL1DoubleMu10MuOpenOR3p5L1f0L2f10L3Filtered17");//12
+    HLT_triggerObjects.push_back("hltL3fL1sMu12L3Filtered17");//13
+    HLT_triggerObjects.push_back("hltL3fL1sMu3L3Filtered8");//14
+    HLT_triggerObjects.push_back("hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter");//15
+    HLT_triggerObjects.push_back("hltL1sL1Mu3p5EG12ORL1MuOpenEG12L3Filtered8");//16
+    HLT_triggerObjects.push_back("hltMu17Ele8CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter");//17
+    HLT_triggerObjects.push_back("hltL1Mu12EG7L3MuFiltered17");//18
     
     
     fElectronIsoMVA = new EGammaMvaEleEstimator();
@@ -317,6 +317,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::InputTag tag("kt6PFJets","rho");
     iEvent.getByLabel(tag,hRho);
     double Rho = *hRho;
+
 
     T_Event_Rho = Rho;
     T_Event_RhoIso = rhoIso;
@@ -948,8 +949,10 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             for (size_t t = 0 ; t < selectedObjects.size() ; t++){
                // cout << "eta = " << selectedObjects[t].eta() << " phi = " << selectedObjects[t].phi() << "filter = " << HLT_triggerObjects[theHLTcorr[t]] << endl;
                 float HLTdeltaR = deltaR(muon->phi(), selectedObjects[t].phi(), muon->eta(), selectedObjects[t].eta());
+		float relatDeltaPt = (selectedObjects[t].pt()-muon->pt())/muon->pt();
                // cout << "delta R =" << HLTdeltaR << endl;
-                if (HLTdeltaR < 0.3){
+                //if (HLTdeltaR < 0.3){
+                if ((HLTdeltaR < 0.5)&&(relatDeltaPt<0.5)){
                //     	cout << "coucou on passe = " << theHLTcorr[t] << endl;
                     if (theHLTcorr[t] == 9)  pass_HLT_Mu17_TkMu8_Mu17Leg = 1;
                     if (theHLTcorr[t] == 10) pass_HLT_Mu17_TkMu8_Mu8Leg = 1;
