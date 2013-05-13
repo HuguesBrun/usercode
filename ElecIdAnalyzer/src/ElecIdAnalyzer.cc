@@ -947,7 +947,8 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             
             for (size_t t = 0 ; t < selectedObjects.size() ; t++){
-               // cout << "eta = " << selectedObjects[t].eta() << " phi = " << selectedObjects[t].phi() << "filter = " << HLT_triggerObjects[theHLTcorr[t]] << endl;
+               // cout << "eta = " << selectedObjects[t].eta() << " phi = " << selectedObjects[t].phi() << "muon Pt =" << muon->pt()<< "filter = " << HLT_triggerObjects[theHLTcorr[t]] << endl;
+               // cout << "pt trigger" << selectedObjects[t].pt() << endl;
                 float HLTdeltaR = deltaR(muon->phi(), selectedObjects[t].phi(), muon->eta(), selectedObjects[t].eta());
 		float relatDeltaPt = fabs(selectedObjects[t].pt()-muon->pt())/muon->pt();
                // cout << "delta R =" << HLTdeltaR << endl;
@@ -956,8 +957,8 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                //     	cout << "coucou on passe = " << theHLTcorr[t] << endl;
                     if (theHLTcorr[t] == 9)  pass_HLT_Mu17_TkMu8_Mu17Leg = 1;
                     if (theHLTcorr[t] == 10) pass_HLT_Mu17_TkMu8_Mu8Leg = 1;
-                    if (theHLTcorr[t] == 11) pass_HLT_Mu17_Mu8_Mu17Leg = 1;
-                    if (theHLTcorr[t] == 12) pass_HLT_Mu17_Mu8_Mu8Leg = 1;
+                    if (theHLTcorr[t] == 12) pass_HLT_Mu17_Mu8_Mu17Leg = 1;
+                    if (theHLTcorr[t] == 11) pass_HLT_Mu17_Mu8_Mu8Leg = 1;
                     if (theHLTcorr[t] == 13) pass_HLT_Mu17_Mu17_obj = 1;
                     if (theHLTcorr[t] == 14) pass_HLT_Mu17_Mu8_obj = 1;
                     if (theHLTcorr[t] == 16) pass_HLT_Mu8_Ele17_Mu8Leg = 1;
@@ -974,7 +975,7 @@ ElecIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             T_Muon_HLT_Mu8_Ele17_Mu8Leg->push_back(pass_HLT_Mu8_Ele17_Mu8Leg);
             T_Muon_HLT_Ele8_Mu17_Mu17Leg->push_back(pass_HLT_Ele8_Mu17_Mu17Leg);
 
-            
+           // if ((pass_HLT_Mu17_TkMu8_Mu17Leg&&muon->pt()<17)) cout << "/////////////////////////////////////////////////////////////////////////////////////// on a matché pass_HLT_Mu17_Mu8_Mu17Leg, le Pt du muon " << muon->pt() << endl;
 		}
    /*     bool findApair = false;
         for (int i = 0 ; i<nbMuons ; i++){
